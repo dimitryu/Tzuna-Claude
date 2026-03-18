@@ -223,6 +223,15 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .empty .ei{font-size:1.4rem;margin-bottom:4px;}
 .empty p{font-size:.76rem;}
 
+/* CONFETTI */
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;}
+.water-goal-banner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:linear-gradient(135deg,#3498db,#1abc9c);color:white;border-radius:20px;padding:20px 32px;text-align:center;z-index:1000;animation:fu .4s ease;box-shadow:0 8px 32px rgba(52,152,219,.5);}
+.water-goal-banner h3{font-size:1.4rem;font-weight:900;}
+.water-goal-banner p{font-size:.9rem;opacity:.9;margin-top:4px;}
+/* extra cup (beyond goal) */
+.cup.extra{background:#e8f5ff;border-color:#85c1e9;border-style:dashed;}
+.cup.extra.filled::before{background:linear-gradient(to top,#5dade2,#85c1e9);}
+
 @keyframes si{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
@@ -266,7 +275,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 <!-- ══ APP SHELL ══ -->
 <div class="app-shell">
   <header>
-    <span class="ver-badge">v1.5</span>
+    <span class="ver-badge">v1.6</span>
     <h1>🥗 תזונה</h1>
     <button class="date-btn" id="date-btn" onclick="openDatePicker()">טוען...</button>
     <input type="date" id="date-inp" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" onchange="onDatePick(this.value)"/>
@@ -332,11 +341,12 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
       </div>
 
       <div class="card" id="water-card">
-        <div class="card-title">💧 שתיית מים</div>
+        <div class="card-title">💧 שתיית מים <span id="water-extra-badge" style="display:none;background:var(--blue);color:white;font-size:.65rem;padding:2px 8px;border-radius:12px;font-weight:700;"></span></div>
         <div class="water-cups" id="wc"></div>
-        <div style="display:flex;gap:7px;margin-top:8px;">
+        <div style="display:flex;gap:7px;margin-top:8px;align-items:center;">
           <button class="btn bb bsm" onclick="addW()">+ כוס שתיתי</button>
           <button class="btn bo bsm" onclick="rstW()">איפוס</button>
+          <span id="water-total-label" style="font-size:.75rem;color:var(--text-light);"></span>
         </div>
       </div>
 
@@ -548,9 +558,10 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
     <button class="nav-btn" onclick="pg('settings')"><span class="nav-icon">⚙️</span>הגדרות</button>
   </nav>
 </div><!-- /app-shell -->
+<canvas id="confetti-canvas" style="display:none;"></canvas>
 
 <script>
-const VERSION='1.5';
+const VERSION='1.6';
 const STORAGE_KEY='tzuna_v15';
 // Legacy keys to migrate from (keeps user data across updates)
 const LEGACY_KEYS=['tzuna_v14','tzuna_v13','tz6','tz5','tz4','tz3'];
@@ -794,58 +805,149 @@ function uhome(){
   if(isToday)rwc();
   drawChart();rhist();
 }
-function rwc(){const w=document.getElementById('wc');w.innerHTML='';for(let i=0;i<S.waterGoal;i++){const c=document.createElement('div');c.className='cup'+(i<S.water?' filled':'');c.innerHTML=`<span>${i<S.water?'💧':''}</span>`;c.onclick=()=>{S.water=i+1;syncToday();uhome();};w.appendChild(c);}}
-function addW(){if(S.water<S.waterGoal){S.water++;syncToday();uhome();}}
-function rstW(){S.water=0;syncToday();uhome();}
+function rwc(){
+  const w=document.getElementById('wc');w.innerHTML='';
+  // Show goal cups + any extra cups filled beyond goal
+  const totalShow=Math.max(S.waterGoal, S.water);
+  for(let i=0;i<totalShow;i++){
+    const c=document.createElement('div');
+    const isExtra=i>=S.waterGoal;
+    c.className='cup'+(i<S.water?' filled':'')+(isExtra?' extra':'');
+    c.innerHTML=`<span>${i<S.water?'💧':''}</span>`;
+    c.onclick=()=>{S.water=i+1;syncToday();checkWaterGoal(i+1);uhome();};
+    w.appendChild(c);
+  }
+  // Extra badge
+  const badge=document.getElementById('water-extra-badge');
+  const lbl=document.getElementById('water-total-label');
+  if(S.water>S.waterGoal){
+    badge.style.display='inline';badge.textContent=`+${S.water-S.waterGoal} מעל היעד 🌟`;
+    if(lbl)lbl.textContent=`סה״כ: ${S.water} כוסות`;
+  } else {
+    badge.style.display='none';
+    if(lbl)lbl.textContent=S.water>0?`${S.water} / ${S.waterGoal} כוסות`:'';
+  }
+}
+let waterGoalCelebrated=false;
+function checkWaterGoal(newVal){
+  if(newVal>=S.waterGoal&&!waterGoalCelebrated){
+    waterGoalCelebrated=true;
+    launchConfetti();
+    showWaterGoalBanner();
+  }
+}
+function addW(){
+  S.water++;  // ללא הגבלה
+  syncToday();checkWaterGoal(S.water);uhome();
+}
+function rstW(){S.water=0;waterGoalCelebrated=false;syncToday();uhome();}
+
+// ── CONFETTI ENGINE ──
+function launchConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  canvas.style.display='block';
+  canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+  const ctx=canvas.getContext('2d');
+  const pieces=[];
+  const colors=['#2ecc71','#3498db','#9b59b6','#e67e22','#e74c3c','#f1c40f','#1abc9c'];
+  for(let i=0;i<120;i++){
+    pieces.push({
+      x:Math.random()*canvas.width,y:-20-Math.random()*100,
+      w:6+Math.random()*8,h:10+Math.random()*8,
+      color:colors[Math.floor(Math.random()*colors.length)],
+      rot:Math.random()*360,rotV:(Math.random()-0.5)*6,
+      vx:(Math.random()-0.5)*4,vy:2+Math.random()*4,
+      opacity:1
+    });
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.rot+=p.rotV;p.vy+=0.08;
+      if(frame>80)p.opacity=Math.max(0,p.opacity-0.018);
+      ctx.save();ctx.globalAlpha=p.opacity;
+      ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    frame++;
+    if(frame<160)requestAnimationFrame(draw);
+    else{ctx.clearRect(0,0,canvas.width,canvas.height);canvas.style.display='none';}
+  }
+  draw();
+}
+function showWaterGoalBanner(){
+  const div=document.createElement('div');div.className='water-goal-banner';
+  div.innerHTML=`<div style="font-size:2rem;margin-bottom:6px;">💧🎉</div><h3>כל הכבוד, ${S.name||'חבר'}!</h3><p>השגת את יעד המים היומי שלך!</p>`;
+  document.body.appendChild(div);setTimeout(()=>{div.style.opacity='0';div.style.transition='opacity .5s';setTimeout(()=>div.remove(),500);},2800);
+}
 function setMood(btn,m){S.mood=m;saveAll();document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('moodd').textContent=m;}
 
 // ── CHART ──
 function setPeriod(d,btn){chartPeriod=d;document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('act'));btn.classList.add('act');drawChart();}
 function drawChart(){
   const wrap=document.getElementById('chart-wrap');
-  let keys=Object.keys(S.historyData).sort();if(!keys.length){wrap.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים — התחל להזין ארוחות!</p></div>';return;}
+  let keys=Object.keys(S.historyData).sort();
+  if(!keys.length){wrap.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים — התחל להזין ארוחות!</p></div>';return;}
   if(chartPeriod>0){const c=new Date();c.setDate(c.getDate()-(chartPeriod-1));const ck=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');keys=keys.filter(k=>k>=ck);}
   if(!keys.length){wrap.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים בתקופה זו</p></div>';return;}
+
   const today=todayKey();
-  // Two bars per day: cal (green) + prot (purple)
-  const bw=22,gap=4,grpW=bw*2+gap+2,grpGap=8;
-  const W=Math.max(keys.length*(grpW+grpGap)+20,wrap.clientWidth||300),H=155;
-  const pad={t:20,b:34,l:6,r:6};const chartH=H-pad.t-pad.b;
+  const bw=16,gap=3,grpW=bw*3+gap*2,grpGap=10;
+  const W=Math.max(keys.length*(grpW+grpGap)+20, wrap.clientWidth||300), H=160;
+  const pad={t:20,b:36,l:6,r:6};const chartH=H-pad.t-pad.b;
+
   const maxCal=Math.max(...keys.map(k=>S.historyData[k]?.cal||0),S.calGoal,500);
   const maxProt=Math.max(...keys.map(k=>S.historyData[k]?.prot||0),S.protGoal||120,20);
+  const maxWater=Math.max(...keys.map(k=>S.historyData[k]?.water||0),S.waterGoal,1);
 
   let bars='',labels='';
   keys.forEach((k,i)=>{
-    const d=S.historyData[k];const cal=d?.cal||0;const prot=d?.prot||0;
+    const d=S.historyData[k];
+    const cal=d?.cal||0,prot=d?.prot||0,water=d?.water||0;
     const isT=k===today;
     const xBase=pad.l+i*(grpW+grpGap);
 
-    // Cal bar (green)
+    // קלוריות (ירוק)
     const calH=Math.max(cal/maxCal*chartH,2);const calY=pad.t+chartH-calH;
     const calCol=isT?'#27ae60':cal>S.calGoal?'#e74c3c':'#2ecc71';
-    bars+=`<rect x="${xBase}" y="${calY}" width="${bw}" height="${calH}" rx="5" fill="${calCol}" opacity=".85" style="cursor:pointer;" onclick="onDatePick('${k}')"/>`;
-    if(cal>0)bars+=`<text x="${xBase+bw/2}" y="${calY-3}" text-anchor="middle" font-size="7.5" fill="#555" font-family="Heebo">${cal}</text>`;
+    bars+=`<rect x="${xBase}" y="${calY}" width="${bw}" height="${calH}" rx="4" fill="${calCol}" opacity=".88" style="cursor:pointer;" onclick="onDatePick('${k}')"/>`;
+    if(cal>0)bars+=`<text x="${xBase+bw/2}" y="${calY-3}" text-anchor="middle" font-size="6.5" fill="#444" font-family="Heebo">${cal}</text>`;
 
-    // Prot bar (purple)
+    // חלבון (סגול)
     const protH=Math.max(prot/maxProt*chartH,2);const protY=pad.t+chartH-protH;
-    bars+=`<rect x="${xBase+bw+gap}" y="${protY}" width="${bw}" height="${protH}" rx="5" fill="#9b59b6" opacity=".7" style="cursor:pointer;" onclick="onDatePick('${k}')"/>`;
-    if(prot>0)bars+=`<text x="${xBase+bw+gap+bw/2}" y="${protY-3}" text-anchor="middle" font-size="7" fill="#7d3c98" font-family="Heebo">${prot}g</text>`;
+    bars+=`<rect x="${xBase+bw+gap}" y="${protY}" width="${bw}" height="${protH}" rx="4" fill="#9b59b6" opacity=".75" style="cursor:pointer;" onclick="onDatePick('${k}')"/>`;
+    if(prot>0)bars+=`<text x="${xBase+bw+gap+bw/2}" y="${protY-3}" text-anchor="middle" font-size="6" fill="#7d3c98" font-family="Heebo">${prot}g</text>`;
 
-    // Label (centered under both bars)
-    labels+=`<text x="${xBase+grpW/2}" y="${H-3}" text-anchor="middle" font-size="8" fill="${isT?'#27ae60':'#999'}" font-weight="${isT?'bold':'normal'}" font-family="Heebo">${fmtShort(k)}</text>`;
+    // מים (כחול)
+    const watH=Math.max(water/maxWater*chartH,2);const watY=pad.t+chartH-watH;
+    bars+=`<rect x="${xBase+bw*2+gap*2}" y="${watY}" width="${bw}" height="${watH}" rx="4" fill="#3498db" opacity=".72" style="cursor:pointer;" onclick="onDatePick('${k}')"/>`;
+    if(water>0)bars+=`<text x="${xBase+bw*2+gap*2+bw/2}" y="${watY-3}" text-anchor="middle" font-size="6" fill="#2471a3" font-family="Heebo">${water}</text>`;
+
+    // תאריך
+    labels+=`<text x="${xBase+grpW/2}" y="${H-3}" text-anchor="middle" font-size="7.5" fill="${isT?'#27ae60':'#999'}" font-weight="${isT?'bold':'normal'}" font-family="Heebo">${fmtShort(k)}</text>`;
   });
 
-  // Goal lines
+  // קווי יעד
   const calGoalY=pad.t+chartH-(S.calGoal/maxCal*chartH);
   const protGoalY=pad.t+chartH-((S.protGoal||120)/maxProt*chartH);
+  const watGoalY=pad.t+chartH-(S.waterGoal/maxWater*chartH);
   const lw=W-pad.l-pad.r;
-  const legend=`<text x="${pad.l+2}" y="${H-3}" font-size="7" fill="#2ecc71" font-family="Heebo">🟩קל׳</text><text x="${pad.l+28}" y="${H-3}" font-size="7" fill="#9b59b6" font-family="Heebo">🟪חלב׳</text>`;
 
-  wrap.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">${bars}${labels}
-  <line x1="${pad.l}" y1="${calGoalY}" x2="${pad.l+lw}" y2="${calGoalY}" stroke="#27ae60" stroke-width="1" stroke-dasharray="4,3"/>
-  <line x1="${pad.l}" y1="${protGoalY}" x2="${pad.l+lw}" y2="${protGoalY}" stroke="#9b59b6" stroke-width="1" stroke-dasharray="4,3"/>
-  <text x="${pad.l+lw}" y="${calGoalY-2}" text-anchor="end" font-size="7" fill="#27ae60" font-family="Heebo">יעד ${S.calGoal}קל</text>
-  <text x="${pad.l+lw}" y="${protGoalY-2}" text-anchor="end" font-size="7" fill="#9b59b6" font-family="Heebo">יעד ${S.protGoal||120}g</text></svg>`;
+  const lines=`
+  <line x1="${pad.l}" y1="${calGoalY}" x2="${pad.l+lw}" y2="${calGoalY}" stroke="#27ae60" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/>
+  <line x1="${pad.l}" y1="${protGoalY}" x2="${pad.l+lw}" y2="${protGoalY}" stroke="#9b59b6" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/>
+  <line x1="${pad.l}" y1="${watGoalY}" x2="${pad.l+lw}" y2="${watGoalY}" stroke="#3498db" stroke-width="1" stroke-dasharray="4,3" opacity=".6"/>`;
+
+  wrap.innerHTML=`
+    <div style="display:flex;gap:10px;margin-bottom:5px;font-size:.71rem;font-weight:700;padding:0 4px;">
+      <span style="color:#27ae60;">🟩 קלוריות</span>
+      <span style="color:#9b59b6;">🟪 חלבון</span>
+      <span style="color:#3498db;">🟦 מים (כוסות)</span>
+    </div>
+    <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">${bars}${labels}${lines}</svg>`;
 }
 function rhist(){
   const el=document.getElementById('hist');const today=todayKey();
@@ -1148,7 +1250,41 @@ setupPWA();
 loadAll();updateHdr();syncToday();
 if(!S.name){setTimeout(()=>document.getElementById('onboarding').style.display='flex',400);}
 if(S.reminderMinutes>0){reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);}
+// ── WATER GOAL STATE ── (init confetti flag)
+waterGoalCelebrated=(S.water>=S.waterGoal&&S.water>0);
 uhome();rfood();rsettings();
+
+// ── VERSION CHECK (פעם ביום) ──
+(function checkForUpdates(){
+  const VER_KEY='tzuna_last_ver_check';
+  const todayStr=todayKey();
+  const lastCheck=localStorage.getItem(VER_KEY);
+  if(lastCheck===todayStr)return; // כבר בדקנו היום
+  localStorage.setItem(VER_KEY,todayStr);
+  // בדיקת גרסה דרך ה-URL עצמו (reload מהשרת)
+  setTimeout(()=>{
+    fetch(window.location.href,{method:'HEAD',cache:'no-store'})
+      .then(r=>{
+        const serverVer=r.headers.get('x-app-version')||null;
+        // אם אין header — ניסיון לזהות לפי Last-Modified
+        const lastMod=r.headers.get('last-modified');
+        const savedMod=localStorage.getItem('tzuna_last_mod');
+        if(lastMod&&savedMod&&lastMod!==savedMod){
+          localStorage.setItem('tzuna_last_mod',lastMod);
+          showUpdateBanner();
+        } else if(!savedMod&&lastMod){
+          localStorage.setItem('tzuna_last_mod',lastMod);
+        }
+      }).catch(()=>{/* offline — skip */});
+  },3000);
+
+  function showUpdateBanner(){
+    const banner=document.createElement('div');
+    banner.style.cssText='position:fixed;top:0;left:0;right:0;background:linear-gradient(135deg,#27ae60,#1abc9c);color:white;padding:12px 16px;z-index:9999;display:flex;align-items:center;justify-content:space-between;font-family:Heebo,sans-serif;font-size:.85rem;font-weight:700;animation:fu .4s;direction:rtl;';
+    banner.innerHTML=`<span>🆕 גרסה חדשה זמינה!</span><div style="display:flex;gap:8px;"><button onclick="location.reload(true)" style="background:rgba(255,255,255,.3);border:none;color:white;padding:6px 14px;border-radius:20px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:700;font-size:.8rem;">עדכן עכשיו 🔄</button><button onclick="this.parentElement.parentElement.remove()" style="background:rgba(0,0,0,.15);border:none;color:white;padding:6px 10px;border-radius:20px;cursor:pointer;font-size:.8rem;">אחר כך</button></div>`;
+    document.body.appendChild(banner);
+  }
+})();
 </script>
 </body>
 </html>
