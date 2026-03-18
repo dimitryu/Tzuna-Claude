@@ -5,159 +5,260 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>תזונה 🥗</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  :root{
-    --green:#2ecc71;--green-dark:#27ae60;--green-light:#d5f5e3;
-    --blue:#3498db;--blue-light:#d6eaf8;--orange:#e67e22;--orange-light:#fdebd0;
-    --red:#e74c3c;--red-light:#fadbd8;--purple:#9b59b6;
-    --bg:#f0faf5;--card:#fff;--text:#2c3e50;--text-light:#7f8c8d;
-    --border:#e8e8e8;--shadow:0 2px 16px rgba(0,0,0,0.07);--radius:16px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  html,body{width:100%;overflow-x:hidden;}
-  body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:72px;}
-  header{background:linear-gradient(135deg,#27ae60,#2ecc71,#1abc9c);color:white;padding:12px 12px 18px;overflow:hidden;position:relative;display:flex;align-items:center;justify-content:space-between;}
-  .ver-badge{background:rgba(255,255,255,0.25);color:white;font-size:0.68rem;font-weight:700;padding:3px 9px;border-radius:20px;flex-shrink:0;}
-  header h1{font-size:1.55rem;font-weight:900;text-align:center;flex:1;}
-  .date-btn{background:rgba(255,255,255,0.2);border:none;color:white;font-family:'Heebo',sans-serif;font-size:0.72rem;font-weight:700;padding:4px 9px;border-radius:20px;cursor:pointer;flex-shrink:0;line-height:1.4;text-align:right;}
-  #date-input-hidden{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
-  .viewing-banner{background:var(--orange);color:white;text-align:center;padding:8px 12px;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
-  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:6px 0 10px;box-shadow:0 -3px 16px rgba(0,0,0,0.1);z-index:100;}
-  .nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:0.63rem;color:var(--text-light);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:10px;min-width:0;}
-  .nav-btn.active{color:var(--green-dark);}
-  .nav-btn.active .nav-icon{background:var(--green-light);}
-  .nav-icon{font-size:1.25rem;padding:5px 7px;border-radius:10px;}
-  .page{display:none;padding:0 12px;margin-top:10px;}
-  .page.active{display:block;}
-  .card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
-  .card-title{font-size:0.78rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;}
-  .rings-row{display:flex;justify-content:space-around;align-items:center;margin:4px 0 10px;}
-  .ring-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
-  .ring-container{position:relative;display:flex;align-items:center;justify-content:center;}
-  .ring-svg{transform:rotate(-90deg);display:block;}
-  .ring-track{fill:none;stroke:#f0f0f0;}
-  .ring-fill{fill:none;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
-  .ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
-  .ring-center .big{font-size:1.2rem;font-weight:900;color:var(--text);line-height:1;}
-  .ring-center .small{font-size:0.6rem;color:var(--text-light);}
-  .ring-label{font-size:0.7rem;color:var(--text-light);font-weight:700;text-align:center;}
-  .gbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;margin-top:4px;}
-  .gl{background:var(--blue-light);color:var(--blue);}
-  .gm{background:var(--green-light);color:var(--green-dark);}
-  .gg{background:var(--orange-light);color:var(--orange);}
-  .water-cups{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0;}
-  .cup{width:33px;height:40px;background:#e0f0ff;border:2px solid #b0d4f1;border-radius:0 0 9px 9px;border-top:none;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:0.8rem;transition:all .3s;position:relative;overflow:hidden;}
-  .cup::before{content:'';position:absolute;bottom:0;left:0;right:0;height:0%;background:var(--blue);transition:height .4s;border-radius:0 0 7px 7px;}
-  .cup.filled::before{height:100%;}.cup.filled{border-color:var(--blue);}
-  .cup span{position:relative;z-index:1;}
-  .mood-row{display:flex;gap:5px;justify-content:center;margin:6px 0;}
-  .mood-btn{font-size:1.45rem;background:none;border:3px solid transparent;border-radius:10px;padding:3px 5px;cursor:pointer;}
-  .mood-btn.sel{border-color:var(--green);background:var(--green-light);}
-  .period-tabs{display:flex;gap:5px;margin-bottom:12px;}
-  .ptab{flex:1;padding:7px 4px;border:2px solid var(--border);border-radius:10px;background:white;font-family:'Heebo',sans-serif;font-size:0.76rem;font-weight:700;cursor:pointer;text-align:center;color:var(--text-light);}
-  .ptab.act{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
-  .chart-wrap{width:100%;height:160px;position:relative;margin-bottom:14px;}
-  canvas#hist-chart{width:100%;height:100%;display:block;}
-  .hday{padding:9px 12px;background:#fafafa;border-radius:10px;margin-bottom:5px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
-  .hday.today-row{border-color:var(--green);background:var(--green-light);}
-  .hday .dd{font-size:0.76rem;color:var(--text-light);font-weight:700;}
-  .hday .dc{font-weight:900;color:var(--green-dark);font-size:.95rem;}
-  .hday .goal-bar{height:4px;background:#eee;border-radius:2px;margin-top:3px;overflow:hidden;}
-  .hday .goal-fill{height:100%;border-radius:2px;background:var(--green);}
-  .meal-section{margin-bottom:14px;}
-  .meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-  .meal-title{font-size:0.95rem;font-weight:900;}
-  .meal-cal-total{font-size:0.78rem;font-weight:700;color:var(--text-light);}
-  .meal-add-row{display:flex;gap:6px;margin-bottom:8px;}
-  .meal-add-row input{flex:1;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:0.86rem;outline:none;min-width:0;background:white;}
-  .meal-add-row input:focus{border-color:var(--green);}
-  .food-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
-  .fi{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#fafafa;border-radius:10px;border:1px solid var(--border);animation:si .3s ease;}
-  .fi.loading{opacity:.6;background:#f5fff8;}
-  .fn{font-weight:600;font-size:0.84rem;}
-  .fcal{font-weight:900;color:var(--green-dark);font-size:0.86rem;white-space:nowrap;}
-  .del{background:none;border:none;cursor:pointer;color:#ccc;font-size:0.95rem;padding:0 4px;}
-  .meal-divider{border:none;border-top:1px dashed var(--border);margin:14px 0;}
-  .ai-loading{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:var(--green-dark);}
-  .spinner{width:14px;height:14px;border:2px solid var(--green-light);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .readonly-meal{margin-bottom:12px;}
-  .readonly-meal-title{font-size:.85rem;font-weight:900;margin-bottom:6px;color:var(--text-light);}
-  .readonly-item{display:flex;justify-content:space-between;padding:7px 10px;background:#fafafa;border-radius:8px;margin-bottom:4px;font-size:.83rem;}
-  .btn{padding:10px 13px;border:none;border-radius:10px;font-family:'Heebo',sans-serif;font-weight:700;font-size:0.84rem;cursor:pointer;white-space:nowrap;flex-shrink:0;}
-  .bg{background:var(--green);color:white;}.bb{background:var(--blue);color:white;}.br{background:var(--red);color:white;}
-  .bo{background:transparent;border:2px solid var(--green);color:var(--green-dark);}
-  .bsm{padding:7px 11px;font-size:0.77rem;}.bfull{width:100%;display:block;text-align:center;margin-top:2px;}
-  .chat-area{height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:4px 0 8px;}
-  .msg{max-width:86%;padding:9px 13px;border-radius:14px;font-size:0.84rem;line-height:1.5;animation:fu .3s;word-break:break-word;}
-  .msg.bot{background:var(--green-light);color:var(--text);align-self:flex-start;border-bottom-right-radius:3px;}
-  .msg.user{background:var(--green);color:white;align-self:flex-end;border-bottom-left-radius:3px;}
-  .msg.err{background:var(--red-light);color:var(--red);align-self:flex-start;border-radius:10px;}
-  .chat-ir{display:flex;gap:6px;margin-top:8px;}
-  .chat-ir input{flex:1;padding:11px 14px;border:2px solid var(--border);border-radius:22px;font-family:'Heebo',sans-serif;font-size:0.84rem;outline:none;min-width:0;}
-  .chat-ir input:focus{border-color:var(--green);}
-  .csend{background:var(--green);color:white;border:none;border-radius:50%;width:44px;height:44px;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-  .qq{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
-  .q{background:white;border:2px solid var(--green-light);color:var(--green-dark);padding:5px 9px;border-radius:16px;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;}
-  .api-notice{background:#fff8e1;border:2px solid #ffe082;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:0.81rem;line-height:1.5;}
-  .api-notice a{color:#e65100;}
-  .akr{display:flex;gap:6px;margin-top:8px;}
-  .akr input{flex:1;padding:9px 11px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:0.79rem;outline:none;min-width:0;direction:ltr;}
-  .cf{display:flex;flex-direction:column;gap:10px;}
-  .ff{display:flex;flex-direction:column;gap:4px;}
-  .ff label{font-size:0.76rem;font-weight:700;color:var(--text-light);}
-  .ff input,.ff select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:0.86rem;outline:none;background:white;}
-  .ff input:focus,.ff select:focus{border-color:var(--green);}
-  .gbs,.goalbts{display:flex;gap:6px;}
-  .gb,.goalb{flex:1;padding:9px 5px;border:2px solid var(--border);border-radius:10px;background:white;font-family:'Heebo',sans-serif;font-size:0.78rem;cursor:pointer;font-weight:600;text-align:center;}
-  .gb.act{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
-  .goalb.act.lose{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
-  .goalb.act.maintain{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
-  .goalb.act.gain{border-color:var(--orange);background:var(--orange-light);color:var(--orange);}
-  .rb{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;border-radius:14px;padding:18px;text-align:center;animation:fu .4s;margin-top:4px;}
-  .rb .rc{font-size:2.2rem;font-weight:900;}
-  .rb.lr{background:linear-gradient(135deg,var(--blue),#2471a3);}
-  .rb.gr{background:linear-gradient(135deg,var(--orange),#d35400);}
-  .si-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
-  .si-row:last-child{border-bottom:none;}
-  .sl{font-weight:600;font-size:0.86rem;}.ss{font-size:0.7rem;color:var(--text-light);margin-top:1px;}
-  .empty{text-align:center;padding:16px;color:var(--text-light);}
-  .empty .ei{font-size:1.6rem;margin-bottom:4px;}
-  .empty p{font-size:0.78rem;}
-  @keyframes si{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
-  @keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+:root{
+  --green:#2ecc71;--green-dark:#27ae60;--green-light:#d5f5e3;
+  --blue:#3498db;--blue-light:#d6eaf8;--orange:#e67e22;--orange-light:#fdebd0;
+  --red:#e74c3c;--red-light:#fadbd8;--purple:#9b59b6;--purple-light:#e8daef;
+  --bg:#f0faf5;--card:#fff;--text:#2c3e50;--text-light:#7f8c8d;
+  --border:#e8e8e8;--shadow:0 2px 16px rgba(0,0,0,.07);--radius:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;overflow-x:hidden;}
+body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:72px;}
+
+/* HEADER */
+header{background:linear-gradient(135deg,#27ae60,#2ecc71,#1abc9c);color:white;padding:11px 12px 16px;position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.ver-badge{background:rgba(255,255,255,.25);color:white;font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;}
+header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
+.date-btn{background:rgba(255,255,255,.2);border:none;color:white;font-family:'Heebo',sans-serif;font-size:.7rem;font-weight:700;padding:4px 9px;border-radius:20px;cursor:pointer;flex-shrink:0;line-height:1.4;text-align:right;}
+.date-btn.alt{background:var(--orange);}
+#date-inp{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
+
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0 9px;box-shadow:0 -3px 16px rgba(0,0,0,.1);z-index:100;}
+.nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.6rem;color:var(--text-light);background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:10px;min-width:0;}
+.nav-btn.active{color:var(--green-dark);}
+.nav-btn.active .nav-icon{background:var(--green-light);}
+.nav-icon{font-size:1.2rem;padding:5px 6px;border-radius:10px;}
+
+.page{display:none;padding:0 12px;margin-top:8px;}
+.page.active{display:block;}
+.card{background:var(--card);border-radius:var(--radius);padding:15px;margin-bottom:11px;box-shadow:var(--shadow);}
+.card-title{font-size:.75rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
+
+/* MODAL OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal{background:white;border-radius:20px;padding:24px;width:100%;max-width:360px;animation:fu .3s;}
+.modal h2{font-size:1.3rem;font-weight:900;margin-bottom:6px;text-align:center;}
+.modal p{font-size:.88rem;color:var(--text-light);text-align:center;margin-bottom:18px;line-height:1.5;}
+
+/* TOAST */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:10px 20px;border-radius:24px;font-size:.83rem;font-weight:600;z-index:300;animation:fu .3s;white-space:nowrap;}
+.toast.water{background:var(--blue);}
+.toast.success{background:var(--green-dark);}
+.toast.warn{background:var(--orange);}
+
+/* WATER REMINDER BANNER */
+.water-banner{background:var(--blue);color:white;padding:10px 14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:.84rem;font-weight:700;animation:fu .3s;}
+
+/* RINGS */
+.rings-row{display:flex;justify-content:space-around;align-items:center;margin:4px 0 10px;}
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.ring-container{position:relative;display:flex;align-items:center;justify-content:center;}
+.ring-svg{transform:rotate(-90deg);display:block;}
+.ring-track{fill:none;stroke:#f0f0f0;}
+.ring-fill{fill:none;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+.ring-center .big{font-size:1.2rem;font-weight:900;color:var(--text);line-height:1;}
+.ring-center .small{font-size:.6rem;color:var(--text-light);}
+.ring-label{font-size:.7rem;color:var(--text-light);font-weight:700;text-align:center;}
+
+/* QUOTE */
+.quote-box{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:14px;padding:14px 16px;margin-bottom:11px;position:relative;}
+.quote-box .qt{font-size:.92rem;font-weight:600;line-height:1.5;}
+.quote-box .qt-new{position:absolute;top:10px;left:10px;font-size:.75rem;opacity:.7;cursor:pointer;}
+
+.gbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;margin-top:4px;}
+.gl{background:var(--blue-light);color:var(--blue);}
+.gm{background:var(--green-light);color:var(--green-dark);}
+.gg{background:var(--orange-light);color:var(--orange);}
+
+/* WATER */
+.water-cups{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0;}
+.cup{width:33px;height:40px;background:#e0f0ff;border:2px solid #b0d4f1;border-radius:0 0 9px 9px;border-top:none;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:.8rem;transition:all .3s;position:relative;overflow:hidden;}
+.cup::before{content:'';position:absolute;bottom:0;left:0;right:0;height:0%;background:var(--blue);transition:height .4s;border-radius:0 0 7px 7px;}
+.cup.filled::before{height:100%;}.cup.filled{border-color:var(--blue);}
+.cup span{position:relative;z-index:1;}
+
+/* MOOD */
+.mood-row{display:flex;gap:5px;justify-content:center;margin:6px 0;}
+.mood-btn{font-size:1.4rem;background:none;border:3px solid transparent;border-radius:10px;padding:3px 5px;cursor:pointer;}
+.mood-btn.sel{border-color:var(--green);background:var(--green-light);}
+
+/* CHART */
+.period-btns{display:flex;gap:5px;}
+.period-btn{padding:4px 10px;border:2px solid var(--border);border-radius:20px;font-family:'Heebo',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;background:white;color:var(--text-light);}
+.period-btn.act{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.chart-wrap{width:100%;overflow-x:auto;margin:10px 0 6px;}
+
+/* HISTORY */
+.hday{padding:9px 12px;background:#fafafa;border-radius:10px;margin-bottom:5px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.hday.today{border-color:var(--green);background:var(--green-light);}
+.hday .dd{font-size:.74rem;color:var(--text-light);font-weight:700;}
+.hday .dc{font-weight:900;color:var(--green-dark);}
+
+/* FOOD PAGE */
+.meal-section{margin-bottom:12px;}
+.meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.meal-title{font-size:.93rem;font-weight:900;}
+.meal-cal-total{font-size:.76rem;font-weight:700;color:var(--text-light);}
+.meal-add-row{display:flex;gap:5px;margin-bottom:7px;}
+.meal-add-row input{flex:1;padding:9px 11px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.84rem;outline:none;min-width:0;background:white;}
+.meal-add-row input:focus{border-color:var(--green);}
+.cam-btn{background:var(--purple-light);color:var(--purple);border:none;border-radius:10px;padding:9px 11px;cursor:pointer;font-size:1rem;flex-shrink:0;}
+.food-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.fi{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:#fafafa;border-radius:10px;border:1px solid var(--border);animation:si .3s ease;}
+.fi.loading{opacity:.6;background:#f5fff8;}
+.fn{font-weight:600;font-size:.82rem;}
+.fcal{font-weight:900;color:var(--green-dark);font-size:.84rem;white-space:nowrap;}
+.del{background:none;border:none;cursor:pointer;color:#ccc;font-size:.9rem;padding:0 3px;}
+.recalc-btn{background:var(--orange-light);color:var(--orange);border:none;border-radius:6px;font-size:.68rem;font-weight:700;padding:2px 7px;cursor:pointer;font-family:'Heebo',sans-serif;margin-left:4px;}
+.meal-divider{border:none;border-top:1px dashed var(--border);margin:12px 0;}
+
+/* SPINNER */
+.ai-loading{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;color:var(--green-dark);}
+.spinner{width:13px;height:13px;border:2px solid var(--green-light);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* BTN */
+.btn{padding:10px 13px;border:none;border-radius:10px;font-family:'Heebo',sans-serif;font-weight:700;font-size:.83rem;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.bg{background:var(--green);color:white;}.bb{background:var(--blue);color:white;}.br{background:var(--red);color:white;}.bpur{background:var(--purple);color:white;}
+.bo{background:transparent;border:2px solid var(--green);color:var(--green-dark);}
+.bsm{padding:7px 10px;font-size:.75rem;}.bfull{width:100%;display:block;text-align:center;margin-top:4px;}
+
+/* FORM */
+.ff{display:flex;flex-direction:column;gap:4px;margin-bottom:9px;}
+.ff label{font-size:.75rem;font-weight:700;color:var(--text-light);}
+.ff input,.ff select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.85rem;outline:none;background:white;}
+.ff input:focus,.ff select:focus{border-color:var(--green);}
+.gbs,.goalbts{display:flex;gap:6px;margin-top:2px;}
+.gb,.goalb{flex:1;padding:9px 5px;border:2px solid var(--border);border-radius:10px;background:white;font-family:'Heebo',sans-serif;font-size:.76rem;cursor:pointer;font-weight:600;text-align:center;}
+.gb.act{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.goalb.act.lose{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+.goalb.act.maintain{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.goalb.act.gain{border-color:var(--orange);background:var(--orange-light);color:var(--orange);}
+.rb{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;border-radius:14px;padding:16px;text-align:center;animation:fu .4s;margin-top:4px;}
+.rb .rc{font-size:2rem;font-weight:900;}
+.rb.lr{background:linear-gradient(135deg,var(--blue),#2471a3);}
+.rb.gr{background:linear-gradient(135deg,var(--orange),#d35400);}
+
+/* CHAT */
+.chat-area{height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:4px 0 8px;}
+.msg{max-width:86%;padding:9px 13px;border-radius:14px;font-size:.83rem;line-height:1.5;animation:fu .3s;word-break:break-word;}
+.msg.bot{background:var(--green-light);color:var(--text);align-self:flex-start;border-bottom-right-radius:3px;}
+.msg.user{background:var(--green);color:white;align-self:flex-end;border-bottom-left-radius:3px;}
+.msg.err{background:var(--red-light);color:var(--red);align-self:flex-start;border-radius:10px;}
+.chat-ir{display:flex;gap:6px;margin-top:8px;}
+.chat-ir input{flex:1;padding:10px 13px;border:2px solid var(--border);border-radius:22px;font-family:'Heebo',sans-serif;font-size:.83rem;outline:none;min-width:0;}
+.chat-ir input:focus{border-color:var(--green);}
+.csend{background:var(--green);color:white;border:none;border-radius:50%;width:42px;height:42px;font-size:1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.qq{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.q{background:white;border:2px solid var(--green-light);color:var(--green-dark);padding:5px 9px;border-radius:16px;font-size:.73rem;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;}
+
+/* API NOTICE */
+.api-notice{background:#fff8e1;border:2px solid #ffe082;border-radius:12px;padding:11px 13px;margin-bottom:10px;font-size:.79rem;line-height:1.5;}
+.api-notice a{color:#e65100;}
+.akr{display:flex;gap:6px;margin-top:7px;}
+.akr input{flex:1;padding:8px 11px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.77rem;outline:none;min-width:0;direction:ltr;}
+
+/* SETTINGS */
+.si-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
+.si-row:last-child{border-bottom:none;}
+.sl{font-weight:600;font-size:.85rem;}.ss{font-size:.7rem;color:var(--text-light);margin-top:1px;}
+.export-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+
+/* IMAGE PREVIEW */
+.img-preview{max-width:100%;border-radius:10px;margin:8px 0;max-height:150px;object-fit:cover;}
+
+.empty{text-align:center;padding:14px;color:var(--text-light);}
+.empty .ei{font-size:1.5rem;margin-bottom:4px;}
+.empty p{font-size:.76rem;}
+
+@keyframes si{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
-<header>
-  <span class="ver-badge">v1.1</span>
-  <h1>🥗 תזונה</h1>
-  <button class="date-btn" onclick="openDatePicker()">
-    <div id="hdr-date-label">היום</div>
-    <div id="hdr-date-val" style="font-weight:400;opacity:.85;font-size:.65rem;"></div>
-  </button>
-  <input type="date" id="date-input-hidden" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" onchange="onDatePick(this.value)"/>
-</header>
-
-<div class="viewing-banner" id="view-banner" style="display:none;" onclick="returnToday()">
-  📅 צופה ב: <strong id="view-banner-date"></strong> &nbsp;— לחץ לחזרה להיום ✕
+<!-- ══ ONBOARDING MODAL ══ -->
+<div class="overlay" id="onboarding" style="display:none;">
+  <div class="modal">
+    <div style="text-align:center;font-size:2.5rem;margin-bottom:8px;">🥗</div>
+    <h2>ברוכ/ה הבא/ה לתזונה!</h2>
+    <p>בוא נכיר — ספר/י לנו קצת על עצמך</p>
+    <div class="ff"><label>השם שלך</label><input type="text" id="ob-name" placeholder="כתוב/י שם..."/></div>
+    <div class="ff">
+      <label>מין</label>
+      <div class="gbs">
+        <button class="gb act" id="ob-male" onclick="obSetGender('male')">👦 זכר</button>
+        <button class="gb" id="ob-female" onclick="obSetGender('female')">👧 נקבה</button>
+      </div>
+    </div>
+    <button class="btn bg bfull" onclick="finishOnboarding()">בואו נתחיל! 🚀</button>
+  </div>
 </div>
 
+<!-- ══ EXPORT MODAL ══ -->
+<div class="overlay" id="export-modal" style="display:none;">
+  <div class="modal">
+    <h2 style="margin-bottom:12px;">📤 ייצוא נתונים</h2>
+    <div class="ff"><label>מתאריך</label><input type="date" id="exp-from"/></div>
+    <div class="ff"><label>עד תאריך</label><input type="date" id="exp-to"/></div>
+    <div class="ff"><label>פורמט</label>
+      <div class="gbs">
+        <button class="gb act" id="ef-excel" onclick="setExpFmt('excel')">📊 Excel</button>
+        <button class="gb" id="ef-word" onclick="setExpFmt('word')">📝 Word</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <button class="btn bg" style="flex:1;" onclick="doExport()">ייצא ⬇️</button>
+      <button class="btn bo" onclick="closeExport()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<header>
+  <span class="ver-badge">v1.2</span>
+  <h1>🥗 תזונה</h1>
+  <button class="date-btn" id="date-btn" onclick="openDatePicker()">טוען...</button>
+  <input type="date" id="date-inp" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" onchange="onDatePick(this.value)"/>
+</header>
+
+<!-- ══ NAV ══ -->
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="pg('home')"><span class="nav-icon">🏠</span>בית</button>
   <button class="nav-btn" onclick="pg('food')"><span class="nav-icon">🍽️</span>אכלתי</button>
-  <button class="nav-btn" onclick="pg('ai')"><span class="nav-icon">🤖</span>עוזר AI</button>
+  <button class="nav-btn" onclick="pg('ai')"><span class="nav-icon">🤖</span>יועץ AI</button>
   <button class="nav-btn" onclick="pg('calc')"><span class="nav-icon">🧮</span>מחשבון</button>
   <button class="nav-btn" onclick="pg('settings')"><span class="nav-icon">⚙️</span>הגדרות</button>
 </nav>
 
-<!-- HOME -->
+<!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
+  <div id="water-reminder-wrap"></div>
+
+  <!-- Quote -->
+  <div class="quote-box" id="quote-box">
+    <span class="qt-new" onclick="newQuote()">🔄</span>
+    <div class="qt" id="quote-text">טוען...</div>
+  </div>
+
+  <!-- View banner -->
+  <div id="view-banner" style="display:none;">
+    <div style="background:var(--orange);color:white;border-radius:12px;padding:10px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;font-size:.83rem;font-weight:700;">
+      <span>👁 צופה ב: <span id="view-lbl"></span></span>
+      <button class="btn" style="background:rgba(255,255,255,.25);color:white;padding:5px 10px;font-size:.75rem;" onclick="backToToday()">היום</button>
+    </div>
+  </div>
+
+  <!-- Rings -->
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-      <div><div style="font-size:1rem;font-weight:900;" id="greet">שלום!</div><div id="gbadge"></div></div>
-      <div id="moodd" style="font-size:1.6rem;">😊</div>
+      <div><div style="font-size:.98rem;font-weight:900;" id="greet">שלום! 👋</div><div id="gbadge"></div></div>
+      <div id="moodd" style="font-size:1.5rem;">😊</div>
     </div>
     <div class="rings-row">
       <div class="ring-wrap">
@@ -182,16 +283,20 @@
       </div>
     </div>
   </div>
-  <div class="card">
+
+  <!-- Water (today only) -->
+  <div class="card" id="water-card">
     <div class="card-title">💧 שתיית מים</div>
     <div class="water-cups" id="wc"></div>
-    <div style="display:flex;gap:8px;margin-top:9px;">
+    <div style="display:flex;gap:7px;margin-top:8px;">
       <button class="btn bb bsm" onclick="addW()">+ כוס שתיתי</button>
       <button class="btn bo bsm" onclick="rstW()">איפוס</button>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title">😊 איך אתה מרגיש?</div>
+
+  <!-- Mood (today only) -->
+  <div class="card" id="mood-card">
+    <div class="card-title">😊 איך אתה/את מרגיש/ת?</div>
     <div class="mood-row">
       <button class="mood-btn" onclick="setMood(this,'😩')">😩</button>
       <button class="mood-btn" onclick="setMood(this,'😕')">😕</button>
@@ -200,60 +305,74 @@
       <button class="mood-btn" onclick="setMood(this,'🤩')">🤩</button>
     </div>
   </div>
+
+  <!-- Chart -->
   <div class="card">
-    <div class="card-title">📊 גרף קלוריות</div>
-    <div class="period-tabs">
-      <button class="ptab act" onclick="setPeriod(7,this)">שבוע</button>
-      <button class="ptab" onclick="setPeriod(14,this)">שבועיים</button>
-      <button class="ptab" onclick="setPeriod(30,this)">חודש</button>
-      <button class="ptab" onclick="setPeriod(0,this)">הכל</button>
+    <div class="card-title">📈 גרף קלוריות
+      <div class="period-btns">
+        <button class="period-btn act" onclick="setPeriod(7,this)">שבוע</button>
+        <button class="period-btn" onclick="setPeriod(30,this)">חודש</button>
+        <button class="period-btn" onclick="setPeriod(0,this)">הכל</button>
+      </div>
     </div>
-    <div class="chart-wrap"><canvas id="hist-chart"></canvas></div>
-    <div id="hist-list"></div>
+    <div class="chart-wrap" id="chart-wrap"><div class="empty"><div class="ei">📊</div><p>אין נתונים עדיין</p></div></div>
   </div>
+
+  <!-- History list -->
+  <div class="card"><div class="card-title">📅 יומן ימים</div><div id="hist"></div></div>
 </div>
 
-<!-- FOOD -->
+<!-- ══ FOOD ══ -->
 <div class="page" id="page-food">
-  <div id="food-readonly" style="display:none;">
-    <div class="card">
-      <div class="card-title" id="readonly-date-title">תצוגת יום</div>
-      <div id="readonly-content"></div>
+  <div class="card">
+    <div style="background:var(--green-light);padding:9px 12px;border-radius:10px;margin-bottom:12px;font-size:.78rem;color:var(--text-light);line-height:1.5;">
+      💡 כתוב שם מאכל או 📷 צלם — AI יחשב קלוריות לפי מנה ביתית
     </div>
-  </div>
-  <div id="food-editable">
-    <div class="card">
-      <div style="font-size:.8rem;color:var(--text-light);margin-bottom:14px;line-height:1.5;background:var(--green-light);padding:10px 12px;border-radius:10px;">
-        💡 <strong>כתוב שם מאכל</strong> ו-AI יחשב קלוריות אוטומטית לפי מנה ביתית
+    <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none;" onchange="onCamImage(event)"/>
+
+    <div class="meal-section">
+      <div class="meal-header"><div class="meal-title">🌅 ארוחת בוקר</div><div class="meal-cal-total" id="cal-breakfast"></div></div>
+      <div class="meal-add-row">
+        <input type="text" id="inp-breakfast" placeholder="מה אכלת בבוקר?" onkeydown="if(event.key==='Enter')addItem('breakfast')"/>
+        <button class="cam-btn" onclick="openCam('breakfast')" title="צלם/בחר תמונה">📷</button>
+        <button class="btn bg bsm" onclick="addItem('breakfast')">+</button>
       </div>
-      <div class="meal-section">
-        <div class="meal-header"><div class="meal-title">🌅 ארוחת בוקר</div><div class="meal-cal-total" id="cal-breakfast"></div></div>
-        <div class="meal-add-row"><input type="text" id="inp-breakfast" placeholder="מה אכלת בבוקר?" onkeydown="if(event.key==='Enter')addItem('breakfast')"/><button class="btn bg bsm" onclick="addItem('breakfast')">+ הוסף</button></div>
-        <ul class="food-list" id="list-breakfast"></ul>
+      <ul class="food-list" id="list-breakfast"></ul>
+    </div>
+    <hr class="meal-divider"/>
+    <div class="meal-section">
+      <div class="meal-header"><div class="meal-title">☀️ ארוחת צהריים</div><div class="meal-cal-total" id="cal-lunch"></div></div>
+      <div class="meal-add-row">
+        <input type="text" id="inp-lunch" placeholder="מה אכלת בצהריים?" onkeydown="if(event.key==='Enter')addItem('lunch')"/>
+        <button class="cam-btn" onclick="openCam('lunch')">📷</button>
+        <button class="btn bg bsm" onclick="addItem('lunch')">+</button>
       </div>
-      <hr class="meal-divider"/>
-      <div class="meal-section">
-        <div class="meal-header"><div class="meal-title">☀️ ארוחת צהריים</div><div class="meal-cal-total" id="cal-lunch"></div></div>
-        <div class="meal-add-row"><input type="text" id="inp-lunch" placeholder="מה אכלת בצהריים?" onkeydown="if(event.key==='Enter')addItem('lunch')"/><button class="btn bg bsm" onclick="addItem('lunch')">+ הוסף</button></div>
-        <ul class="food-list" id="list-lunch"></ul>
+      <ul class="food-list" id="list-lunch"></ul>
+    </div>
+    <hr class="meal-divider"/>
+    <div class="meal-section">
+      <div class="meal-header"><div class="meal-title">🌙 ארוחת ערב</div><div class="meal-cal-total" id="cal-dinner"></div></div>
+      <div class="meal-add-row">
+        <input type="text" id="inp-dinner" placeholder="מה אכלת בערב?" onkeydown="if(event.key==='Enter')addItem('dinner')"/>
+        <button class="cam-btn" onclick="openCam('dinner')">📷</button>
+        <button class="btn bg bsm" onclick="addItem('dinner')">+</button>
       </div>
-      <hr class="meal-divider"/>
-      <div class="meal-section">
-        <div class="meal-header"><div class="meal-title">🌙 ארוחת ערב</div><div class="meal-cal-total" id="cal-dinner"></div></div>
-        <div class="meal-add-row"><input type="text" id="inp-dinner" placeholder="מה אכלת בערב?" onkeydown="if(event.key==='Enter')addItem('dinner')"/><button class="btn bg bsm" onclick="addItem('dinner')">+ הוסף</button></div>
-        <ul class="food-list" id="list-dinner"></ul>
+      <ul class="food-list" id="list-dinner"></ul>
+    </div>
+    <hr class="meal-divider"/>
+    <div class="meal-section">
+      <div class="meal-header"><div class="meal-title">🍎 נשנושים וביניים</div><div class="meal-cal-total" id="cal-snacks"></div></div>
+      <div class="meal-add-row">
+        <input type="text" id="inp-snacks" placeholder="נשנוש, פרי..." onkeydown="if(event.key==='Enter')addItem('snacks')"/>
+        <button class="cam-btn" onclick="openCam('snacks')">📷</button>
+        <button class="btn bg bsm" onclick="addItem('snacks')">+</button>
       </div>
-      <hr class="meal-divider"/>
-      <div class="meal-section">
-        <div class="meal-header"><div class="meal-title">🍎 נשנושים</div><div class="meal-cal-total" id="cal-snacks"></div></div>
-        <div class="meal-add-row"><input type="text" id="inp-snacks" placeholder="נשנוש, פרי, שתייה..." onkeydown="if(event.key==='Enter')addItem('snacks')"/><button class="btn bg bsm" onclick="addItem('snacks')">+ הוסף</button></div>
-        <ul class="food-list" id="list-snacks"></ul>
-      </div>
+      <ul class="food-list" id="list-snacks"></ul>
     </div>
   </div>
 </div>
 
-<!-- AI -->
+<!-- ══ AI ══ -->
 <div class="page" id="page-ai">
   <div id="apinote" class="api-notice" style="display:none;">
     <strong>⚠️ נדרש מפתח API</strong><br>
@@ -261,449 +380,733 @@
     <div class="akr"><input type="password" id="akin" placeholder="sk-ant-..."/><button class="btn bg bsm" onclick="saveKey()">שמור ✓</button></div>
   </div>
   <div class="card">
-    <div class="card-title">🤖 עוזר תזונה AI</div>
+    <div class="card-title">🤖 יועץ תזונה ואורח חיים בריא</div>
     <div class="qq">
       <button class="q" onclick="sq(this)">💪 לעלות במשקל</button>
       <button class="q" onclick="sq(this)">📋 תפריט לשבוע</button>
-      <button class="q" onclick="sq(this)">🏋️ לפני אימון?</button>
-      <button class="q" onclick="sq(this)">💧 כמה מים?</button>
+      <button class="q" onclick="sq(this)">🏋️ לפני אימון מה לאכול?</button>
+      <button class="q" onclick="sq(this)">💧 כמה מים לשתות?</button>
       <button class="q" onclick="sq(this)">🥩 מזון עשיר בחלבון</button>
       <button class="q" onclick="sq(this)">🎯 לרדת במשקל</button>
+      <button class="q" onclick="sq(this)">😴 שינה ובריאות</button>
+      <button class="q" onclick="sq(this)">🧘 ניהול סטרס ואכילה</button>
     </div>
     <div class="chat-area" id="chat">
-      <div class="msg bot">היי! 👋 אני עוזר התזונה שלך. שאל אותי כל שאלה על אכילה בריאה! 🥗</div>
+      <div class="msg bot" id="chat-welcome">היי! 👋 אני יועץ התזונה ואורח החיים הבריא שלך. אוכל לעזור בכל שאלה הקשורה לתזונה, ספורט, שינה, ניהול משקל ובריאות כללית. במה אוכל לעזור? 🥗</div>
     </div>
     <div class="chat-ir">
-      <input type="text" id="cinp" placeholder="כתוב שאלה..." onkeydown="if(event.key==='Enter')send()"/>
+      <input type="text" id="cinp" placeholder="שאל/י שאלה על תזונה ובריאות..." onkeydown="if(event.key==='Enter')send()"/>
       <button class="csend" onclick="send()">➤</button>
     </div>
   </div>
 </div>
 
-<!-- CALC -->
+<!-- ══ CALC ══ -->
 <div class="page" id="page-calc">
   <div class="card">
-    <div class="card-title">🧮 מחשבון קלוריות</div>
-    <div class="cf">
-      <div class="ff"><label>מין</label><div class="gbs"><button class="gb act" id="bm" onclick="setG('male')">👦 זכר</button><button class="gb" id="bf" onclick="setG('female')">👧 נקבה</button></div></div>
-      <div class="ff"><label>גיל</label><input type="number" id="age" placeholder="שנים"/></div>
-      <div class="ff"><label>משקל (ק״ג)</label><input type="number" id="wt" placeholder="משקל"/></div>
-      <div class="ff"><label>גובה (ס״מ)</label><input type="number" id="ht" placeholder="גובה"/></div>
-      <div class="ff"><label>פעילות</label>
-        <select id="act">
-          <option value="1.2">יושבני</option><option value="1.375">קלה</option>
-          <option value="1.55" selected>בינונית</option><option value="1.725">גבוהה</option><option value="1.9">גבוהה מאוד</option>
-        </select>
-      </div>
-      <div class="ff"><label>מטרה</label>
-        <div class="goalbts">
-          <button class="goalb lose" id="gl" onclick="setGl('lose')">📉 לרדת</button>
-          <button class="goalb maintain act" id="gm" onclick="setGl('maintain')">⚖️ לשמור</button>
-          <button class="goalb gain" id="gg" onclick="setGl('gain')">📈 לעלות</button>
-        </div>
-      </div>
-      <button class="btn bg bfull" onclick="calc()">חשב! 🚀</button>
-      <div id="cres" style="display:none;"></div>
+    <div class="card-title">🧮 מחשבון קלוריות אישי</div>
+    <div class="ff"><label>מין</label><div class="gbs"><button class="gb act" id="bm" onclick="setG('male')">👦 זכר</button><button class="gb" id="bf" onclick="setG('female')">👧 נקבה</button></div></div>
+    <div class="ff"><label>גיל</label><input type="number" id="age" placeholder="שנים" min="10" max="25"/></div>
+    <div class="ff"><label>משקל (ק״ג)</label><input type="number" id="wt" placeholder="משקל"/></div>
+    <div class="ff"><label>גובה (ס״מ)</label><input type="number" id="ht" placeholder="גובה"/></div>
+    <div class="ff"><label>פעילות</label>
+      <select id="act"><option value="1.2">יושבני</option><option value="1.375">קלה (1-3×/שבוע)</option><option value="1.55" selected>בינונית (3-5×/שבוע)</option><option value="1.725">גבוהה (כל יום)</option><option value="1.9">גבוהה מאוד</option></select>
     </div>
+    <div class="ff"><label>מטרה</label>
+      <div class="goalbts">
+        <button class="goalb lose" id="gl" onclick="setGl('lose')">📉 לרדת</button>
+        <button class="goalb maintain act" id="gm" onclick="setGl('maintain')">⚖️ לשמור</button>
+        <button class="goalb gain" id="gg" onclick="setGl('gain')">📈 לעלות</button>
+      </div>
+    </div>
+    <button class="btn bg bfull" onclick="calcTDEE()">חשב לי! 🚀</button>
+    <div id="cres" style="display:none;margin-top:8px;"></div>
   </div>
-  <div class="card"><div class="card-title">💡 טיפים</div><div id="tips"><p style="font-size:.82rem;color:var(--text-light);">חשב קלוריות לקבלת טיפים!</p></div></div>
+  <div class="card"><div class="card-title">💡 טיפים</div><div id="tips"><p style="font-size:.8rem;color:var(--text-light);">חשב קלוריות לקבלת טיפים!</p></div></div>
 </div>
 
-<!-- SETTINGS -->
+<!-- ══ SETTINGS ══ -->
 <div class="page" id="page-settings">
   <div class="card">
     <div class="card-title">👤 הפרופיל שלי</div>
-    <div style="display:flex;flex-direction:column;gap:9px;">
-      <div class="ff"><label>שם</label><input type="text" id="sname" placeholder="השם שלי" oninput="sv('name',this.value)"/></div>
-      <div class="ff"><label>יעד קלוריות</label><input type="number" id="scal" placeholder="2000" oninput="sv('calGoal',this.value)"/></div>
-      <div class="ff"><label>יעד מים (כוסות)</label><input type="number" id="swat" placeholder="6" oninput="sv('waterGoal',this.value)"/></div>
+    <div class="ff"><label>שם</label><input type="text" id="sname" placeholder="השם שלי" oninput="sv('name',this.value)"/></div>
+    <div class="ff"><label>מין</label>
+      <div class="gbs">
+        <button class="gb" id="sg-male" onclick="sv('gender','male')">👦 זכר</button>
+        <button class="gb" id="sg-female" onclick="sv('gender','female')">👧 נקבה</button>
+      </div>
     </div>
+    <div class="ff"><label>יעד קלוריות</label><input type="number" id="scal" placeholder="2000" oninput="sv('calGoal',this.value)"/></div>
+    <div class="ff"><label>יעד מים (כוסות)</label><input type="number" id="swat" placeholder="6" oninput="sv('waterGoal',this.value)"/></div>
   </div>
+
+  <div class="card">
+    <div class="card-title">💧 תזכורת מים</div>
+    <div class="ff"><label>תזכר אותי כל...</label>
+      <select id="reminder-sel" onchange="setReminder(this.value)">
+        <option value="0">כבוי</option>
+        <option value="30">כל 30 דקות</option>
+        <option value="60" selected>כל שעה</option>
+        <option value="90">כל שעה וחצי</option>
+        <option value="120">כל שעתיים</option>
+      </select>
+    </div>
+    <div id="reminder-status" style="font-size:.75rem;color:var(--green-dark);margin-top:4px;"></div>
+  </div>
+
   <div class="card">
     <div class="card-title">🔑 מפתח AI</div>
-    <p style="font-size:.76rem;color:var(--text-light);margin-bottom:7px;line-height:1.5;">
-      קבל מ-<a href="https://console.anthropic.com" target="_blank" style="color:var(--green-dark);">console.anthropic.com</a>
-      <span style="color:var(--orange);"> (חינמי) — נשמר רק במכשיר</span>
-    </p>
+    <p style="font-size:.74rem;color:var(--text-light);margin-bottom:7px;line-height:1.5;">נדרש לחישוב קלוריות, זיהוי תמונות ויועץ AI.<br>קבל מ-<a href="https://console.anthropic.com" target="_blank" style="color:var(--green-dark);">console.anthropic.com</a> <span style="color:var(--orange);">(חינמי)</span></p>
     <div class="akr"><input type="password" id="skey" placeholder="sk-ant-..."/><button class="btn bg bsm" onclick="saveKeyS()">שמור ✓</button></div>
-    <div id="kst" style="font-size:.76rem;margin-top:6px;color:var(--green-dark);"></div>
+    <div id="kst" style="font-size:.75rem;margin-top:5px;color:var(--green-dark);"></div>
   </div>
+
+  <div class="card">
+    <div class="card-title">📤 ייצוא נתונים</div>
+    <p style="font-size:.78rem;color:var(--text-light);margin-bottom:10px;">ייצא נתוני תזונה לקובץ Excel או Word כולל גרפים</p>
+    <button class="btn bg bfull" onclick="openExport()">בחר תאריכים וייצא ⬇️</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💾 גיבוי ושחזור</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn bg bsm" onclick="backupData()">⬇️ הורד גיבוי (JSON)</button>
+      <div>
+        <label style="font-size:.78rem;color:var(--text-light);">שחזר מגיבוי:</label>
+        <input type="file" id="restore-file" accept=".json" onchange="restoreData(event)" style="font-size:.75rem;margin-top:4px;width:100%;"/>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">⚙️ נוסף</div>
-    <div class="si-row"><div><div class="sl">איפוס יום</div><div class="ss">מחק ארוחות ומים של היום</div></div><button class="btn br bsm" onclick="rstDay()">איפוס</button></div>
-    <div class="si-row"><div><div class="sl">איפוס מלא</div><div class="ss">מחק הכל</div></div><button class="btn br bsm" onclick="rstAll()">מחק הכל</button></div>
+    <div class="si-row"><div><div class="sl">איפוס יום</div><div class="ss">מחק ארוחות ומים (כולל גיבוי)</div></div><button class="btn br bsm" onclick="rstDay()">איפוס</button></div>
+    <div class="si-row"><div><div class="sl">איפוס מלא</div><div class="ss">מחק הכל (כולל גיבוי)</div></div><button class="btn br bsm" onclick="rstAll()">מחק הכל</button></div>
   </div>
 </div>
 
 <script>
-let S={meals:{breakfast:[],lunch:[],dinner:[],snacks:[]},water:0,calGoal:2000,waterGoal:6,name:'',goal:'maintain',gender:'male',calcGoal:'maintain',mood:'😊',streak:0,ch:[]};
-let KEY='',viewingDate=null,histPeriod=7;
+const VERSION='1.2';
 
-const fmtKey=d=>d.toISOString().slice(0,10);
-const TODAY_KEY=()=>fmtKey(new Date());
+const QUOTES=[
+  'כל ארוחה היא הזדמנות חדשה לטפל בגוף שלך 💚',
+  'גוף בריא מתחיל בבחירות קטנות שעושים כל יום 🌱',
+  'שתיית מים זה המעשה הכי פשוט והכי חשוב שאתה יכול לעשות 💧',
+  'אתה לא צריך להיות מושלם — פשוט קצת טוב יותר מאתמול ⭐',
+  'כל צעד קטן לעבר אורח חיים בריא הוא ניצחון 🏆',
+  'הגוף שלך מדהים — תן לו את הדלק שהוא צריך 🚀',
+  'תזונה טובה היא ההשקעה הטובה ביותר שתוכל לעשות בעצמך 💪',
+  'אכול ירקות, שתה מים, זוז — זה הסוד 🥦',
+  'כוס מים עכשיו שווה יותר ממשקה ממותק 💧✨',
+  'הגוף שלך זוכר כל דבר טוב שעשית לו 🙏',
+  'ארוחת בוקר טובה מתחילה את היום בצורה הכי טובה ☀️',
+  'מנוחה וצחוק הם חלק מאורח חיים בריא 😄',
+  'כשאתה ישן טוב — הגוף שלך עובד טוב 😴💚',
+  'לאכול לאט ולרגיש את הטעם — זה חלק מהבריאות 🍽️',
+  'ספורט לא חייב להיות קשה — גם הליכה היא מעולה 🚶'
+];
 
-function heDate(k){
-  const [y,m,d]=k.split('-');
-  const days=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-  const dt=new Date(k+'T12:00:00');
-  if(k===TODAY_KEY())return 'היום';
-  const yest=new Date();yest.setDate(yest.getDate()-1);
-  if(k===fmtKey(yest))return 'אתמול';
-  return `${days[dt.getDay()]} ${d}/${m}`;
+let S={
+  meals:{breakfast:[],lunch:[],dinner:[],snacks:[]},
+  water:0,calGoal:2000,waterGoal:6,name:'',gender:'male',
+  goal:'maintain',calcGoal:'maintain',mood:'😊',
+  historyData:{},streak:0,ch:[],
+  reminderMinutes:60,quoteIdx:0
+};
+let KEY='';
+let viewingDate=null;
+let chartPeriod=7;
+let expFmt='excel';
+let camMeal='breakfast';
+let reminderTimer=null;
+
+// ── DATE HELPERS ──
+function todayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function fmtShort(k){const [y,m,d]=k.split('-');const mn=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];return`${parseInt(d)} ${mn[parseInt(m)-1]}`;}
+function fmtFull(k){const[y,m,d]=k.split('-');return`${parseInt(d)}/${m}/${y}`;}
+function hebrewDate(k){
+  const t=todayKey();if(k===t)return'היום';
+  const y=new Date();y.setDate(y.getDate()-1);
+  const yk=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+  if(k===yk)return'אתמול';return fmtFull(k);
 }
 
+// ── NAME/GENDER HELPERS ──
+function nameOf(){return S.name||'חבר/ה';}
+function greetWord(){return S.gender==='female'?'בוקר טוב':'בוקר טוב';}
+function heWord(verb_m,verb_f){return S.gender==='female'?verb_f:verb_m;}
+
+// ── PERSIST ──
 function load(){
   try{
-    const d=localStorage.getItem('tz5');
-    if(d){const p=JSON.parse(d);S={...S,...p};}
+    const d=localStorage.getItem('tz6');
+    if(d)S={...S,...JSON.parse(d)};
     if(!S.meals)S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
+    if(!S.historyData)S.historyData={};
     KEY=localStorage.getItem('tzkey')||'';
-    const today=TODAY_KEY(),last=localStorage.getItem('tzday');
+    const today=todayKey(),last=localStorage.getItem('tzday6');
     if(last&&last!==today){
-      saveDaySnap(last,S);
+      const allF=Object.values(S.meals).flat();
+      if(allF.length>0){
+        const tc=allF.reduce((a,f)=>a+f.cal,0);
+        S.historyData[last]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
+        S.streak=(S.streak||0)+1;
+      }
       S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;
     }
-    localStorage.setItem('tzday',today);
-    save();
+    localStorage.setItem('tzday6',today);
+  }catch(e){console.error(e);}
+}
+function save(){
+  try{localStorage.setItem('tz6',JSON.stringify(S));}catch(e){}
+  syncToday();
+}
+function syncToday(){
+  const k=todayKey();
+  const allF=Object.values(S.meals).flat();
+  const tc=allF.reduce((a,f)=>a+f.cal,0);
+  if(tc>0||S.water>0){
+    S.historyData[k]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
+    try{localStorage.setItem('tz6',JSON.stringify(S));}catch(e){}
+  }
+}
+
+// ── BACKUP ──
+function backupData(){
+  const data=JSON.stringify(S,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`tzuna-backup-${todayKey()}.json`;
+  a.click();
+  toast('גיבוי הורד בהצלחה ✅','success');
+}
+function restoreData(evt){
+  const file=evt.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      S={...S,...data};
+      save();load();uhome();rfood();rsettings();
+      toast('שחזור הושלם ✅','success');
+    }catch(ex){toast('קובץ לא תקין ❌','');}
+  };
+  reader.readAsText(file);
+}
+function autoBackup(){
+  try{
+    const data=JSON.stringify(S,null,2);
+    const blob=new Blob([data],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=`tzuna-autobackup-${todayKey()}.json`;
+    a.click();
   }catch(e){}
 }
 
-function save(){
-  try{localStorage.setItem('tz5',JSON.stringify(S));}catch(e){}
-  saveDaySnap(TODAY_KEY(),S);
+// ── ONBOARDING ──
+function obSetGender(g){
+  document.getElementById('ob-male').classList.toggle('act',g==='male');
+  document.getElementById('ob-female').classList.toggle('act',g==='female');
+  S.gender=g;
+}
+function finishOnboarding(){
+  const n=document.getElementById('ob-name').value.trim();
+  if(n)S.name=n;
+  document.getElementById('onboarding').style.display='none';
+  save();uhome();rsettings();
+  toast(`ברוכ${S.gender==='female'?'ה':''}  הב${S.gender==='female'?'א':'א'}, ${S.name||'חבר'}! 🎉`,'success');
 }
 
-function saveDaySnap(dateKey,state){
-  const all=Object.values(state.meals).flat();
-  if(!all.length&&!state.water)return;
-  const snap={cal:all.reduce((a,f)=>a+f.cal,0),water:state.water,foods:all.length,meals:JSON.parse(JSON.stringify(state.meals)),mood:state.mood};
-  try{localStorage.setItem('tzday_'+dateKey,JSON.stringify(snap));}catch(e){}
+// ── TOAST ──
+function toast(msg,type=''){
+  const el=document.createElement('div');
+  el.className='toast '+(type||'');
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3000);
 }
 
-function getAllDays(){
-  const days=[];const today=TODAY_KEY();
-  for(let i=0;i<localStorage.length;i++){
-    const k=localStorage.key(i);
-    if(k&&k.startsWith('tzday_')){
-      try{const s=JSON.parse(localStorage.getItem(k));days.push({key:k.replace('tzday_',''),...s});}catch(e){}
-    }
-  }
-  // Ensure today is included live
-  const hasToday=days.find(d=>d.key===today);
-  if(!hasToday){
-    const all=Object.values(S.meals).flat();
-    if(all.length||S.water)days.push({key:today,cal:all.reduce((a,f)=>a+f.cal,0),water:S.water,foods:all.length,meals:S.meals,mood:S.mood});
-  }
-  return days.sort((a,b)=>b.key.localeCompare(a.key));
+// ── WATER REMINDER ──
+function setReminder(mins){
+  S.reminderMinutes=parseInt(mins)||0;
+  save();
+  if(reminderTimer)clearInterval(reminderTimer);
+  if(!S.reminderMinutes){document.getElementById('reminder-status').textContent='תזכורת כבויה';return;}
+  document.getElementById('reminder-status').textContent=`✅ תזכורת כל ${S.reminderMinutes} דקות`;
+  reminderTimer=setInterval(showWaterReminder, S.reminderMinutes*60000);
+}
+function showWaterReminder(){
+  const wrap=document.getElementById('water-reminder-wrap');
+  wrap.innerHTML=`<div class="water-banner">💧 ${nameOf()}, הגיע הזמן לשתות כוס מים!<button onclick="dismissReminder()" style="background:rgba(255,255,255,.3);border:none;color:white;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:700;font-size:.78rem;">שתיתי ✓</button></div>`;
+}
+function dismissReminder(){
+  document.getElementById('water-reminder-wrap').innerHTML='';
+  S.water=Math.min(S.water+1,S.waterGoal);save();uhome();
 }
 
-function getDay(dateKey){
-  if(dateKey===TODAY_KEY()){const all=Object.values(S.meals).flat();return{key:dateKey,cal:all.reduce((a,f)=>a+f.cal,0),water:S.water,foods:all.length,meals:S.meals,mood:S.mood};}
-  try{const s=localStorage.getItem('tzday_'+dateKey);return s?{key:dateKey,...JSON.parse(s)}:null;}catch(e){return null;}
-}
-
-function saveKey(){const k=document.getElementById('akin').value.trim();if(!k)return;KEY=k;localStorage.setItem('tzkey',k);document.getElementById('apinote').style.display='none';addBot('✅ מפתח נשמר! 😊');}
-function saveKeyS(){const k=document.getElementById('skey').value.trim();if(!k)return;KEY=k;localStorage.setItem('tzkey',k);document.getElementById('kst').textContent='✅ מפתח נשמר!';document.getElementById('apinote').style.display='none';}
-
-function updateHeaderDate(){
-  const today=new Date();
-  const opts={day:'numeric',month:'numeric'};
-  if(viewingDate&&viewingDate!==TODAY_KEY()){
-    const [y,m,d]=viewingDate.split('-');
-    document.getElementById('hdr-date-label').textContent='צופה ב:';
-    document.getElementById('hdr-date-val').textContent=`${d}/${m}/${y}`;
-    document.getElementById('view-banner').style.display='flex';
-    document.getElementById('view-banner-date').textContent=heDate(viewingDate);
-  }else{
-    document.getElementById('hdr-date-label').textContent='היום';
-    document.getElementById('hdr-date-val').textContent=today.toLocaleDateString('he-IL',opts);
-    document.getElementById('view-banner').style.display='none';
-  }
-}
-
+// ── DATE PICKER ──
 function openDatePicker(){
-  const inp=document.getElementById('date-input-hidden');
-  inp.max=TODAY_KEY();inp.value=viewingDate||TODAY_KEY();
+  const inp=document.getElementById('date-inp');inp.max=todayKey();inp.value=viewingDate||todayKey();
   try{inp.showPicker();}catch(e){inp.click();}
 }
-
-function onDatePick(val){
-  if(!val)return;
-  viewingDate=val;updateHeaderDate();
-  const active=document.querySelector('.page.active');
-  if(active){const id=active.id.replace('page-','');if(id==='home')uhome();if(id==='food')rfood();}
+function onDatePick(val){if(!val)return;if(val===todayKey()){backToToday();return;}viewingDate=val;updateHdr();uhome();}
+function backToToday(){viewingDate=null;updateHdr();uhome();}
+function updateHdr(){
+  const btn=document.getElementById('date-btn');
+  if(viewingDate){btn.textContent=fmtFull(viewingDate);btn.classList.add('alt');}
+  else{
+    const d=new Date();
+    const mn=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+    btn.textContent=`${d.getDate()} ${mn[d.getMonth()]}`;btn.classList.remove('alt');
+  }
 }
 
-function returnToday(){viewingDate=null;updateHeaderDate();uhome();rfood();}
-
+// ── NAV ──
 function pg(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   ['home','food','ai','calc','settings'].forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
-  if(id==='home')uhome();if(id==='food')rfood();if(id==='settings')rsettings();
-  if(id==='ai'&&!KEY)document.getElementById('apinote').style.display='block';
+  if(id==='home')uhome();
+  if(id==='food')rfood();
+  if(id==='settings')rsettings();
+  if(id==='ai'){if(!KEY)document.getElementById('apinote').style.display='block';updateChatWelcome();}
 }
 
-function grt(){const h=new Date().getHours(),n=S.name?`, ${S.name}`:'';return h<12?`בוקר טוב${n}! ☀️`:h<17?`צהריים טובים${n}! 🌤️`:`ערב טוב${n}! 🌙`;}
+// ── QUOTE ──
+function newQuote(){S.quoteIdx=(S.quoteIdx+1)%QUOTES.length;document.getElementById('quote-text').textContent=QUOTES[S.quoteIdx];save();}
+function showQuote(){document.getElementById('quote-text').textContent=QUOTES[S.quoteIdx%QUOTES.length];}
 
+// ── HOME ──
+function grt(){
+  const h=new Date().getHours(),n=S.name?`, ${S.name}`:'';
+  const f=S.gender==='female';
+  if(h<12)return`בוקר טוב${n}! ☀️`;
+  if(h<17)return`צהריים טובים${n}! 🌤️`;
+  return`ערב טוב${n}! 🌙`;
+}
+function getDD(){
+  if(viewingDate){const d=S.historyData[viewingDate];if(d)return{cal:d.cal,water:d.water,meals:d.meals||{}};return{cal:0,water:0,meals:{}};}
+  const allF=Object.values(S.meals).flat();return{cal:allF.reduce((a,f)=>a+f.cal,0),water:S.water,meals:S.meals};
+}
 function uhome(){
+  const isToday=!viewingDate;
+  document.getElementById('view-banner').style.display=isToday?'none':'block';
+  if(!isToday)document.getElementById('view-lbl').textContent=fmtFull(viewingDate);
+  document.getElementById('water-card').style.display=isToday?'block':'none';
+  document.getElementById('mood-card').style.display=isToday?'block':'none';
+  showQuote();
   document.getElementById('greet').textContent=grt();
-  const dateKey=viewingDate||TODAY_KEY();
-  const day=getDay(dateKey);
-  const tc=day?day.cal:0,wt=day?day.water:0;
-  const pct=Math.min(tc/S.calGoal,1);
+  const{cal,water}=getDD();
+  const pct=Math.min(cal/S.calGoal,1);
   document.getElementById('cring').style.strokeDashoffset=264-pct*264;
-  document.getElementById('cdis').textContent=tc;document.getElementById('cgdis').textContent='/ '+S.calGoal;
-  const wp=Math.min(wt/S.waterGoal,1);
+  document.getElementById('cdis').textContent=cal;document.getElementById('cgdis').textContent='/ '+S.calGoal;
+  const wp=Math.min(water/S.waterGoal,1);
   document.getElementById('wring').style.strokeDashoffset=207-wp*207;
-  document.getElementById('wdis').textContent=wt;document.getElementById('wgdis').textContent='/ '+S.waterGoal;
+  document.getElementById('wdis').textContent=water;document.getElementById('wgdis').textContent='/ '+S.waterGoal;
   const bs={lose:'<span class="gbadge gl">📉 ירידה</span>',maintain:'<span class="gbadge gm">⚖️ שמירה</span>',gain:'<span class="gbadge gg">📈 עלייה</span>'};
   document.getElementById('gbadge').innerHTML=bs[S.goal]||'';
-  document.getElementById('moodd').textContent=(day&&day.mood)||S.mood;
-  rwc(wt);renderHistSection();
+  document.getElementById('moodd').textContent=S.mood;
+  if(isToday)rwc();
+  drawChart();rhist();
 }
-
-function rwc(wt){
-  const cur=wt!=null?wt:S.water;
+function rwc(){
   const w=document.getElementById('wc');w.innerHTML='';
-  const isToday=!viewingDate||viewingDate===TODAY_KEY();
   for(let i=0;i<S.waterGoal;i++){
-    const c=document.createElement('div');c.className='cup'+(i<cur?' filled':'');
-    c.innerHTML=`<span>${i<cur?'💧':''}</span>`;
-    if(isToday)c.onclick=()=>{S.water=i+1;save();uhome();};
-    w.appendChild(c);
+    const c=document.createElement('div');c.className='cup'+(i<S.water?' filled':'');
+    c.innerHTML=`<span>${i<S.water?'💧':''}</span>`;
+    c.onclick=()=>{S.water=i+1;save();uhome();};w.appendChild(c);
   }
 }
-
-function setMood(btn,m){S.mood=m;save();document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('moodd').textContent=m;}
 function addW(){if(S.water<S.waterGoal){S.water++;save();uhome();}}
 function rstW(){S.water=0;save();uhome();}
+function setMood(btn,m){S.mood=m;save();document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('moodd').textContent=m;}
 
-function setPeriod(days,btn){
-  histPeriod=days;
-  document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('act'));btn.classList.add('act');
-  renderHistSection();
-}
-
-function renderHistSection(){
-  let all=getAllDays();
-  if(histPeriod>0){const cut=new Date();cut.setDate(cut.getDate()-histPeriod);const cs=fmtKey(cut);all=all.filter(d=>d.key>=cs);}
-  drawChart(all);renderHistList(all);
-}
-
-function drawChart(days){
-  const canvas=document.getElementById('hist-chart');
-  const ctx=canvas.getContext('2d');
-  const W=canvas.parentElement.offsetWidth||300,H=160;
-  canvas.width=W*(window.devicePixelRatio||1);canvas.height=H*(window.devicePixelRatio||1);
-  ctx.scale(window.devicePixelRatio||1,window.devicePixelRatio||1);
-  ctx.clearRect(0,0,W,H);
-  if(!days||!days.length){
-    ctx.fillStyle='#bbb';ctx.font='13px Heebo,sans-serif';ctx.textAlign='center';
-    ctx.fillText('אין נתונים לתקופה זו',W/2,H/2);return;
+// ── CHART ──
+function setPeriod(d,btn){chartPeriod=d;document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('act'));btn.classList.add('act');drawChart();}
+function getChartData(){
+  const today=todayKey();
+  let keys=Object.keys(S.historyData).sort();
+  if(!keys.length)return[];
+  if(chartPeriod>0){
+    const c=new Date();c.setDate(c.getDate()-(chartPeriod-1));
+    const ck=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');
+    keys=keys.filter(k=>k>=ck);
   }
-  const sorted=[...days].sort((a,b)=>a.key.localeCompare(b.key));
-  const cals=sorted.map(d=>d.cal);
-  const maxCal=Math.max(...cals,S.calGoal,500);
-  const pad={t:14,r:8,b:28,l:38};
-  const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
-  // Grid
-  ctx.strokeStyle='#f0f0f0';ctx.lineWidth=1;
-  [0.25,0.5,0.75,1].forEach(f=>{
-    const y=pad.t+ch*(1-f);
-    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+cw,y);ctx.stroke();
-    ctx.fillStyle='#bbb';ctx.font=`9px Heebo,sans-serif`;ctx.textAlign='right';
-    ctx.fillText(Math.round(maxCal*f),pad.l-3,y+3);
+  return keys.map(k=>({key:k,cal:S.historyData[k]?.cal||0,isToday:k===today}));
+}
+function drawChart(){
+  const wrap=document.getElementById('chart-wrap');
+  const data=getChartData();
+  if(!data.length){wrap.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים — התחל להזין ארוחות!</p></div>';return;}
+  const bw=34,gap=10,W=Math.max(data.length*(bw+gap)+20,wrap.clientWidth||300),H=155;
+  const pad={t:20,b:34,l:6,r:6};const chartH=H-pad.t-pad.b;
+  const maxCal=Math.max(...data.map(d=>d.cal),S.calGoal,500);
+  let bars='',labels='';
+  data.forEach((d,i)=>{
+    const x=pad.l+i*(bw+gap);
+    const bh=Math.max(d.cal/maxCal*chartH,2);
+    const y=pad.t+chartH-bh;
+    const col=d.isToday?'#27ae60':d.cal>S.calGoal?'#e74c3c':'#2ecc71';
+    bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="5" fill="${col}" opacity=".85" style="cursor:pointer;" onclick="onDatePick('${d.key}')"/>`;
+    if(d.cal>0)bars+=`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="8" fill="#666" font-family="Heebo">${d.cal}</text>`;
+    labels+=`<text x="${x+bw/2}" y="${H-3}" text-anchor="middle" font-size="8" fill="${d.isToday?'#27ae60':'#999'}" font-weight="${d.isToday?'bold':'normal'}" font-family="Heebo">${fmtShort(d.key)}</text>`;
   });
-  // Goal line
-  const gy=pad.t+ch*(1-S.calGoal/maxCal);
-  ctx.strokeStyle='rgba(230,126,34,.6)';ctx.lineWidth=1.5;ctx.setLineDash([4,3]);
-  ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(pad.l+cw,gy);ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle='rgba(230,126,34,.9)';ctx.font='8px Heebo';ctx.textAlign='left';ctx.fillText('יעד',pad.l+2,gy-2);
-  // Area
-  if(sorted.length>1){
-    const step=cw/(sorted.length-1);
-    ctx.beginPath();
-    sorted.forEach((d,i)=>{const x=pad.l+i*step,y=pad.t+ch*(1-d.cal/maxCal);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-    ctx.lineTo(pad.l+(sorted.length-1)*step,pad.t+ch);ctx.lineTo(pad.l,pad.t+ch);ctx.closePath();
-    const ag=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
-    ag.addColorStop(0,'rgba(46,204,113,.3)');ag.addColorStop(1,'rgba(46,204,113,.02)');
-    ctx.fillStyle=ag;ctx.fill();
-    // Line
-    ctx.beginPath();
-    sorted.forEach((d,i)=>{const x=pad.l+i*step,y=pad.t+ch*(1-d.cal/maxCal);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
-    ctx.strokeStyle='#27ae60';ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
-    // Dots & labels
-    sorted.forEach((d,i)=>{
-      const x=pad.l+i*step,y=pad.t+ch*(1-d.cal/maxCal);
-      ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);
-      ctx.fillStyle=d.key===TODAY_KEY()?'#e67e22':'#27ae60';ctx.fill();
-      ctx.strokeStyle='white';ctx.lineWidth=1.5;ctx.stroke();
-      if(sorted.length<=10||i%Math.ceil(sorted.length/8)===0){
-        const lbl=heDate(d.key);
-        ctx.fillStyle='#999';ctx.font='8px Heebo';ctx.textAlign='center';
-        ctx.fillText(lbl.slice(0,5),x,H-6);
-      }
-    });
-  }else if(sorted.length===1){
-    const x=pad.l+cw/2,y=pad.t+ch*(1-cals[0]/maxCal);
-    const bw=28,bh=ch-ch*(1-cals[0]/maxCal);
-    const grad=ctx.createLinearGradient(0,y,0,pad.t+ch);
-    grad.addColorStop(0,'#2ecc71');grad.addColorStop(1,'#27ae60');
-    ctx.fillStyle=grad;ctx.fillRect(x-bw/2,y,bw,bh);
-    ctx.fillStyle='#2c3e50';ctx.font='bold 11px Heebo';ctx.textAlign='center';ctx.fillText(cals[0],x,y-3);
-    ctx.fillStyle='#999';ctx.font='9px Heebo';ctx.fillText(heDate(sorted[0].key),x,H-6);
-  }
+  const goalY=pad.t+chartH-(S.calGoal/maxCal*chartH);
+  const lw=W-pad.l-pad.r;
+  const goalLine=`<line x1="${pad.l}" y1="${goalY}" x2="${pad.l+lw}" y2="${goalY}" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="${pad.l+lw}" y="${goalY-3}" text-anchor="end" font-size="7.5" fill="#e67e22" font-family="Heebo">יעד ${S.calGoal}</text>`;
+  wrap.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">${bars}${labels}${goalLine}</svg>`;
 }
-
-function renderHistList(days){
-  const el=document.getElementById('hist-list');
-  const today=TODAY_KEY();
-  if(!days||!days.length){el.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים. התחל לרשום ארוחות!</p></div>';return;}
-  el.innerHTML=days.map(d=>{
-    const pct=Math.min(d.cal/S.calGoal*100,100);
-    const isToday=d.key===today;
-    return`<div class="hday${isToday?' today-row':''}" onclick="onDatePick('${d.key}')">
-      <div style="flex:1;">
-        <div class="dd">${heDate(d.key)}${isToday?' 🟢':''}</div>
-        <div class="goal-bar"><div class="goal-fill" style="width:${pct}%;background:${d.cal>S.calGoal?'var(--orange)':'var(--green)'};"></div></div>
-      </div>
-      <div style="text-align:left;margin-right:8px;">
-        <div class="dc">${d.cal} קל׳</div>
-        <div style="font-size:.67rem;color:var(--text-light);">${d.foods||0} פריטים 💧${d.water||0}</div>
-      </div>
+function rhist(){
+  const el=document.getElementById('hist');const today=todayKey();
+  const keys=Object.keys(S.historyData).sort().reverse();
+  if(!keys.length){el.innerHTML='<div class="empty"><div class="ei">📅</div><p>אין נתוני ימים עדיין</p></div>';return;}
+  el.innerHTML=keys.map(k=>{
+    const d=S.historyData[k];const isT=k===today;
+    return`<div class="hday${isT?' today':''}" onclick="onDatePick('${k}')">
+      <div><div class="dd">${hebrewDate(k)}${isT?' 📌':''}</div><div style="font-size:.67rem;color:var(--text-light);">${d.foods||0} פריטים • 💧${d.water||0}</div></div>
+      <div class="dc">${d.cal||0} קל׳</div>
     </div>`;
   }).join('');
 }
 
-const MEAL_LABELS={breakfast:'ארוחת בוקר',lunch:'ארוחת צהריים',dinner:'ארוחת ערב',snacks:'נשנושים'};
-const MEAL_ICONS={breakfast:'🌅',lunch:'☀️',dinner:'🌙',snacks:'🍎'};
-
-function rfood(){
-  const dateKey=viewingDate||TODAY_KEY();
-  const isToday=dateKey===TODAY_KEY();
-  document.getElementById('food-editable').style.display=isToday?'block':'none';
-  document.getElementById('food-readonly').style.display=isToday?'none':'block';
-  if(isToday){['breakfast','lunch','dinner','snacks'].forEach(m=>renderMeal(m));}
-  else{
-    const d=getDay(dateKey);
-    document.getElementById('readonly-date-title').textContent='📅 '+heDate(dateKey);
-    if(!d||!d.foods){document.getElementById('readonly-content').innerHTML='<div class="empty"><p>אין נתונים ליום זה</p></div>';return;}
-    let html='';
-    ['breakfast','lunch','dinner','snacks'].forEach(m=>{
-      const items=(d.meals&&d.meals[m])||[];if(!items.length)return;
-      const tot=items.reduce((a,f)=>a+f.cal,0);
-      html+=`<div class="readonly-meal"><div class="readonly-meal-title">${MEAL_ICONS[m]} ${MEAL_LABELS[m]} — ${tot} קל׳</div>${items.map(f=>`<div class="readonly-item"><span>${f.name}</span><span style="font-weight:700;color:var(--green-dark);">${f.cal} קל׳</span></div>`).join('')}</div>`;
-    });
-    html+=`<div style="padding:10px;background:var(--green-light);border-radius:10px;text-align:center;font-weight:900;color:var(--green-dark);">סה״כ: ${d.cal} קל׳ | 💧 ${d.water||0} כוסות</div>`;
-    document.getElementById('readonly-content').innerHTML=html;
-  }
-}
-
+// ── FOOD ──
+const ML={breakfast:'ארוחת בוקר',lunch:'ארוחת צהריים',dinner:'ארוחת ערב',snacks:'נשנושים'};
+function rfood(){['breakfast','lunch','dinner','snacks'].forEach(m=>renderMeal(m));}
 function renderMeal(meal){
   const list=document.getElementById('list-'+meal);
   const items=S.meals[meal]||[];
   const total=items.reduce((a,f)=>a+f.cal,0);
   document.getElementById('cal-'+meal).textContent=total>0?total+' קל׳':'';
-  if(!items.length){list.innerHTML='<div class="empty" style="padding:8px;"><span style="color:#ccc;">—</span></div>';return;}
-  list.innerHTML=items.map((f,i)=>`<li class="fi"><div class="fn">${f.name}</div><div style="display:flex;align-items:center;gap:8px;"><span class="fcal">${f.cal} קל׳</span><button class="del" onclick="rmItem('${meal}',${i})">✕</button></div></li>`).join('');
+  if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.8rem;">—</div>';return;}
+  list.innerHTML=items.map((f,i)=>{
+    const hasZero=f.cal===0;
+    return`<li class="fi">
+      <div class="fn">${f.name}</div>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <span class="fcal">${hasZero?'?':f.cal} קל׳</span>
+        ${hasZero&&KEY?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i})">חשב</button>`:''}
+        <button class="del" onclick="rmItem('${meal}',${i})">✕</button>
+      </div>
+    </li>`;
+  }).join('');
+}
+
+// Recalc single item
+async function recalcItem(meal,idx){
+  const item=S.meals[meal][idx];if(!item||!KEY)return;
+  const btn=event.target;btn.textContent='...';btn.disabled=true;
+  try{
+    const cal=await calcCalAI(item.name);
+    S.meals[meal][idx].cal=cal;save();renderMeal(meal);uhome();
+  }catch(e){btn.textContent='חשב';btn.disabled=false;}
 }
 
 async function addItem(meal){
-  const inp=document.getElementById('inp-'+meal);
-  const name=inp.value.trim();if(!name)return;inp.value='';
+  const inp=document.getElementById('inp-'+meal);const name=inp.value.trim();if(!name)return;inp.value='';
   if(!KEY){S.meals[meal].push({name,cal:0});save();renderMeal(meal);uhome();document.getElementById('apinote').style.display='block';return;}
   const list=document.getElementById('list-'+meal);
-  const li=document.createElement('li');li.className='fi loading';li.id='tmp';
+  const li=document.createElement('li');li.className='fi loading';
   li.innerHTML=`<div class="fn">${name}</div><div class="ai-loading"><div class="spinner"></div> מחשב...</div>`;
-  const emp=list.querySelector('.empty');if(emp)emp.remove();list.appendChild(li);
+  const emp=list.querySelector('div');if(emp&&emp.style.color==='rgb(204, 204, 204)')emp.remove();
+  list.appendChild(li);
   try{const cal=await calcCalAI(name);li.remove();S.meals[meal].push({name,cal});save();renderMeal(meal);uhome();}
   catch(e){li.remove();S.meals[meal].push({name,cal:0});save();renderMeal(meal);uhome();}
 }
-
-async function calcCalAI(n){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+async function calcCalAI(foodName){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:60,
-      system:'אתה מחשב קלוריות לפי מנה ביתית רגילה. ענה רק במספר שלם, ללא טקסט אחר.',
-      messages:[{role:'user',content:`קלוריות ב: ${n}`}]})});
+      system:'אתה מחשב קלוריות לפי מנה ביתית מתונה. ענה רק במספר שלם של קלוריות, ללא טקסט נוסף. דוגמה: 250',
+      messages:[{role:'user',content:`כמה קלוריות ב: ${foodName}`}]})
+  });
   const d=await r.json();if(d.error)throw new Error(d.error.message);
-  return parseInt((d.content?.[0]?.text||'0').replace(/[^\d]/g,''))||0;
+  const num=parseInt((d.content?.[0]?.text||'0').replace(/[^\d]/g,''));
+  return isNaN(num)?0:num;
 }
-
 function rmItem(meal,i){S.meals[meal].splice(i,1);save();renderMeal(meal);uhome();}
 
+// ── CAMERA / IMAGE ──
+let camMealTarget='breakfast';
+function openCam(meal){camMealTarget=meal;document.getElementById('cam-input').click();}
+async function onCamImage(evt){
+  const file=evt.target.files[0];if(!file)return;evt.target.value='';
+  if(!KEY){toast('נדרש מפתח API לזיהוי תמונות','warn');return;}
+  const reader=new FileReader();
+  reader.onload=async(e)=>{
+    const base64=e.target.result.split(',')[1];
+    const mediaType=file.type||'image/jpeg';
+    const meal=camMealTarget;
+    const list=document.getElementById('list-'+meal);
+    const li=document.createElement('li');li.className='fi loading';
+    li.innerHTML=`<div class="fn">🖼️ מזהה תמונה...</div><div class="ai-loading"><div class="spinner"></div></div>`;
+    list.appendChild(li);
+    try{
+      const r=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,
+          system:'אתה מזהה אוכל בתמונות ומחשב קלוריות לפי מנה ביתית מתונה. ענה בפורמט: שם_המאכל|קלוריות. לדוגמה: שניצל עם אורז|450. אם יש כמה מאכלים, כתוב את הכולל.',
+          messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'מה רואים בתמונה וכמה קלוריות?'}]}]})
+      });
+      const d=await r.json();li.remove();
+      if(d.error)throw new Error(d.error.message);
+      const txt=d.content?.[0]?.text||'';
+      const parts=txt.split('|');
+      const name=parts[0]?.trim()||'אוכל מתמונה';
+      const cal=parseInt((parts[1]||'0').replace(/[^\d]/g,''))||0;
+      S.meals[meal].push({name,cal,fromPhoto:true});save();renderMeal(meal);uhome();
+      toast(`זוהה: ${name} — ${cal} קל׳ 📷`,'success');
+    }catch(err){li.remove();toast('שגיאה בזיהוי תמונה ❌','');}
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── SETTINGS ──
 function rsettings(){
   document.getElementById('sname').value=S.name||'';
   document.getElementById('scal').value=S.calGoal;
   document.getElementById('swat').value=S.waterGoal;
+  document.getElementById('reminder-sel').value=S.reminderMinutes||60;
+  if(S.reminderMinutes>0)document.getElementById('reminder-status').textContent=`✅ תזכורת כל ${S.reminderMinutes} דקות`;
+  document.getElementById('sg-male').classList.toggle('act',S.gender==='male');
+  document.getElementById('sg-female').classList.toggle('act',S.gender==='female');
   if(KEY)document.getElementById('kst').textContent='✅ מפתח AI שמור';
 }
 function sv(k,v){
   if(k==='calGoal')S.calGoal=parseInt(v)||2000;
-  else if(k==='waterGoal'){S.waterGoal=parseInt(v)||6;rwc();}
+  else if(k==='waterGoal'){S.waterGoal=parseInt(v)||6;}
   else if(k==='name')S.name=v;
+  else if(k==='gender'){
+    S.gender=v;
+    document.getElementById('sg-male').classList.toggle('act',v==='male');
+    document.getElementById('sg-female').classList.toggle('act',v==='female');
+  }
   save();uhome();
 }
-function rstDay(){
-  if(confirm('למחוק נתוני היום?')){
-    S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;
-    localStorage.removeItem('tzday_'+TODAY_KEY());save();uhome();rfood();
-  }
-}
-function rstAll(){if(confirm('למחוק הכל?')){localStorage.clear();location.reload();}}
+function saveKey(){const k=document.getElementById('akin').value.trim();if(!k)return;KEY=k;localStorage.setItem('tzkey',k);document.getElementById('apinote').style.display='none';addBot('✅ מפתח נשמר! 😊');}
+function saveKeyS(){const k=document.getElementById('skey').value.trim();if(!k)return;KEY=k;localStorage.setItem('tzkey',k);document.getElementById('kst').textContent='✅ מפתח AI שמור';document.getElementById('apinote').style.display='none';}
 
+function rstDay(){
+  if(!confirm('למחוק נתוני היום?'))return;
+  autoBackup();
+  S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;
+  delete S.historyData[todayKey()];
+  save();uhome();rfood();toast('נתוני היום נמחקו (גיבוי הורד)','warn');
+}
+function rstAll(){
+  if(!confirm('למחוק הכל לגמרי?'))return;
+  autoBackup();
+  localStorage.clear();location.reload();
+}
+
+// ── CALC ──
 function setG(g){S.gender=g;document.getElementById('bm').classList.toggle('act',g==='male');document.getElementById('bf').classList.toggle('act',g==='female');}
-function setGl(g){S.calcGoal=g;['gl','gm','gg'].forEach(x=>document.getElementById(x).classList.remove('act'));document.getElementById(g==='lose'?'gl':g==='maintain'?'gm':'gg').classList.add('act');}
-function calc(){
+function setGl(g){S.calcGoal=g;['gl','gm','gg'].forEach(id=>document.getElementById(id).classList.remove('act'));document.getElementById(g==='lose'?'gl':g==='maintain'?'gm':'gg').classList.add('act');}
+function calcTDEE(){
   const a=parseInt(document.getElementById('age').value),w=parseFloat(document.getElementById('wt').value),h=parseFloat(document.getElementById('ht').value),ac=parseFloat(document.getElementById('act').value);
   if(!a||!w||!h){alert('מלא את כל השדות');return;}
   let bmr=S.gender==='male'?10*w+6.25*h-5*a+5:10*w+6.25*h-5*a-161;
   const tdee=Math.round(bmr*ac);
-  let t,cls,ic;
-  if(S.calcGoal==='lose'){t=tdee-500;cls='lr';ic='📉';}
-  else if(S.calcGoal==='gain'){t=tdee+400;cls='gr';ic='📈';}
-  else{t=tdee;cls='';ic='⚖️';}
-  document.getElementById('cres').style.display='block';
-  document.getElementById('cres').innerHTML=`<div class="rb ${cls}"><div style="font-size:1.4rem;">${ic}</div><div class="rc">${t}</div><div style="font-size:.82rem;opacity:.9;">קל׳/יום</div><div style="font-size:.73rem;opacity:.7;">TDEE: ${tdee}</div><button class="btn" style="margin-top:11px;background:rgba(255,255,255,.25);color:white;font-size:.8rem;" onclick="applyG(${t},'${S.calcGoal}')">🎯 הגדר כיעד</button></div>`;
+  let t,cls,txt,ic;
+  if(S.calcGoal==='lose'){t=tdee-500;cls='lr';txt='ירידה במשקל';ic='📉';}
+  else if(S.calcGoal==='gain'){t=tdee+400;cls='gr';txt='עלייה במשקל';ic='📈';}
+  else{t=tdee;cls='';txt='שמירה';ic='⚖️';}
+  const el=document.getElementById('cres');el.style.display='block';
+  el.innerHTML=`<div class="rb ${cls}"><div style="font-size:1.4rem;">${ic}</div><div class="rc">${t}</div><div style="font-size:.8rem;opacity:.9;">קלוריות ביום – ${txt}</div><div style="font-size:.71rem;opacity:.7;margin-top:2px;">TDEE: ${tdee}</div><button class="btn" style="margin-top:10px;background:rgba(255,255,255,.25);color:white;font-size:.78rem;" onclick="applyG(${t},'${S.calcGoal}')">🎯 הגדר כיעד שלי</button></div>`;
   rtips(S.calcGoal,w);
 }
-function applyG(c,g){S.calGoal=c;S.goal=g;save();uhome();alert(`✅ יעד ${c} קל׳ הוגדר!`);}
+function applyG(c,g){S.calGoal=c;S.goal=g;save();uhome();toast(`✅ יעד ${c} קלוריות הוגדר!`,'success');}
 function rtips(goal,w){
-  const t={gain:['🥚 5-6 ארוחות ביום',`🥩 ${Math.round((w||60)*1.8)}g חלבון`,'🥜 שומנים בריאים','🥛 שייק חלבון','🍚 פחמימות מורכבות','💪 כוח 3-4×/שבוע'],
-    lose:['🥗 חלבון בכל ארוחה','🥦 ירקות','💧 מים לפני ארוחה','🚶 הליכה 30 דק׳','⏰ ארוחות קטנות','🚫 ללא ממותקים'],
-    maintain:['⚖️ עקביות','🌈 גיוון','💧 מים מספיק','🏃 ספורט','😴 שינה','🧘 לא מתח']};
-  document.getElementById('tips').innerHTML=(t[goal]||t.maintain).map(x=>`<div style="padding:7px 10px;background:#f8f8f8;border-radius:9px;font-size:.81rem;margin-bottom:4px;">${x}</div>`).join('');
+  const t={gain:['🥚 5-6 ארוחות ביום',`🥩 ${Math.round((w||60)*1.8)}g חלבון ביום`,'🥜 שומנים בריאים: אגוזים, אבוקדו','🥛 שייק חלבון אחרי אימון','🍚 פחמימות מורכבות','💪 אימוני כוח 3-4×/שבוע'],
+    lose:['🥗 חלבון בכל ארוחה','🥦 ירקות בכל צלחת','💧 מים לפני כל ארוחה','🚶 30 דקות הליכה ביום','⏰ ארוחות קטנות כל 3-4 שעות','🚫 הימנע ממשקאות ממותקים'],
+    maintain:['⚖️ עקביות בארוחות','🌈 גוון את התזונה',`💧 ${Math.round((w||60)*0.03)} ליטר מים`,'🏃 ספורט 3-4×/שבוע','😴 שינה מספקת','🧘 הימנע מאכילה ממתח']};
+  document.getElementById('tips').innerHTML=(t[goal]||t.maintain).map(x=>`<div style="padding:7px 10px;background:#f8f8f8;border-radius:9px;font-size:.79rem;margin-bottom:4px;">${x}</div>`).join('');
 }
 
-async function send(){const inp=document.getElementById('cinp'),txt=inp.value.trim();if(!txt)return;inp.value='';addUser(txt);await getAI(txt);}
+// ── EXPORT ──
+let expFmt2='excel';
+function openExport(){
+  document.getElementById('exp-from').value=todayKey().slice(0,7)+'-01';
+  document.getElementById('exp-to').value=todayKey();
+  document.getElementById('export-modal').style.display='flex';
+}
+function closeExport(){document.getElementById('export-modal').style.display='none';}
+function setExpFmt(f){
+  expFmt2=f;
+  document.getElementById('ef-excel').classList.toggle('act',f==='excel');
+  document.getElementById('ef-word').classList.toggle('act',f==='word');
+}
+function doExport(){
+  const from=document.getElementById('exp-from').value;
+  const to=document.getElementById('exp-to').value;
+  if(!from||!to){alert('בחר תאריכים');return;}
+  const keys=Object.keys(S.historyData).sort().filter(k=>k>=from&&k<=to);
+  if(!keys.length){toast('אין נתונים בתקופה זו','warn');closeExport();return;}
+  if(expFmt2==='excel')exportExcel(keys);
+  else exportWord(keys);
+  closeExport();
+}
+
+function exportExcel(keys){
+  const wb=XLSX.utils.book_new();
+  // Summary sheet
+  const sumRows=[['תאריך','קלוריות','מים (כוסות)','מספר ארוחות','יעד','אחוז השגה']];
+  keys.forEach(k=>{
+    const d=S.historyData[k];
+    sumRows.push([fmtFull(k),d.cal||0,d.water||0,d.foods||0,S.calGoal,d.cal?Math.round(d.cal/S.calGoal*100)+'%':'-']);
+  });
+  const ws1=XLSX.utils.aoa_to_sheet(sumRows);
+  ws1['!cols']=[{wch:14},{wch:12},{wch:14},{wch:14},{wch:10},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws1,'סיכום');
+
+  // Details sheet
+  const detRows=[['תאריך','סוג ארוחה','שם מאכל','קלוריות']];
+  keys.forEach(k=>{
+    const d=S.historyData[k];
+    if(d.meals){
+      Object.entries(d.meals).forEach(([mealType,items])=>{
+        (items||[]).forEach(f=>{
+          detRows.push([fmtFull(k),ML[mealType]||mealType,f.name,f.cal]);
+        });
+      });
+    }
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(detRows);
+  ws2['!cols']=[{wch:14},{wch:16},{wch:24},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws2,'פירוט ארוחות');
+
+  XLSX.writeFile(wb,`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.xlsx`);
+  toast('קובץ Excel הורד ✅','success');
+}
+
+function exportWord(keys){
+  const rows=keys.map(k=>{
+    const d=S.historyData[k];
+    const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;
+    const bar='█'.repeat(Math.floor(pct/10))+'░'.repeat(10-Math.floor(pct/10));
+    let meals='';
+    if(d.meals){
+      Object.entries(d.meals).forEach(([mt,items])=>{
+        if(items&&items.length){
+          meals+=`<h4 style="color:#27ae60;margin:6px 0 4px;">${ML[mt]||mt}</h4><ul>`;
+          items.forEach(f=>meals+=`<li>${f.name} — ${f.cal} קלוריות</li>`);
+          meals+='</ul>';
+        }
+      });
+    }
+    return`<div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #eee;">
+      <h3 style="color:#2c3e50;">${hebrewDate(k)} (${fmtFull(k)})</h3>
+      <table><tr><td><strong>קלוריות:</strong></td><td>${d.cal||0} / ${S.calGoal}</td></tr>
+      <tr><td><strong>מים:</strong></td><td>${d.water||0} / ${S.waterGoal} כוסות</td></tr></table>
+      <div style="font-family:monospace;font-size:12px;color:#555;">${bar} ${pct}%</div>
+      ${meals}
+    </div>`;
+  }).join('');
+
+  // Build SVG chart inline
+  const chartSVG=buildExportChart(keys);
+
+  const html=`<html dir="rtl"><head><meta charset="UTF-8">
+  <style>body{font-family:Arial,sans-serif;direction:rtl;padding:20px;}h1{color:#27ae60;}table{border-collapse:collapse;}td{padding:3px 10px;}ul{padding-right:18px;}</style></head>
+  <body><h1>🥗 דוח תזונה — ${fmtFull(keys[0])} עד ${fmtFull(keys[keys.length-1])}</h1>
+  <p>שם: ${S.name||'לא הוגדר'} | יעד יומי: ${S.calGoal} קלוריות</p>
+  <h2>גרף קלוריות</h2>${chartSVG}
+  <h2>פירוט ימים</h2>${rows}</body></html>`;
+
+  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.doc`;
+  a.click();
+  toast('קובץ Word הורד ✅','success');
+}
+
+function buildExportChart(keys){
+  const W=500,H=140,pad={t:16,b:28,l:6,r:6};
+  const chartH=H-pad.t-pad.b;
+  const bw=Math.min(30,Math.floor((W-pad.l-pad.r)/keys.length-4));
+  const gap=Math.max(2,(W-pad.l-pad.r-bw*keys.length)/Math.max(keys.length-1,1));
+  const maxCal=Math.max(...keys.map(k=>S.historyData[k]?.cal||0),S.calGoal,500);
+  let bars='',labels='';
+  keys.forEach((k,i)=>{
+    const cal=S.historyData[k]?.cal||0;
+    const x=pad.l+i*(bw+gap);
+    const bh=Math.max(cal/maxCal*chartH,1);
+    const y=pad.t+chartH-bh;
+    const col=cal>S.calGoal?'#e74c3c':'#2ecc71';
+    bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${col}" rx="3"/>`;
+    if(cal)bars+=`<text x="${x+bw/2}" y="${y-3}" text-anchor="middle" font-size="8">${cal}</text>`;
+    labels+=`<text x="${x+bw/2}" y="${H-2}" text-anchor="middle" font-size="7" fill="#666">${fmtShort(k)}</text>`;
+  });
+  const gy=pad.t+chartH-(S.calGoal/maxCal*chartH);
+  return`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid #eee;border-radius:8px;">${bars}${labels}
+  <line x1="${pad.l}" y1="${gy}" x2="${W-pad.r}" y2="${gy}" stroke="#e67e22" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="${W-pad.r}" y="${gy-2}" text-anchor="end" font-size="7" fill="#e67e22">יעד</text></svg>`;
+}
+
+// ── AI CHAT (restricted to nutrition/health) ──
+function updateChatWelcome(){
+  const nm=S.name?`, ${S.name}`:'';
+  const el=document.getElementById('chat-welcome');
+  if(el)el.textContent=`היי${nm}! 👋 אני יועץ התזונה ואורח החיים שלך. אוכל לעזור בתזונה, ספורט, שינה, ניהול משקל ובריאות כללית. במה אוכל לעזור? 🥗`;
+}
+async function send(){
+  const inp=document.getElementById('cinp'),txt=inp.value.trim();if(!txt)return;inp.value='';
+  addUser(txt);await getAI(txt);
+}
 function sq(btn){const t=btn.textContent.trim();addUser(t);getAI(t);}
 function addUser(t){addMsg(t,'user');S.ch.push({role:'user',content:t});}
 function addBot(t){addMsg(t,'bot');}
-function addMsg(t,role){const a=document.getElementById('chat'),d=document.createElement('div');d.className='msg '+role;d.textContent=t;a.appendChild(d);a.scrollTop=a.scrollHeight;}
+function addMsg(t,role){
+  const a=document.getElementById('chat'),d=document.createElement('div');
+  d.className='msg '+role;d.textContent=t;a.appendChild(d);a.scrollTop=a.scrollHeight;
+}
 function addTyping(){addMsg('⏳ כותב...','bot');document.getElementById('chat').lastChild.id='typ';}
 function rmTyping(){const e=document.getElementById('typ');if(e)e.remove();}
-
 async function getAI(msg){
-  if(!KEY){document.getElementById('apinote').style.display='block';addMsg('⚠️ הזן מפתח API','bot err');return;}
+  if(!KEY){document.getElementById('apinote').style.display='block';addMsg('⚠️ הזן מפתח API בהגדרות','bot err');return;}
   addTyping();
-  const all=Object.values(S.meals).flat(),tc=all.reduce((a,f)=>a+f.cal,0);
-  const sys=`עוזר תזונה לנוער. עברית, ידידותי, קצר (2-5 משפטים). נתונים: שם:${S.name||'?'} יעד:${S.calGoal}קל אכל:${tc}קל מים:${S.water}/${S.waterGoal} מטרה:${S.goal}`;
+  const allF=Object.values(S.meals).flat();
+  const tc=allF.reduce((a,f)=>a+f.cal,0);
+  const nm=S.name||'החבר/ה שלי';
+  const gender_str=S.gender==='female'?'נקבה':'זכר';
+  const sys=`אתה יועץ תזונה ואורח חיים בריא מקצועי לנוער. שמך "יועץ תזונה".
+IMPORTANT: אתה עונה רק על שאלות הקשורות לתזונה, ספורט, שינה, ניהול משקל, בריאות גופנית ונפשית, ואורח חיים בריא.
+אם שואלים משהו שלא קשור לנושאים אלה, ענה בנימוס שאתה יועץ תזונה ויכול לעזור רק בנושאי תזונה ובריאות.
+ענה בעברית, ידידותי, קצר (2-5 משפטים), עם אמוג'י לפעמים.
+המשתמש: שם ${nm} | מין ${gender_str} | יעד ${S.calGoal}קל/יום | אכל היום ${tc}קל | מים ${S.water}/${S.waterGoal} | מטרה:${S.goal==='gain'?'עלייה':S.goal==='lose'?'ירידה':'שמירה במשקל'}
+פנה למשתמש בשם ${nm} ובהתאמה לפי המין שלו/ה.`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[...S.ch.slice(-6),{role:'user',content:msg}]})});
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:sys,messages:[...S.ch.slice(-8),{role:'user',content:msg}]})
+    });
     const data=await r.json();rmTyping();
     if(data.error){addMsg('❌ '+data.error.message,'bot err');return;}
-    const rep=data.content?.[0]?.text||'לא הצלחתי.';
+    const rep=data.content?.[0]?.text||'לא הצלחתי לענות.';
     addBot(rep);S.ch.push({role:'assistant',content:rep});
-  }catch(e){rmTyping();addMsg('❌ '+e.message,'bot err');}
+  }catch(e){rmTyping();addMsg('❌ שגיאה: '+e.message,'bot err');}
 }
 
-load();updateHeaderDate();uhome();rfood();rsettings();
-window.addEventListener('resize',()=>{if(document.getElementById('page-home').classList.contains('active'))renderHistSection();});
+// ── INIT ──
+load();
+updateHdr();
+syncToday();
+// Show onboarding if no name
+if(!S.name){
+  setTimeout(()=>{document.getElementById('onboarding').style.display='flex';},300);
+}
+// Init reminder
+if(S.reminderMinutes>0){
+  reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);
+}
+uhome();rfood();rsettings();
 </script>
 </body>
 </html>
