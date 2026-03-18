@@ -18,15 +18,13 @@
 html,body{width:100%;overflow-x:hidden;}
 body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:72px;}
 
-/* HEADER */
 header{background:linear-gradient(135deg,#27ae60,#2ecc71,#1abc9c);color:white;padding:11px 12px 16px;position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px;}
-.ver-badge{background:rgba(255,255,255,.25);color:white;font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;}
-header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
+.ver-badge{background:rgba(255,255,255,.25);color:white;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;}
+header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .date-btn{background:rgba(255,255,255,.2);border:none;color:white;font-family:'Heebo',sans-serif;font-size:.7rem;font-weight:700;padding:4px 9px;border-radius:20px;cursor:pointer;flex-shrink:0;line-height:1.4;text-align:right;}
 .date-btn.alt{background:var(--orange);}
 #date-inp{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
 
-/* NAV */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0 9px;box-shadow:0 -3px 16px rgba(0,0,0,.1);z-index:100;}
 .nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.6rem;color:var(--text-light);background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:10px;min-width:0;}
 .nav-btn.active{color:var(--green-dark);}
@@ -38,20 +36,20 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
 .card{background:var(--card);border-radius:var(--radius);padding:15px;margin-bottom:11px;box-shadow:var(--shadow);}
 .card-title{font-size:.75rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
 
-/* MODAL OVERLAY */
+/* OVERLAY / MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
-.modal{background:white;border-radius:20px;padding:24px;width:100%;max-width:360px;animation:fu .3s;}
-.modal h2{font-size:1.3rem;font-weight:900;margin-bottom:6px;text-align:center;}
-.modal p{font-size:.88rem;color:var(--text-light);text-align:center;margin-bottom:18px;line-height:1.5;}
+.modal{background:white;border-radius:20px;padding:22px;width:100%;max-width:360px;animation:fu .3s;}
+.modal h2{font-size:1.2rem;font-weight:900;margin-bottom:6px;text-align:center;}
+.modal p{font-size:.85rem;color:var(--text-light);text-align:center;margin-bottom:16px;line-height:1.5;}
 
 /* TOAST */
-.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:10px 20px;border-radius:24px;font-size:.83rem;font-weight:600;z-index:300;animation:fu .3s;white-space:nowrap;}
-.toast.water{background:var(--blue);}
+.toast{position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:10px 20px;border-radius:24px;font-size:.82rem;font-weight:600;z-index:400;animation:fu .3s;white-space:nowrap;max-width:90vw;text-overflow:ellipsis;overflow:hidden;}
 .toast.success{background:var(--green-dark);}
 .toast.warn{background:var(--orange);}
+.toast.water{background:var(--blue);}
 
-/* WATER REMINDER BANNER */
-.water-banner{background:var(--blue);color:white;padding:10px 14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:.84rem;font-weight:700;animation:fu .3s;}
+/* WATER REMINDER */
+.water-banner{background:var(--blue);color:white;padding:10px 14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:.83rem;font-weight:700;animation:fu .3s;}
 
 /* RINGS */
 .rings-row{display:flex;justify-content:space-around;align-items:center;margin:4px 0 10px;}
@@ -66,16 +64,16 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
 .ring-label{font-size:.7rem;color:var(--text-light);font-weight:700;text-align:center;}
 
 /* QUOTE */
-.quote-box{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:14px;padding:14px 16px;margin-bottom:11px;position:relative;}
-.quote-box .qt{font-size:.92rem;font-weight:600;line-height:1.5;}
-.quote-box .qt-new{position:absolute;top:10px;left:10px;font-size:.75rem;opacity:.7;cursor:pointer;}
+.quote-box{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:14px;padding:13px 15px;margin-bottom:11px;position:relative;}
+.quote-box .qt{font-size:.9rem;font-weight:600;line-height:1.5;padding-left:24px;}
+.qt-new{position:absolute;top:10px;left:10px;font-size:.78rem;opacity:.75;cursor:pointer;background:none;border:none;color:white;padding:2px;}
 
 .gbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.7rem;font-weight:700;margin-top:4px;}
 .gl{background:var(--blue-light);color:var(--blue);}
 .gm{background:var(--green-light);color:var(--green-dark);}
 .gg{background:var(--orange-light);color:var(--orange);}
 
-/* WATER */
+/* WATER CUPS */
 .water-cups{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0;}
 .cup{width:33px;height:40px;background:#e0f0ff;border:2px solid #b0d4f1;border-radius:0 0 9px 9px;border-top:none;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:.8rem;transition:all .3s;position:relative;overflow:hidden;}
 .cup::before{content:'';position:absolute;bottom:0;left:0;right:0;height:0%;background:var(--blue);transition:height .4s;border-radius:0 0 7px 7px;}
@@ -91,7 +89,7 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
 .period-btns{display:flex;gap:5px;}
 .period-btn{padding:4px 10px;border:2px solid var(--border);border-radius:20px;font-family:'Heebo',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;background:white;color:var(--text-light);}
 .period-btn.act{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
-.chart-wrap{width:100%;overflow-x:auto;margin:10px 0 6px;}
+.chart-wrap{width:100%;overflow-x:auto;margin:10px 0 4px;}
 
 /* HISTORY */
 .hday{padding:9px 12px;background:#fafafa;border-radius:10px;margin-bottom:5px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
@@ -102,29 +100,42 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
 /* FOOD PAGE */
 .meal-section{margin-bottom:12px;}
 .meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
-.meal-title{font-size:.93rem;font-weight:900;}
-.meal-cal-total{font-size:.76rem;font-weight:700;color:var(--text-light);}
-.meal-add-row{display:flex;gap:5px;margin-bottom:7px;}
+.meal-title{font-size:.92rem;font-weight:900;}
+.meal-cal-total{font-size:.75rem;font-weight:700;color:var(--text-light);}
+
+/* INPUT ROW */
+.meal-add-row{display:flex;gap:5px;margin-bottom:6px;}
 .meal-add-row input{flex:1;padding:9px 11px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.84rem;outline:none;min-width:0;background:white;}
 .meal-add-row input:focus{border-color:var(--green);}
-.cam-btn{background:var(--purple-light);color:var(--purple);border:none;border-radius:10px;padding:9px 11px;cursor:pointer;font-size:1rem;flex-shrink:0;}
+
+/* ICON BUTTONS for camera/gallery/mic */
+.icon-btn{border:none;border-radius:10px;padding:9px 10px;cursor:pointer;font-size:1rem;flex-shrink:0;transition:opacity .2s;}
+.icon-btn:active{opacity:.7;}
+.btn-cam{background:#e8daef;color:var(--purple);}
+.btn-gallery{background:#d6eaf8;color:var(--blue);}
+.btn-mic{background:#fdebd0;color:var(--orange);}
+.btn-mic.recording{background:var(--red);color:white;animation:pulse-rec .8s infinite;}
+@keyframes pulse-rec{0%,100%{opacity:1}50%{opacity:.6}}
+.btn-add{background:var(--green);color:white;border:none;border-radius:10px;padding:9px 13px;cursor:pointer;font-family:'Heebo',sans-serif;font-weight:700;font-size:.84rem;flex-shrink:0;}
+
+/* FOOD LIST */
 .food-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
 .fi{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:#fafafa;border-radius:10px;border:1px solid var(--border);animation:si .3s ease;}
 .fi.loading{opacity:.6;background:#f5fff8;}
-.fn{font-weight:600;font-size:.82rem;}
-.fcal{font-weight:900;color:var(--green-dark);font-size:.84rem;white-space:nowrap;}
+.fn{font-weight:600;font-size:.82rem;flex:1;min-width:0;}
+.fcal{font-weight:900;color:var(--green-dark);font-size:.82rem;white-space:nowrap;margin:0 4px;}
+.recalc-btn{background:var(--orange-light);color:var(--orange);border:none;border-radius:6px;font-size:.67rem;font-weight:700;padding:2px 7px;cursor:pointer;font-family:'Heebo',sans-serif;}
 .del{background:none;border:none;cursor:pointer;color:#ccc;font-size:.9rem;padding:0 3px;}
-.recalc-btn{background:var(--orange-light);color:var(--orange);border:none;border-radius:6px;font-size:.68rem;font-weight:700;padding:2px 7px;cursor:pointer;font-family:'Heebo',sans-serif;margin-left:4px;}
-.meal-divider{border:none;border-top:1px dashed var(--border);margin:12px 0;}
+.meal-divider{border:none;border-top:1px dashed var(--border);margin:11px 0;}
 
 /* SPINNER */
-.ai-loading{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;color:var(--green-dark);}
-.spinner{width:13px;height:13px;border:2px solid var(--green-light);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
+.ai-loading{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;color:var(--green-dark);white-space:nowrap;}
+.spinner{width:13px;height:13px;border:2px solid var(--green-light);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* BTN */
 .btn{padding:10px 13px;border:none;border-radius:10px;font-family:'Heebo',sans-serif;font-weight:700;font-size:.83rem;cursor:pointer;white-space:nowrap;flex-shrink:0;}
-.bg{background:var(--green);color:white;}.bb{background:var(--blue);color:white;}.br{background:var(--red);color:white;}.bpur{background:var(--purple);color:white;}
+.bg{background:var(--green);color:white;}.bb{background:var(--blue);color:white;}.br{background:var(--red);color:white;}
 .bo{background:transparent;border:2px solid var(--green);color:var(--green-dark);}
 .bsm{padding:7px 10px;font-size:.75rem;}.bfull{width:100%;display:block;text-align:center;margin-top:4px;}
 
@@ -167,13 +178,9 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
 .si-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
 .si-row:last-child{border-bottom:none;}
 .sl{font-weight:600;font-size:.85rem;}.ss{font-size:.7rem;color:var(--text-light);margin-top:1px;}
-.export-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
 
-/* IMAGE PREVIEW */
-.img-preview{max-width:100%;border-radius:10px;margin:8px 0;max-height:150px;object-fit:cover;}
-
-.empty{text-align:center;padding:14px;color:var(--text-light);}
-.empty .ei{font-size:1.5rem;margin-bottom:4px;}
+.empty{text-align:center;padding:12px;color:var(--text-light);}
+.empty .ei{font-size:1.4rem;margin-bottom:4px;}
 .empty p{font-size:.76rem;}
 
 @keyframes si{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
@@ -182,25 +189,24 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
 </head>
 <body>
 
-<!-- ══ ONBOARDING MODAL ══ -->
+<!-- ONBOARDING -->
 <div class="overlay" id="onboarding" style="display:none;">
   <div class="modal">
-    <div style="text-align:center;font-size:2.5rem;margin-bottom:8px;">🥗</div>
-    <h2>ברוכ/ה הבא/ה לתזונה!</h2>
-    <p>בוא נכיר — ספר/י לנו קצת על עצמך</p>
+    <div style="text-align:center;font-size:2.2rem;margin-bottom:8px;">🥗</div>
+    <h2>ברוכ/ה הבא/ה!</h2>
+    <p>ספר/י לנו קצת על עצמך כדי שנוכל להתאים את האפליקציה עבורך</p>
     <div class="ff"><label>השם שלך</label><input type="text" id="ob-name" placeholder="כתוב/י שם..."/></div>
-    <div class="ff">
-      <label>מין</label>
+    <div class="ff"><label>מין</label>
       <div class="gbs">
-        <button class="gb act" id="ob-male" onclick="obSetGender('male')">👦 זכר</button>
-        <button class="gb" id="ob-female" onclick="obSetGender('female')">👧 נקבה</button>
+        <button class="gb act" id="ob-male" onclick="obG('male')">👦 זכר</button>
+        <button class="gb" id="ob-female" onclick="obG('female')">👧 נקבה</button>
       </div>
     </div>
-    <button class="btn bg bfull" onclick="finishOnboarding()">בואו נתחיל! 🚀</button>
+    <button class="btn bg bfull" onclick="finishOB()">בואו נתחיל! 🚀</button>
   </div>
 </div>
 
-<!-- ══ EXPORT MODAL ══ -->
+<!-- EXPORT MODAL -->
 <div class="overlay" id="export-modal" style="display:none;">
   <div class="modal">
     <h2 style="margin-bottom:12px;">📤 ייצוא נתונים</h2>
@@ -219,15 +225,19 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
   </div>
 </div>
 
-<!-- ══ HEADER ══ -->
+<!-- HIDDEN FILE INPUTS (two separate ones: camera + gallery) -->
+<input type="file" id="cam-capture" accept="image/*" capture="environment" style="display:none;" onchange="onImageFile(event,'capture')"/>
+<input type="file" id="cam-gallery" accept="image/*" style="display:none;" onchange="onImageFile(event,'gallery')"/>
+
+<!-- HEADER -->
 <header>
-  <span class="ver-badge">v1.2</span>
+  <span class="ver-badge">v1.3</span>
   <h1>🥗 תזונה</h1>
   <button class="date-btn" id="date-btn" onclick="openDatePicker()">טוען...</button>
   <input type="date" id="date-inp" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" onchange="onDatePick(this.value)"/>
 </header>
 
-<!-- ══ NAV ══ -->
+<!-- NAV -->
 <nav class="bottom-nav">
   <button class="nav-btn active" onclick="pg('home')"><span class="nav-icon">🏠</span>בית</button>
   <button class="nav-btn" onclick="pg('food')"><span class="nav-icon">🍽️</span>אכלתי</button>
@@ -236,28 +246,25 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
   <button class="nav-btn" onclick="pg('settings')"><span class="nav-icon">⚙️</span>הגדרות</button>
 </nav>
 
-<!-- ══ HOME ══ -->
+<!-- HOME -->
 <div class="page active" id="page-home">
   <div id="water-reminder-wrap"></div>
 
-  <!-- Quote -->
-  <div class="quote-box" id="quote-box">
-    <span class="qt-new" onclick="newQuote()">🔄</span>
+  <div class="quote-box">
+    <button class="qt-new" onclick="newQuote()">🔄</button>
     <div class="qt" id="quote-text">טוען...</div>
   </div>
 
-  <!-- View banner -->
   <div id="view-banner" style="display:none;">
-    <div style="background:var(--orange);color:white;border-radius:12px;padding:10px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;font-size:.83rem;font-weight:700;">
+    <div style="background:var(--orange);color:white;border-radius:12px;padding:10px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;font-size:.82rem;font-weight:700;">
       <span>👁 צופה ב: <span id="view-lbl"></span></span>
-      <button class="btn" style="background:rgba(255,255,255,.25);color:white;padding:5px 10px;font-size:.75rem;" onclick="backToToday()">היום</button>
+      <button class="btn" style="background:rgba(255,255,255,.25);color:white;padding:5px 10px;font-size:.73rem;" onclick="backToToday()">היום</button>
     </div>
   </div>
 
-  <!-- Rings -->
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-      <div><div style="font-size:.98rem;font-weight:900;" id="greet">שלום! 👋</div><div id="gbadge"></div></div>
+      <div><div style="font-size:.97rem;font-weight:900;" id="greet">שלום!</div><div id="gbadge"></div></div>
       <div id="moodd" style="font-size:1.5rem;">😊</div>
     </div>
     <div class="rings-row">
@@ -284,7 +291,6 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
     </div>
   </div>
 
-  <!-- Water (today only) -->
   <div class="card" id="water-card">
     <div class="card-title">💧 שתיית מים</div>
     <div class="water-cups" id="wc"></div>
@@ -294,9 +300,8 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
     </div>
   </div>
 
-  <!-- Mood (today only) -->
   <div class="card" id="mood-card">
-    <div class="card-title">😊 איך אתה/את מרגיש/ת?</div>
+    <div class="card-title" id="mood-title">😊 איך אתה מרגיש?</div>
     <div class="mood-row">
       <button class="mood-btn" onclick="setMood(this,'😩')">😩</button>
       <button class="mood-btn" onclick="setMood(this,'😕')">😕</button>
@@ -306,7 +311,6 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
     </div>
   </div>
 
-  <!-- Chart -->
   <div class="card">
     <div class="card-title">📈 גרף קלוריות
       <div class="period-btns">
@@ -318,61 +322,78 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
     <div class="chart-wrap" id="chart-wrap"><div class="empty"><div class="ei">📊</div><p>אין נתונים עדיין</p></div></div>
   </div>
 
-  <!-- History list -->
   <div class="card"><div class="card-title">📅 יומן ימים</div><div id="hist"></div></div>
 </div>
 
-<!-- ══ FOOD ══ -->
+<!-- FOOD -->
 <div class="page" id="page-food">
   <div class="card">
-    <div style="background:var(--green-light);padding:9px 12px;border-radius:10px;margin-bottom:12px;font-size:.78rem;color:var(--text-light);line-height:1.5;">
-      💡 כתוב שם מאכל או 📷 צלם — AI יחשב קלוריות לפי מנה ביתית
+    <!-- Tip bar -->
+    <div style="background:var(--green-light);padding:9px 12px;border-radius:10px;margin-bottom:11px;font-size:.77rem;color:#27ae60;line-height:1.6;">
+      ✏️ <strong>כתוב</strong> שם מאכל &nbsp;|&nbsp;
+      📷 <strong>צלם</strong> עם מצלמה &nbsp;|&nbsp;
+      🖼️ <strong>גלריה</strong> &nbsp;|&nbsp;
+      🎙️ <strong>הקלטה</strong> קולית
     </div>
-    <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none;" onchange="onCamImage(event)"/>
 
+    <!-- BREAKFAST -->
     <div class="meal-section">
       <div class="meal-header"><div class="meal-title">🌅 ארוחת בוקר</div><div class="meal-cal-total" id="cal-breakfast"></div></div>
       <div class="meal-add-row">
         <input type="text" id="inp-breakfast" placeholder="מה אכלת בבוקר?" onkeydown="if(event.key==='Enter')addItem('breakfast')"/>
-        <button class="cam-btn" onclick="openCam('breakfast')" title="צלם/בחר תמונה">📷</button>
-        <button class="btn bg bsm" onclick="addItem('breakfast')">+</button>
+        <button class="icon-btn btn-cam" onclick="openCamera('breakfast')" title="צלם עם מצלמה">📷</button>
+        <button class="icon-btn btn-gallery" onclick="openGallery('breakfast')" title="בחר מגלריה">🖼️</button>
+        <button class="icon-btn btn-mic" id="mic-breakfast" onclick="toggleVoice('breakfast')" title="הקלטה קולית">🎙️</button>
+        <button class="btn-add" onclick="addItem('breakfast')">+</button>
       </div>
       <ul class="food-list" id="list-breakfast"></ul>
     </div>
     <hr class="meal-divider"/>
+
+    <!-- LUNCH -->
     <div class="meal-section">
       <div class="meal-header"><div class="meal-title">☀️ ארוחת צהריים</div><div class="meal-cal-total" id="cal-lunch"></div></div>
       <div class="meal-add-row">
         <input type="text" id="inp-lunch" placeholder="מה אכלת בצהריים?" onkeydown="if(event.key==='Enter')addItem('lunch')"/>
-        <button class="cam-btn" onclick="openCam('lunch')">📷</button>
-        <button class="btn bg bsm" onclick="addItem('lunch')">+</button>
+        <button class="icon-btn btn-cam" onclick="openCamera('lunch')">📷</button>
+        <button class="icon-btn btn-gallery" onclick="openGallery('lunch')">🖼️</button>
+        <button class="icon-btn btn-mic" id="mic-lunch" onclick="toggleVoice('lunch')">🎙️</button>
+        <button class="btn-add" onclick="addItem('lunch')">+</button>
       </div>
       <ul class="food-list" id="list-lunch"></ul>
     </div>
     <hr class="meal-divider"/>
+
+    <!-- DINNER -->
     <div class="meal-section">
       <div class="meal-header"><div class="meal-title">🌙 ארוחת ערב</div><div class="meal-cal-total" id="cal-dinner"></div></div>
       <div class="meal-add-row">
         <input type="text" id="inp-dinner" placeholder="מה אכלת בערב?" onkeydown="if(event.key==='Enter')addItem('dinner')"/>
-        <button class="cam-btn" onclick="openCam('dinner')">📷</button>
-        <button class="btn bg bsm" onclick="addItem('dinner')">+</button>
+        <button class="icon-btn btn-cam" onclick="openCamera('dinner')">📷</button>
+        <button class="icon-btn btn-gallery" onclick="openGallery('dinner')">🖼️</button>
+        <button class="icon-btn btn-mic" id="mic-dinner" onclick="toggleVoice('dinner')">🎙️</button>
+        <button class="btn-add" onclick="addItem('dinner')">+</button>
       </div>
       <ul class="food-list" id="list-dinner"></ul>
     </div>
     <hr class="meal-divider"/>
+
+    <!-- SNACKS -->
     <div class="meal-section">
       <div class="meal-header"><div class="meal-title">🍎 נשנושים וביניים</div><div class="meal-cal-total" id="cal-snacks"></div></div>
       <div class="meal-add-row">
         <input type="text" id="inp-snacks" placeholder="נשנוש, פרי..." onkeydown="if(event.key==='Enter')addItem('snacks')"/>
-        <button class="cam-btn" onclick="openCam('snacks')">📷</button>
-        <button class="btn bg bsm" onclick="addItem('snacks')">+</button>
+        <button class="icon-btn btn-cam" onclick="openCamera('snacks')">📷</button>
+        <button class="icon-btn btn-gallery" onclick="openGallery('snacks')">🖼️</button>
+        <button class="icon-btn btn-mic" id="mic-snacks" onclick="toggleVoice('snacks')">🎙️</button>
+        <button class="btn-add" onclick="addItem('snacks')">+</button>
       </div>
       <ul class="food-list" id="list-snacks"></ul>
     </div>
   </div>
 </div>
 
-<!-- ══ AI ══ -->
+<!-- AI -->
 <div class="page" id="page-ai">
   <div id="apinote" class="api-notice" style="display:none;">
     <strong>⚠️ נדרש מפתח API</strong><br>
@@ -389,19 +410,19 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
       <button class="q" onclick="sq(this)">🥩 מזון עשיר בחלבון</button>
       <button class="q" onclick="sq(this)">🎯 לרדת במשקל</button>
       <button class="q" onclick="sq(this)">😴 שינה ובריאות</button>
-      <button class="q" onclick="sq(this)">🧘 ניהול סטרס ואכילה</button>
+      <button class="q" onclick="sq(this)">🧘 סטרס ואכילה</button>
     </div>
     <div class="chat-area" id="chat">
-      <div class="msg bot" id="chat-welcome">היי! 👋 אני יועץ התזונה ואורח החיים הבריא שלך. אוכל לעזור בכל שאלה הקשורה לתזונה, ספורט, שינה, ניהול משקל ובריאות כללית. במה אוכל לעזור? 🥗</div>
+      <div class="msg bot" id="chat-welcome">היי! 👋 אני יועץ התזונה שלך. שאל/י כל שאלה על תזונה, ספורט, שינה ובריאות 🥗</div>
     </div>
     <div class="chat-ir">
-      <input type="text" id="cinp" placeholder="שאל/י שאלה על תזונה ובריאות..." onkeydown="if(event.key==='Enter')send()"/>
+      <input type="text" id="cinp" placeholder="שאל/י על תזונה ובריאות..." onkeydown="if(event.key==='Enter')send()"/>
       <button class="csend" onclick="send()">➤</button>
     </div>
   </div>
 </div>
 
-<!-- ══ CALC ══ -->
+<!-- CALC -->
 <div class="page" id="page-calc">
   <div class="card">
     <div class="card-title">🧮 מחשבון קלוריות אישי</div>
@@ -425,7 +446,7 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
   <div class="card"><div class="card-title">💡 טיפים</div><div id="tips"><p style="font-size:.8rem;color:var(--text-light);">חשב קלוריות לקבלת טיפים!</p></div></div>
 </div>
 
-<!-- ══ SETTINGS ══ -->
+<!-- SETTINGS -->
 <div class="page" id="page-settings">
   <div class="card">
     <div class="card-title">👤 הפרופיל שלי</div>
@@ -436,8 +457,15 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
         <button class="gb" id="sg-female" onclick="sv('gender','female')">👧 נקבה</button>
       </div>
     </div>
-    <div class="ff"><label>יעד קלוריות</label><input type="number" id="scal" placeholder="2000" oninput="sv('calGoal',this.value)"/></div>
+    <div class="ff"><label>יעד קלוריות יומי</label><input type="number" id="scal" placeholder="2000" oninput="sv('calGoal',this.value)"/></div>
     <div class="ff"><label>יעד מים (כוסות)</label><input type="number" id="swat" placeholder="6" oninput="sv('waterGoal',this.value)"/></div>
+    <div class="ff"><label>מטרה</label>
+      <div class="goalbts">
+        <button class="goalb lose" id="sg-lose" onclick="sv('goal','lose')">📉 לרדת</button>
+        <button class="goalb maintain" id="sg-maintain" onclick="sv('goal','maintain')">⚖️ לשמור</button>
+        <button class="goalb gain" id="sg-gain" onclick="sv('goal','gain')">📈 לעלות</button>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -446,24 +474,23 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
       <select id="reminder-sel" onchange="setReminder(this.value)">
         <option value="0">כבוי</option>
         <option value="30">כל 30 דקות</option>
-        <option value="60" selected>כל שעה</option>
+        <option value="60">כל שעה</option>
         <option value="90">כל שעה וחצי</option>
         <option value="120">כל שעתיים</option>
       </select>
     </div>
-    <div id="reminder-status" style="font-size:.75rem;color:var(--green-dark);margin-top:4px;"></div>
+    <div id="reminder-status" style="font-size:.74rem;color:var(--green-dark);margin-top:2px;"></div>
   </div>
 
   <div class="card">
     <div class="card-title">🔑 מפתח AI</div>
-    <p style="font-size:.74rem;color:var(--text-light);margin-bottom:7px;line-height:1.5;">נדרש לחישוב קלוריות, זיהוי תמונות ויועץ AI.<br>קבל מ-<a href="https://console.anthropic.com" target="_blank" style="color:var(--green-dark);">console.anthropic.com</a> <span style="color:var(--orange);">(חינמי)</span></p>
+    <p style="font-size:.73rem;color:var(--text-light);margin-bottom:7px;line-height:1.5;">נדרש לחישוב קלוריות, זיהוי תמונות ויועץ AI.<br>קבל מ-<a href="https://console.anthropic.com" target="_blank" style="color:var(--green-dark);">console.anthropic.com</a> <span style="color:var(--orange);">(חינמי)</span></p>
     <div class="akr"><input type="password" id="skey" placeholder="sk-ant-..."/><button class="btn bg bsm" onclick="saveKeyS()">שמור ✓</button></div>
-    <div id="kst" style="font-size:.75rem;margin-top:5px;color:var(--green-dark);"></div>
+    <div id="kst" style="font-size:.74rem;margin-top:5px;color:var(--green-dark);"></div>
   </div>
 
   <div class="card">
     <div class="card-title">📤 ייצוא נתונים</div>
-    <p style="font-size:.78rem;color:var(--text-light);margin-bottom:10px;">ייצא נתוני תזונה לקובץ Excel או Word כולל גרפים</p>
     <button class="btn bg bfull" onclick="openExport()">בחר תאריכים וייצא ⬇️</button>
   </div>
 
@@ -471,10 +498,7 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
     <div class="card-title">💾 גיבוי ושחזור</div>
     <div style="display:flex;flex-direction:column;gap:8px;">
       <button class="btn bg bsm" onclick="backupData()">⬇️ הורד גיבוי (JSON)</button>
-      <div>
-        <label style="font-size:.78rem;color:var(--text-light);">שחזר מגיבוי:</label>
-        <input type="file" id="restore-file" accept=".json" onchange="restoreData(event)" style="font-size:.75rem;margin-top:4px;width:100%;"/>
-      </div>
+      <div class="ff" style="margin-bottom:0;"><label>שחזר מגיבוי</label><input type="file" id="restore-file" accept=".json" onchange="restoreData(event)"/></div>
     </div>
   </div>
 
@@ -486,80 +510,80 @@ header h1{font-size:1.45rem;font-weight:900;text-align:center;flex:1;}
 </div>
 
 <script>
-const VERSION='1.2';
+const VERSION='1.3';
+const STORAGE_KEY='tzuna_v13';
 
-const QUOTES=[
-  'כל ארוחה היא הזדמנות חדשה לטפל בגוף שלך 💚',
-  'גוף בריא מתחיל בבחירות קטנות שעושים כל יום 🌱',
-  'שתיית מים זה המעשה הכי פשוט והכי חשוב שאתה יכול לעשות 💧',
-  'אתה לא צריך להיות מושלם — פשוט קצת טוב יותר מאתמול ⭐',
-  'כל צעד קטן לעבר אורח חיים בריא הוא ניצחון 🏆',
-  'הגוף שלך מדהים — תן לו את הדלק שהוא צריך 🚀',
-  'תזונה טובה היא ההשקעה הטובה ביותר שתוכל לעשות בעצמך 💪',
-  'אכול ירקות, שתה מים, זוז — זה הסוד 🥦',
-  'כוס מים עכשיו שווה יותר ממשקה ממותק 💧✨',
-  'הגוף שלך זוכר כל דבר טוב שעשית לו 🙏',
-  'ארוחת בוקר טובה מתחילה את היום בצורה הכי טובה ☀️',
-  'מנוחה וצחוק הם חלק מאורח חיים בריא 😄',
-  'כשאתה ישן טוב — הגוף שלך עובד טוב 😴💚',
-  'לאכול לאט ולרגיש את הטעם — זה חלק מהבריאות 🍽️',
-  'ספורט לא חייב להיות קשה — גם הליכה היא מעולה 🚶'
-];
+const QUOTES=['כל ארוחה היא הזדמנות חדשה לטפל בגוף שלך 💚','גוף בריא מתחיל בבחירות קטנות שעושים כל יום 🌱','שתיית מים זה המעשה הכי פשוט והכי חשוב 💧','אתה לא צריך להיות מושלם — פשוט קצת טוב יותר מאתמול ⭐','כל צעד קטן לעבר אורח חיים בריא הוא ניצחון 🏆','הגוף שלך מדהים — תן לו את הדלק שהוא צריך 🚀','תזונה טובה היא ההשקעה הטובה ביותר בעצמך 💪','אכול ירקות, שתה מים, זוז — זה הסוד 🥦','כוס מים עכשיו שווה יותר ממשקה ממותק 💧✨','הגוף שלך זוכר כל דבר טוב שעשית לו 🙏','ארוחת בוקר טובה מתחילה את היום בצורה הכי טובה ☀️','מנוחה וצחוק הם חלק מאורח חיים בריא 😄','כשאתה ישן טוב — הגוף שלך עובד טוב 😴💚','לאכול לאט ולהרגיש את הטעם — זה חלק מהבריאות 🍽️','ספורט לא חייב להיות קשה — גם הליכה מעולה 🚶'];
 
-let S={
+// ── DEFAULT STATE ──
+const DEFAULT_STATE={
   meals:{breakfast:[],lunch:[],dinner:[],snacks:[]},
   water:0,calGoal:2000,waterGoal:6,name:'',gender:'male',
   goal:'maintain',calcGoal:'maintain',mood:'😊',
   historyData:{},streak:0,ch:[],
   reminderMinutes:60,quoteIdx:0
 };
+let S=JSON.parse(JSON.stringify(DEFAULT_STATE));
 let KEY='';
 let viewingDate=null;
 let chartPeriod=7;
-let expFmt='excel';
-let camMeal='breakfast';
+let expFmt2='excel';
 let reminderTimer=null;
+
+// ── VOICE RECORDING STATE ──
+let voiceMeal=null;
+let mediaRecorder=null;
+let audioChunks=[];
+let isRecording=false;
+let speechRecognition=null;
 
 // ── DATE HELPERS ──
 function todayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function fmtShort(k){const [y,m,d]=k.split('-');const mn=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];return`${parseInt(d)} ${mn[parseInt(m)-1]}`;}
+function fmtShort(k){const[y,m,d]=k.split('-');const mn=['ינו','פבר','מרץ','אפר','מאי','יוני','יולי','אוג','ספט','אוק','נוב','דצמ'];return`${parseInt(d)} ${mn[parseInt(m)-1]}`;}
 function fmtFull(k){const[y,m,d]=k.split('-');return`${parseInt(d)}/${m}/${y}`;}
-function hebrewDate(k){
-  const t=todayKey();if(k===t)return'היום';
-  const y=new Date();y.setDate(y.getDate()-1);
-  const yk=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
-  if(k===yk)return'אתמול';return fmtFull(k);
-}
+function hebrewDate(k){const t=todayKey();if(k===t)return'היום';const y=new Date();y.setDate(y.getDate()-1);const yk=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');if(k===yk)return'אתמול';return fmtFull(k);}
 
-// ── NAME/GENDER HELPERS ──
-function nameOf(){return S.name||'חבר/ה';}
-function greetWord(){return S.gender==='female'?'בוקר טוב':'בוקר טוב';}
-function heWord(verb_m,verb_f){return S.gender==='female'?verb_f:verb_m;}
-
-// ── PERSIST ──
-function load(){
+// ── PERSIST — saves ALL user data in one object ──
+function saveAll(){
   try{
-    const d=localStorage.getItem('tz6');
-    if(d)S={...S,...JSON.parse(d)};
-    if(!S.meals)S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
-    if(!S.historyData)S.historyData={};
+    const toSave={...S};
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
+    localStorage.setItem('tzkey',KEY);
+    localStorage.setItem('tzday_v13',todayKey());
+  }catch(e){console.error('Save failed',e);}
+}
+function loadAll(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      const parsed=JSON.parse(raw);
+      S={...DEFAULT_STATE,...parsed};
+      // ensure nested defaults
+      if(!S.meals)S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
+      if(!S.historyData)S.historyData={};
+      if(!S.meals.breakfast)S.meals.breakfast=[];
+      if(!S.meals.lunch)S.meals.lunch=[];
+      if(!S.meals.dinner)S.meals.dinner=[];
+      if(!S.meals.snacks)S.meals.snacks=[];
+    }
     KEY=localStorage.getItem('tzkey')||'';
-    const today=todayKey(),last=localStorage.getItem('tzday6');
-    if(last&&last!==today){
+    // Day rollover
+    const today=todayKey();
+    const lastDay=localStorage.getItem('tzday_v13');
+    if(lastDay&&lastDay!==today){
       const allF=Object.values(S.meals).flat();
       if(allF.length>0){
         const tc=allF.reduce((a,f)=>a+f.cal,0);
-        S.historyData[last]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
+        S.historyData[lastDay]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
         S.streak=(S.streak||0)+1;
       }
-      S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;
+      S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
+      S.water=0;
+      localStorage.setItem('tzday_v13',today);
+    } else if(!lastDay){
+      localStorage.setItem('tzday_v13',today);
     }
-    localStorage.setItem('tzday6',today);
-  }catch(e){console.error(e);}
-}
-function save(){
-  try{localStorage.setItem('tz6',JSON.stringify(S));}catch(e){}
-  syncToday();
+  }catch(e){console.error('Load failed',e);}
 }
 function syncToday(){
   const k=todayKey();
@@ -567,100 +591,64 @@ function syncToday(){
   const tc=allF.reduce((a,f)=>a+f.cal,0);
   if(tc>0||S.water>0){
     S.historyData[k]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
-    try{localStorage.setItem('tz6',JSON.stringify(S));}catch(e){}
   }
+  saveAll();
 }
 
 // ── BACKUP ──
 function backupData(){
-  const data=JSON.stringify(S,null,2);
-  const blob=new Blob([data],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`tzuna-backup-${todayKey()}.json`;
-  a.click();
-  toast('גיבוי הורד בהצלחה ✅','success');
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`tzuna-backup-${todayKey()}.json`;a.click();
+  toast('גיבוי הורד ✅','success');
 }
 function restoreData(evt){
   const file=evt.target.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      S={...S,...data};
-      save();load();uhome();rfood();rsettings();
-      toast('שחזור הושלם ✅','success');
-    }catch(ex){toast('קובץ לא תקין ❌','');}
-  };
+  reader.onload=e=>{try{const d=JSON.parse(e.target.result);S={...DEFAULT_STATE,...d};saveAll();loadAll();uhome();rfood();rsettings();toast('שחזור הושלם ✅','success');}catch(ex){toast('קובץ לא תקין ❌','');}};
   reader.readAsText(file);
 }
 function autoBackup(){
-  try{
-    const data=JSON.stringify(S,null,2);
-    const blob=new Blob([data],{type:'application/json'});
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob);
-    a.download=`tzuna-autobackup-${todayKey()}.json`;
-    a.click();
-  }catch(e){}
+  try{const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`tzuna-autobackup-${todayKey()}.json`;a.click();}catch(e){}
 }
 
 // ── ONBOARDING ──
-function obSetGender(g){
-  document.getElementById('ob-male').classList.toggle('act',g==='male');
-  document.getElementById('ob-female').classList.toggle('act',g==='female');
-  S.gender=g;
-}
-function finishOnboarding(){
-  const n=document.getElementById('ob-name').value.trim();
-  if(n)S.name=n;
+function obG(g){S.gender=g;document.getElementById('ob-male').classList.toggle('act',g==='male');document.getElementById('ob-female').classList.toggle('act',g==='female');}
+function finishOB(){
+  const n=document.getElementById('ob-name').value.trim();if(n)S.name=n;
   document.getElementById('onboarding').style.display='none';
-  save();uhome();rsettings();
-  toast(`ברוכ${S.gender==='female'?'ה':''}  הב${S.gender==='female'?'א':'א'}, ${S.name||'חבר'}! 🎉`,'success');
+  saveAll();uhome();rsettings();
+  const f=S.gender==='female';
+  toast(`ברוכ${f?'ה':''} הב${f?'א':'א'}, ${S.name||'חבר'}! 🎉`,'success');
 }
 
 // ── TOAST ──
 function toast(msg,type=''){
-  const el=document.createElement('div');
-  el.className='toast '+(type||'');
-  el.textContent=msg;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),3000);
+  const el=document.createElement('div');el.className='toast '+(type||'');el.textContent=msg;
+  document.body.appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(()=>el.remove(),400);},2800);
 }
 
 // ── WATER REMINDER ──
 function setReminder(mins){
-  S.reminderMinutes=parseInt(mins)||0;
-  save();
-  if(reminderTimer)clearInterval(reminderTimer);
-  if(!S.reminderMinutes){document.getElementById('reminder-status').textContent='תזכורת כבויה';return;}
-  document.getElementById('reminder-status').textContent=`✅ תזכורת כל ${S.reminderMinutes} דקות`;
-  reminderTimer=setInterval(showWaterReminder, S.reminderMinutes*60000);
+  S.reminderMinutes=parseInt(mins)||0;saveAll();
+  if(reminderTimer)clearInterval(reminderTimer);reminderTimer=null;
+  const st=document.getElementById('reminder-status');
+  if(!S.reminderMinutes){st.textContent='תזכורת כבויה';return;}
+  st.textContent=`✅ תזכורת כל ${S.reminderMinutes} דקות`;
+  reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);
 }
 function showWaterReminder(){
-  const wrap=document.getElementById('water-reminder-wrap');
-  wrap.innerHTML=`<div class="water-banner">💧 ${nameOf()}, הגיע הזמן לשתות כוס מים!<button onclick="dismissReminder()" style="background:rgba(255,255,255,.3);border:none;color:white;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:700;font-size:.78rem;">שתיתי ✓</button></div>`;
+  document.getElementById('water-reminder-wrap').innerHTML=`<div class="water-banner">💧 ${S.name||'היי'}, הגיע הזמן לשתות מים!<button onclick="dismissWR()" style="background:rgba(255,255,255,.3);border:none;color:white;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:700;font-size:.77rem;">שתיתי ✓</button></div>`;
 }
-function dismissReminder(){
-  document.getElementById('water-reminder-wrap').innerHTML='';
-  S.water=Math.min(S.water+1,S.waterGoal);save();uhome();
-}
+function dismissWR(){document.getElementById('water-reminder-wrap').innerHTML='';S.water=Math.min(S.water+1,S.waterGoal);syncToday();uhome();}
 
 // ── DATE PICKER ──
-function openDatePicker(){
-  const inp=document.getElementById('date-inp');inp.max=todayKey();inp.value=viewingDate||todayKey();
-  try{inp.showPicker();}catch(e){inp.click();}
-}
+function openDatePicker(){const inp=document.getElementById('date-inp');inp.max=todayKey();inp.value=viewingDate||todayKey();try{inp.showPicker();}catch(e){inp.click();}}
 function onDatePick(val){if(!val)return;if(val===todayKey()){backToToday();return;}viewingDate=val;updateHdr();uhome();}
 function backToToday(){viewingDate=null;updateHdr();uhome();}
 function updateHdr(){
   const btn=document.getElementById('date-btn');
   if(viewingDate){btn.textContent=fmtFull(viewingDate);btn.classList.add('alt');}
-  else{
-    const d=new Date();
-    const mn=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-    btn.textContent=`${d.getDate()} ${mn[d.getMonth()]}`;btn.classList.remove('alt');
-  }
+  else{const d=new Date();const mn=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];btn.textContent=`${d.getDate()} ${mn[d.getMonth()]}`;btn.classList.remove('alt');}
 }
 
 // ── NAV ──
@@ -676,20 +664,17 @@ function pg(id){
 }
 
 // ── QUOTE ──
-function newQuote(){S.quoteIdx=(S.quoteIdx+1)%QUOTES.length;document.getElementById('quote-text').textContent=QUOTES[S.quoteIdx];save();}
+function newQuote(){S.quoteIdx=(S.quoteIdx+1)%QUOTES.length;document.getElementById('quote-text').textContent=QUOTES[S.quoteIdx];saveAll();}
 function showQuote(){document.getElementById('quote-text').textContent=QUOTES[S.quoteIdx%QUOTES.length];}
 
 // ── HOME ──
 function grt(){
   const h=new Date().getHours(),n=S.name?`, ${S.name}`:'';
-  const f=S.gender==='female';
-  if(h<12)return`בוקר טוב${n}! ☀️`;
-  if(h<17)return`צהריים טובים${n}! 🌤️`;
-  return`ערב טוב${n}! 🌙`;
+  if(h<12)return`בוקר טוב${n}! ☀️`;if(h<17)return`צהריים טובים${n}! 🌤️`;return`ערב טוב${n}! 🌙`;
 }
 function getDD(){
-  if(viewingDate){const d=S.historyData[viewingDate];if(d)return{cal:d.cal,water:d.water,meals:d.meals||{}};return{cal:0,water:0,meals:{}};}
-  const allF=Object.values(S.meals).flat();return{cal:allF.reduce((a,f)=>a+f.cal,0),water:S.water,meals:S.meals};
+  if(viewingDate){const d=S.historyData[viewingDate];if(d)return{cal:d.cal,water:d.water};return{cal:0,water:0};}
+  const allF=Object.values(S.meals).flat();return{cal:allF.reduce((a,f)=>a+f.cal,0),water:S.water};
 }
 function uhome(){
   const isToday=!viewingDate;
@@ -697,6 +682,9 @@ function uhome(){
   if(!isToday)document.getElementById('view-lbl').textContent=fmtFull(viewingDate);
   document.getElementById('water-card').style.display=isToday?'block':'none';
   document.getElementById('mood-card').style.display=isToday?'block':'none';
+  // mood title gender
+  const f=S.gender==='female';
+  document.getElementById('mood-title').textContent=`😊 איך את${f?'':'ה'} מרגיש${f?'ה':''}?`;
   showQuote();
   document.getElementById('greet').textContent=grt();
   const{cal,water}=getDD();
@@ -716,61 +704,44 @@ function rwc(){
   const w=document.getElementById('wc');w.innerHTML='';
   for(let i=0;i<S.waterGoal;i++){
     const c=document.createElement('div');c.className='cup'+(i<S.water?' filled':'');
-    c.innerHTML=`<span>${i<S.water?'💧':''}</span>`;
-    c.onclick=()=>{S.water=i+1;save();uhome();};w.appendChild(c);
+    c.innerHTML=`<span>${i<S.water?'💧':''}</span>`;c.onclick=()=>{S.water=i+1;syncToday();uhome();};w.appendChild(c);
   }
 }
-function addW(){if(S.water<S.waterGoal){S.water++;save();uhome();}}
-function rstW(){S.water=0;save();uhome();}
-function setMood(btn,m){S.mood=m;save();document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('moodd').textContent=m;}
+function addW(){if(S.water<S.waterGoal){S.water++;syncToday();uhome();}}
+function rstW(){S.water=0;syncToday();uhome();}
+function setMood(btn,m){S.mood=m;saveAll();document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('moodd').textContent=m;}
 
 // ── CHART ──
 function setPeriod(d,btn){chartPeriod=d;document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('act'));btn.classList.add('act');drawChart();}
 function getChartData(){
-  const today=todayKey();
-  let keys=Object.keys(S.historyData).sort();
-  if(!keys.length)return[];
-  if(chartPeriod>0){
-    const c=new Date();c.setDate(c.getDate()-(chartPeriod-1));
-    const ck=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');
-    keys=keys.filter(k=>k>=ck);
-  }
+  const today=todayKey();let keys=Object.keys(S.historyData).sort();if(!keys.length)return[];
+  if(chartPeriod>0){const c=new Date();c.setDate(c.getDate()-(chartPeriod-1));const ck=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');keys=keys.filter(k=>k>=ck);}
   return keys.map(k=>({key:k,cal:S.historyData[k]?.cal||0,isToday:k===today}));
 }
 function drawChart(){
-  const wrap=document.getElementById('chart-wrap');
-  const data=getChartData();
+  const wrap=document.getElementById('chart-wrap');const data=getChartData();
   if(!data.length){wrap.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים — התחל להזין ארוחות!</p></div>';return;}
   const bw=34,gap=10,W=Math.max(data.length*(bw+gap)+20,wrap.clientWidth||300),H=155;
   const pad={t:20,b:34,l:6,r:6};const chartH=H-pad.t-pad.b;
   const maxCal=Math.max(...data.map(d=>d.cal),S.calGoal,500);
   let bars='',labels='';
   data.forEach((d,i)=>{
-    const x=pad.l+i*(bw+gap);
-    const bh=Math.max(d.cal/maxCal*chartH,2);
-    const y=pad.t+chartH-bh;
+    const x=pad.l+i*(bw+gap);const bh=Math.max(d.cal/maxCal*chartH,2);const y=pad.t+chartH-bh;
     const col=d.isToday?'#27ae60':d.cal>S.calGoal?'#e74c3c':'#2ecc71';
     bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="5" fill="${col}" opacity=".85" style="cursor:pointer;" onclick="onDatePick('${d.key}')"/>`;
     if(d.cal>0)bars+=`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="8" fill="#666" font-family="Heebo">${d.cal}</text>`;
     labels+=`<text x="${x+bw/2}" y="${H-3}" text-anchor="middle" font-size="8" fill="${d.isToday?'#27ae60':'#999'}" font-weight="${d.isToday?'bold':'normal'}" font-family="Heebo">${fmtShort(d.key)}</text>`;
   });
-  const goalY=pad.t+chartH-(S.calGoal/maxCal*chartH);
-  const lw=W-pad.l-pad.r;
-  const goalLine=`<line x1="${pad.l}" y1="${goalY}" x2="${pad.l+lw}" y2="${goalY}" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <text x="${pad.l+lw}" y="${goalY-3}" text-anchor="end" font-size="7.5" fill="#e67e22" font-family="Heebo">יעד ${S.calGoal}</text>`;
-  wrap.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">${bars}${labels}${goalLine}</svg>`;
+  const goalY=pad.t+chartH-(S.calGoal/maxCal*chartH);const lw=W-pad.l-pad.r;
+  wrap.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">${bars}${labels}
+  <line x1="${pad.l}" y1="${goalY}" x2="${pad.l+lw}" y2="${goalY}" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="${pad.l+lw}" y="${goalY-3}" text-anchor="end" font-size="7.5" fill="#e67e22" font-family="Heebo">יעד ${S.calGoal}</text></svg>`;
 }
 function rhist(){
   const el=document.getElementById('hist');const today=todayKey();
   const keys=Object.keys(S.historyData).sort().reverse();
   if(!keys.length){el.innerHTML='<div class="empty"><div class="ei">📅</div><p>אין נתוני ימים עדיין</p></div>';return;}
-  el.innerHTML=keys.map(k=>{
-    const d=S.historyData[k];const isT=k===today;
-    return`<div class="hday${isT?' today':''}" onclick="onDatePick('${k}')">
-      <div><div class="dd">${hebrewDate(k)}${isT?' 📌':''}</div><div style="font-size:.67rem;color:var(--text-light);">${d.foods||0} פריטים • 💧${d.water||0}</div></div>
-      <div class="dc">${d.cal||0} קל׳</div>
-    </div>`;
-  }).join('');
+  el.innerHTML=keys.map(k=>{const d=S.historyData[k];const isT=k===today;return`<div class="hday${isT?' today':''}" onclick="onDatePick('${k}')"><div><div class="dd">${hebrewDate(k)}${isT?' 📌':''}</div><div style="font-size:.67rem;color:var(--text-light);">${d.foods||0} פריטים • 💧${d.water||0}</div></div><div class="dc">${d.cal||0} קל׳</div></div>`;}).join('');
 }
 
 // ── FOOD ──
@@ -781,89 +752,187 @@ function renderMeal(meal){
   const items=S.meals[meal]||[];
   const total=items.reduce((a,f)=>a+f.cal,0);
   document.getElementById('cal-'+meal).textContent=total>0?total+' קל׳':'';
-  if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.8rem;">—</div>';return;}
-  list.innerHTML=items.map((f,i)=>{
-    const hasZero=f.cal===0;
-    return`<li class="fi">
-      <div class="fn">${f.name}</div>
-      <div style="display:flex;align-items:center;gap:4px;">
-        <span class="fcal">${hasZero?'?':f.cal} קל׳</span>
-        ${hasZero&&KEY?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i})">חשב</button>`:''}
-        <button class="del" onclick="rmItem('${meal}',${i})">✕</button>
-      </div>
-    </li>`;
-  }).join('');
+  if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.78rem;">—</div>';return;}
+  list.innerHTML=items.map((f,i)=>`<li class="fi">
+    <div class="fn">${f.name}${f.fromPhoto?'<span style="font-size:.65rem;color:var(--purple);margin-right:4px;">📷</span>':''}</div>
+    <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
+      <span class="fcal">${f.cal===0&&f.name?'?':f.cal} קל׳</span>
+      ${f.cal===0&&KEY?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i},this)">חשב</button>`:''}
+      <button class="del" onclick="rmItem('${meal}',${i})">✕</button>
+    </div>
+  </li>`).join('');
 }
 
-// Recalc single item
-async function recalcItem(meal,idx){
+async function recalcItem(meal,idx,btn){
   const item=S.meals[meal][idx];if(!item||!KEY)return;
-  const btn=event.target;btn.textContent='...';btn.disabled=true;
-  try{
-    const cal=await calcCalAI(item.name);
-    S.meals[meal][idx].cal=cal;save();renderMeal(meal);uhome();
-  }catch(e){btn.textContent='חשב';btn.disabled=false;}
+  const orig=btn.textContent;btn.textContent='...';btn.disabled=true;
+  try{const cal=await calcCalAI(item.name);S.meals[meal][idx].cal=cal;syncToday();renderMeal(meal);uhome();}
+  catch(e){btn.textContent=orig;btn.disabled=false;}
 }
 
 async function addItem(meal){
   const inp=document.getElementById('inp-'+meal);const name=inp.value.trim();if(!name)return;inp.value='';
-  if(!KEY){S.meals[meal].push({name,cal:0});save();renderMeal(meal);uhome();document.getElementById('apinote').style.display='block';return;}
-  const list=document.getElementById('list-'+meal);
-  const li=document.createElement('li');li.className='fi loading';
-  li.innerHTML=`<div class="fn">${name}</div><div class="ai-loading"><div class="spinner"></div> מחשב...</div>`;
-  const emp=list.querySelector('div');if(emp&&emp.style.color==='rgb(204, 204, 204)')emp.remove();
-  list.appendChild(li);
-  try{const cal=await calcCalAI(name);li.remove();S.meals[meal].push({name,cal});save();renderMeal(meal);uhome();}
-  catch(e){li.remove();S.meals[meal].push({name,cal:0});save();renderMeal(meal);uhome();}
+  if(!KEY){S.meals[meal].push({name,cal:0});syncToday();renderMeal(meal);uhome();document.getElementById('apinote').style.display='block';return;}
+  // Show loading row
+  addLoadingRow(meal,name);
+  try{const cal=await calcCalAI(name);removeLoadingRow(meal);S.meals[meal].push({name,cal});syncToday();renderMeal(meal);uhome();}
+  catch(e){removeLoadingRow(meal);S.meals[meal].push({name,cal:0});syncToday();renderMeal(meal);uhome();}
 }
+
+// Loading row helpers
+function addLoadingRow(meal,label){
+  const list=document.getElementById('list-'+meal);
+  const existing=list.querySelector('.loading-tmp');if(existing)existing.remove();
+  const li=document.createElement('li');li.className='fi loading loading-tmp';
+  li.innerHTML=`<div class="fn">${label}</div><div class="ai-loading"><div class="spinner"></div>מחשב...</div>`;
+  list.appendChild(li);
+}
+function removeLoadingRow(meal){
+  const list=document.getElementById('list-'+meal);
+  const li=list.querySelector('.loading-tmp');if(li)li.remove();
+}
+
 async function calcCalAI(foodName){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:60,
-      system:'אתה מחשב קלוריות לפי מנה ביתית מתונה. ענה רק במספר שלם של קלוריות, ללא טקסט נוסף. דוגמה: 250',
-      messages:[{role:'user',content:`כמה קלוריות ב: ${foodName}`}]})
-  });
+      system:'אתה מחשב קלוריות לפי מנה ביתית מתונה. ענה רק במספר שלם של קלוריות ללא טקסט נוסף. דוגמה: 250',
+      messages:[{role:'user',content:`כמה קלוריות ב: ${foodName}`}]})});
   const d=await r.json();if(d.error)throw new Error(d.error.message);
   const num=parseInt((d.content?.[0]?.text||'0').replace(/[^\d]/g,''));
   return isNaN(num)?0:num;
 }
-function rmItem(meal,i){S.meals[meal].splice(i,1);save();renderMeal(meal);uhome();}
+function rmItem(meal,i){S.meals[meal].splice(i,1);syncToday();renderMeal(meal);uhome();}
 
-// ── CAMERA / IMAGE ──
-let camMealTarget='breakfast';
-function openCam(meal){camMealTarget=meal;document.getElementById('cam-input').click();}
-async function onCamImage(evt){
+// ── CAMERA (captures from camera only) ──
+let imageMeal='breakfast';
+function openCamera(meal){imageMeal=meal;document.getElementById('cam-capture').click();}
+function openGallery(meal){imageMeal=meal;document.getElementById('cam-gallery').click();}
+
+async function onImageFile(evt,source){
   const file=evt.target.files[0];if(!file)return;evt.target.value='';
+  const meal=imageMeal;
   if(!KEY){toast('נדרש מפתח API לזיהוי תמונות','warn');return;}
   const reader=new FileReader();
   reader.onload=async(e)=>{
     const base64=e.target.result.split(',')[1];
-    const mediaType=file.type||'image/jpeg';
-    const meal=camMealTarget;
-    const list=document.getElementById('list-'+meal);
-    const li=document.createElement('li');li.className='fi loading';
-    li.innerHTML=`<div class="fn">🖼️ מזהה תמונה...</div><div class="ai-loading"><div class="spinner"></div></div>`;
-    list.appendChild(li);
+    const mediaType=(file.type&&file.type.startsWith('image/'))?file.type:'image/jpeg';
+    // Show loading row
+    addLoadingRow(meal,'🖼️ מזהה תמונה...');
     try{
-      const r=await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
+      const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
         body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,
-          system:'אתה מזהה אוכל בתמונות ומחשב קלוריות לפי מנה ביתית מתונה. ענה בפורמט: שם_המאכל|קלוריות. לדוגמה: שניצל עם אורז|450. אם יש כמה מאכלים, כתוב את הכולל.',
-          messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'מה רואים בתמונה וכמה קלוריות?'}]}]})
-      });
-      const d=await r.json();li.remove();
-      if(d.error)throw new Error(d.error.message);
-      const txt=d.content?.[0]?.text||'';
-      const parts=txt.split('|');
-      const name=parts[0]?.trim()||'אוכל מתמונה';
-      const cal=parseInt((parts[1]||'0').replace(/[^\d]/g,''))||0;
-      S.meals[meal].push({name,cal,fromPhoto:true});save();renderMeal(meal);uhome();
-      toast(`זוהה: ${name} — ${cal} קל׳ 📷`,'success');
-    }catch(err){li.remove();toast('שגיאה בזיהוי תמונה ❌','');}
+          system:'אתה מזהה אוכל בתמונות ומחשב קלוריות לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות — לדוגמה: שניצל עם אורז|420. אם יש כמה מאכלים כתוב כולל.',
+          messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'מה האוכל בתמונה וכמה קלוריות?'}]}]})});
+      const data=await r.json();
+      removeLoadingRow(meal);
+      if(data.error)throw new Error(data.error.message);
+      const txt=(data.content?.[0]?.text||'').trim();
+      // parse name|cal
+      let name='אוכל מתמונה',cal=0;
+      if(txt.includes('|')){const p=txt.split('|');name=p[0].trim()||'אוכל מתמונה';cal=parseInt((p[1]||'0').replace(/[^\d]/g,''))||0;}
+      else{name=txt.split('\n')[0].trim()||'אוכל מתמונה';}
+      S.meals[meal].push({name,cal,fromPhoto:true});
+      syncToday();renderMeal(meal);uhome();
+      toast(`📷 זוהה: ${name} — ${cal} קל׳`,'success');
+    }catch(err){
+      removeLoadingRow(meal);
+      // Still add as unknown item
+      S.meals[meal].push({name:'אוכל מתמונה',cal:0,fromPhoto:true});
+      syncToday();renderMeal(meal);uhome();
+      toast(`⚠️ לא הצלחתי לזהות — הוסף קלוריות ידנית`,'warn');
+    }
   };
   reader.readAsDataURL(file);
+}
+
+// ── VOICE RECORDING ──
+// Uses Web Speech API (SpeechRecognition) - built into Chrome/Android
+// Fallback: MediaRecorder + send transcript to AI
+function toggleVoice(meal){
+  if(isRecording&&voiceMeal===meal){stopVoice();}
+  else{if(isRecording)stopVoice();startVoice(meal);}
+}
+
+function startVoice(meal){
+  voiceMeal=meal;
+  const micBtn=document.getElementById('mic-'+meal);
+
+  // Try Web Speech API first
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SpeechRecognition){
+    speechRecognition=new SpeechRecognition();
+    speechRecognition.lang='he-IL';
+    speechRecognition.continuous=false;
+    speechRecognition.interimResults=false;
+    isRecording=true;
+    micBtn.classList.add('recording');
+    micBtn.textContent='⏹️';
+    toast('🎙️ מקשיב... דבר/י ואז לחץ/י שוב','water');
+
+    speechRecognition.onresult=(e)=>{
+      const transcript=e.results[0][0].transcript;
+      stopVoice();
+      processVoiceText(transcript,meal);
+    };
+    speechRecognition.onerror=(e)=>{
+      stopVoice();
+      toast('שגיאה בזיהוי קול: '+e.error,'');
+    };
+    speechRecognition.onend=()=>{if(isRecording)stopVoice();};
+    speechRecognition.start();
+  } else {
+    // Fallback: use text input as prompt
+    toast('הדפדפן לא תומך בהקלטה — כתוב ידנית','warn');
+    document.getElementById('inp-'+meal).focus();
+  }
+}
+
+function stopVoice(){
+  isRecording=false;
+  if(speechRecognition){try{speechRecognition.stop();}catch(e){}speechRecognition=null;}
+  if(voiceMeal){
+    const btn=document.getElementById('mic-'+voiceMeal);
+    if(btn){btn.classList.remove('recording');btn.textContent='🎙️';}
+  }
+  voiceMeal=null;
+}
+
+async function processVoiceText(text,meal){
+  toast(`🎙️ שמעתי: "${text}"`, 'success');
+  // Show in input field first
+  document.getElementById('inp-'+meal).value=text;
+  if(!KEY){
+    S.meals[meal].push({name:text,cal:0});syncToday();renderMeal(meal);uhome();
+    document.getElementById('apinote').style.display='block';
+    return;
+  }
+  // Add loading row
+  addLoadingRow(meal,`🎙️ ${text}`);
+  try{
+    // Ask AI to extract food name + calories from the spoken text
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,
+        system:'אתה מחשב קלוריות ממה שאדם אמר בקול. חלץ את שם המאכל וחשב קלוריות לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות — דוגמה: עוף עם אורז|380',
+        messages:[{role:'user',content:`אמרתי: "${text}" — מה אכלתי וכמה קלוריות?`}]})});
+    const data=await r.json();
+    removeLoadingRow(meal);
+    if(data.error)throw new Error(data.error.message);
+    const txt=(data.content?.[0]?.text||'').trim();
+    let name=text,cal=0;
+    if(txt.includes('|')){const p=txt.split('|');name=p[0].trim()||text;cal=parseInt((p[1]||'0').replace(/[^\d]/g,''))||0;}
+    document.getElementById('inp-'+meal).value='';
+    S.meals[meal].push({name,cal,fromVoice:true});
+    syncToday();renderMeal(meal);uhome();
+    toast(`✅ נוסף: ${name} — ${cal} קל׳`,'success');
+  }catch(err){
+    removeLoadingRow(meal);
+    S.meals[meal].push({name:text,cal:0,fromVoice:true});
+    document.getElementById('inp-'+meal).value='';
+    syncToday();renderMeal(meal);uhome();
+  }
 }
 
 // ── SETTINGS ──
@@ -875,34 +944,22 @@ function rsettings(){
   if(S.reminderMinutes>0)document.getElementById('reminder-status').textContent=`✅ תזכורת כל ${S.reminderMinutes} דקות`;
   document.getElementById('sg-male').classList.toggle('act',S.gender==='male');
   document.getElementById('sg-female').classList.toggle('act',S.gender==='female');
+  ['lose','maintain','gain'].forEach(g=>document.getElementById('sg-'+g).classList.toggle('act',S.goal===g));
+  ['lose','maintain','gain'].forEach(g=>document.getElementById('sg-'+g).classList.toggle('act',S.goal===g));
   if(KEY)document.getElementById('kst').textContent='✅ מפתח AI שמור';
 }
 function sv(k,v){
   if(k==='calGoal')S.calGoal=parseInt(v)||2000;
-  else if(k==='waterGoal'){S.waterGoal=parseInt(v)||6;}
+  else if(k==='waterGoal')S.waterGoal=parseInt(v)||6;
   else if(k==='name')S.name=v;
-  else if(k==='gender'){
-    S.gender=v;
-    document.getElementById('sg-male').classList.toggle('act',v==='male');
-    document.getElementById('sg-female').classList.toggle('act',v==='female');
-  }
-  save();uhome();
+  else if(k==='gender'){S.gender=v;document.getElementById('sg-male').classList.toggle('act',v==='male');document.getElementById('sg-female').classList.toggle('act',v==='female');}
+  else if(k==='goal'){S.goal=v;['lose','maintain','gain'].forEach(g=>document.getElementById('sg-'+g).classList.toggle('act',g===v));}
+  saveAll();uhome();
 }
-function saveKey(){const k=document.getElementById('akin').value.trim();if(!k)return;KEY=k;localStorage.setItem('tzkey',k);document.getElementById('apinote').style.display='none';addBot('✅ מפתח נשמר! 😊');}
-function saveKeyS(){const k=document.getElementById('skey').value.trim();if(!k)return;KEY=k;localStorage.setItem('tzkey',k);document.getElementById('kst').textContent='✅ מפתח AI שמור';document.getElementById('apinote').style.display='none';}
-
-function rstDay(){
-  if(!confirm('למחוק נתוני היום?'))return;
-  autoBackup();
-  S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;
-  delete S.historyData[todayKey()];
-  save();uhome();rfood();toast('נתוני היום נמחקו (גיבוי הורד)','warn');
-}
-function rstAll(){
-  if(!confirm('למחוק הכל לגמרי?'))return;
-  autoBackup();
-  localStorage.clear();location.reload();
-}
+function saveKey(){const k=document.getElementById('akin').value.trim();if(!k)return;KEY=k;saveAll();document.getElementById('apinote').style.display='none';addBot('✅ מפתח נשמר! 😊');}
+function saveKeyS(){const k=document.getElementById('skey').value.trim();if(!k)return;KEY=k;saveAll();document.getElementById('kst').textContent='✅ מפתח AI שמור';document.getElementById('apinote').style.display='none';}
+function rstDay(){if(!confirm('למחוק נתוני היום?'))return;autoBackup();S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;delete S.historyData[todayKey()];saveAll();uhome();rfood();toast('נתוני היום נמחקו (גיבוי הורד)','warn');}
+function rstAll(){if(!confirm('למחוק הכל?'))return;autoBackup();localStorage.clear();location.reload();}
 
 // ── CALC ──
 function setG(g){S.gender=g;document.getElementById('bm').classList.toggle('act',g==='male');document.getElementById('bf').classList.toggle('act',g==='female');}
@@ -911,8 +968,7 @@ function calcTDEE(){
   const a=parseInt(document.getElementById('age').value),w=parseFloat(document.getElementById('wt').value),h=parseFloat(document.getElementById('ht').value),ac=parseFloat(document.getElementById('act').value);
   if(!a||!w||!h){alert('מלא את כל השדות');return;}
   let bmr=S.gender==='male'?10*w+6.25*h-5*a+5:10*w+6.25*h-5*a-161;
-  const tdee=Math.round(bmr*ac);
-  let t,cls,txt,ic;
+  const tdee=Math.round(bmr*ac);let t,cls,txt,ic;
   if(S.calcGoal==='lose'){t=tdee-500;cls='lr';txt='ירידה במשקל';ic='📉';}
   else if(S.calcGoal==='gain'){t=tdee+400;cls='gr';txt='עלייה במשקל';ic='📈';}
   else{t=tdee;cls='';txt='שמירה';ic='⚖️';}
@@ -920,7 +976,7 @@ function calcTDEE(){
   el.innerHTML=`<div class="rb ${cls}"><div style="font-size:1.4rem;">${ic}</div><div class="rc">${t}</div><div style="font-size:.8rem;opacity:.9;">קלוריות ביום – ${txt}</div><div style="font-size:.71rem;opacity:.7;margin-top:2px;">TDEE: ${tdee}</div><button class="btn" style="margin-top:10px;background:rgba(255,255,255,.25);color:white;font-size:.78rem;" onclick="applyG(${t},'${S.calcGoal}')">🎯 הגדר כיעד שלי</button></div>`;
   rtips(S.calcGoal,w);
 }
-function applyG(c,g){S.calGoal=c;S.goal=g;save();uhome();toast(`✅ יעד ${c} קלוריות הוגדר!`,'success');}
+function applyG(c,g){S.calGoal=c;S.goal=g;saveAll();uhome();toast(`✅ יעד ${c} קלוריות הוגדר!`,'success');}
 function rtips(goal,w){
   const t={gain:['🥚 5-6 ארוחות ביום',`🥩 ${Math.round((w||60)*1.8)}g חלבון ביום`,'🥜 שומנים בריאים: אגוזים, אבוקדו','🥛 שייק חלבון אחרי אימון','🍚 פחמימות מורכבות','💪 אימוני כוח 3-4×/שבוע'],
     lose:['🥗 חלבון בכל ארוחה','🥦 ירקות בכל צלחת','💧 מים לפני כל ארוחה','🚶 30 דקות הליכה ביום','⏰ ארוחות קטנות כל 3-4 שעות','🚫 הימנע ממשקאות ממותקים'],
@@ -929,164 +985,68 @@ function rtips(goal,w){
 }
 
 // ── EXPORT ──
-let expFmt2='excel';
-function openExport(){
-  document.getElementById('exp-from').value=todayKey().slice(0,7)+'-01';
-  document.getElementById('exp-to').value=todayKey();
-  document.getElementById('export-modal').style.display='flex';
-}
+function openExport(){document.getElementById('exp-from').value=todayKey().slice(0,7)+'-01';document.getElementById('exp-to').value=todayKey();document.getElementById('ef-excel').classList.add('act');document.getElementById('ef-word').classList.remove('act');expFmt2='excel';document.getElementById('export-modal').style.display='flex';}
 function closeExport(){document.getElementById('export-modal').style.display='none';}
-function setExpFmt(f){
-  expFmt2=f;
-  document.getElementById('ef-excel').classList.toggle('act',f==='excel');
-  document.getElementById('ef-word').classList.toggle('act',f==='word');
-}
+function setExpFmt(f){expFmt2=f;document.getElementById('ef-excel').classList.toggle('act',f==='excel');document.getElementById('ef-word').classList.toggle('act',f==='word');}
 function doExport(){
-  const from=document.getElementById('exp-from').value;
-  const to=document.getElementById('exp-to').value;
+  const from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value;
   if(!from||!to){alert('בחר תאריכים');return;}
   const keys=Object.keys(S.historyData).sort().filter(k=>k>=from&&k<=to);
   if(!keys.length){toast('אין נתונים בתקופה זו','warn');closeExport();return;}
-  if(expFmt2==='excel')exportExcel(keys);
-  else exportWord(keys);
+  if(expFmt2==='excel')exportExcel(keys);else exportWord(keys);
   closeExport();
 }
-
 function exportExcel(keys){
   const wb=XLSX.utils.book_new();
-  // Summary sheet
-  const sumRows=[['תאריך','קלוריות','מים (כוסות)','מספר ארוחות','יעד','אחוז השגה']];
-  keys.forEach(k=>{
-    const d=S.historyData[k];
-    sumRows.push([fmtFull(k),d.cal||0,d.water||0,d.foods||0,S.calGoal,d.cal?Math.round(d.cal/S.calGoal*100)+'%':'-']);
-  });
-  const ws1=XLSX.utils.aoa_to_sheet(sumRows);
-  ws1['!cols']=[{wch:14},{wch:12},{wch:14},{wch:14},{wch:10},{wch:12}];
+  const s1=[['תאריך','קלוריות','מים (כוסות)','פריטים','יעד','אחוז']];
+  keys.forEach(k=>{const d=S.historyData[k];s1.push([fmtFull(k),d.cal||0,d.water||0,d.foods||0,S.calGoal,d.cal?Math.round(d.cal/S.calGoal*100)+'%':'-']);});
+  const ws1=XLSX.utils.aoa_to_sheet(s1);ws1['!cols']=[{wch:14},{wch:12},{wch:14},{wch:10},{wch:10},{wch:10}];
   XLSX.utils.book_append_sheet(wb,ws1,'סיכום');
-
-  // Details sheet
-  const detRows=[['תאריך','סוג ארוחה','שם מאכל','קלוריות']];
-  keys.forEach(k=>{
-    const d=S.historyData[k];
-    if(d.meals){
-      Object.entries(d.meals).forEach(([mealType,items])=>{
-        (items||[]).forEach(f=>{
-          detRows.push([fmtFull(k),ML[mealType]||mealType,f.name,f.cal]);
-        });
-      });
-    }
-  });
-  const ws2=XLSX.utils.aoa_to_sheet(detRows);
-  ws2['!cols']=[{wch:14},{wch:16},{wch:24},{wch:10}];
-  XLSX.utils.book_append_sheet(wb,ws2,'פירוט ארוחות');
-
+  const s2=[['תאריך','ארוחה','שם מאכל','קלוריות']];
+  keys.forEach(k=>{const d=S.historyData[k];if(d.meals)Object.entries(d.meals).forEach(([mt,items])=>{(items||[]).forEach(f=>s2.push([fmtFull(k),ML[mt]||mt,f.name,f.cal]));});});
+  const ws2=XLSX.utils.aoa_to_sheet(s2);ws2['!cols']=[{wch:14},{wch:16},{wch:24},{wch:10}];
+  XLSX.utils.book_append_sheet(wb,ws2,'פירוט');
   XLSX.writeFile(wb,`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.xlsx`);
   toast('קובץ Excel הורד ✅','success');
 }
-
+function buildExportChart(keys){
+  const W=480,H=130,pad={t:14,b:26,l:4,r:4};const chartH=H-pad.t-pad.b;
+  const bw=Math.max(8,Math.min(28,Math.floor((W-pad.l-pad.r)/(keys.length+1))-4));
+  const maxCal=Math.max(...keys.map(k=>S.historyData[k]?.cal||0),S.calGoal,500);
+  let bars='',labels='';
+  keys.forEach((k,i)=>{const cal=S.historyData[k]?.cal||0;const x=pad.l+i*(bw+4);const bh=Math.max(cal/maxCal*chartH,1);const y=pad.t+chartH-bh;const col=cal>S.calGoal?'#e74c3c':'#2ecc71';bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${col}" rx="2"/>`;if(cal)bars+=`<text x="${x+bw/2}" y="${y-2}" text-anchor="middle" font-size="7">${cal}</text>`;labels+=`<text x="${x+bw/2}" y="${H-2}" text-anchor="middle" font-size="6.5" fill="#666">${fmtShort(k)}</text>`;});
+  const gy=pad.t+chartH-(S.calGoal/maxCal*chartH);
+  return`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid #eee;border-radius:6px;">${bars}${labels}<line x1="${pad.l}" y1="${gy}" x2="${W-pad.r}" y2="${gy}" stroke="#e67e22" stroke-width="1" stroke-dasharray="3,2"/><text x="${W-pad.r}" y="${gy-1}" text-anchor="end" font-size="6.5" fill="#e67e22">יעד ${S.calGoal}</text></svg>`;
+}
 function exportWord(keys){
-  const rows=keys.map(k=>{
-    const d=S.historyData[k];
-    const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;
-    const bar='█'.repeat(Math.floor(pct/10))+'░'.repeat(10-Math.floor(pct/10));
-    let meals='';
-    if(d.meals){
-      Object.entries(d.meals).forEach(([mt,items])=>{
-        if(items&&items.length){
-          meals+=`<h4 style="color:#27ae60;margin:6px 0 4px;">${ML[mt]||mt}</h4><ul>`;
-          items.forEach(f=>meals+=`<li>${f.name} — ${f.cal} קלוריות</li>`);
-          meals+='</ul>';
-        }
-      });
-    }
-    return`<div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #eee;">
-      <h3 style="color:#2c3e50;">${hebrewDate(k)} (${fmtFull(k)})</h3>
-      <table><tr><td><strong>קלוריות:</strong></td><td>${d.cal||0} / ${S.calGoal}</td></tr>
-      <tr><td><strong>מים:</strong></td><td>${d.water||0} / ${S.waterGoal} כוסות</td></tr></table>
-      <div style="font-family:monospace;font-size:12px;color:#555;">${bar} ${pct}%</div>
-      ${meals}
-    </div>`;
-  }).join('');
-
-  // Build SVG chart inline
-  const chartSVG=buildExportChart(keys);
-
-  const html=`<html dir="rtl"><head><meta charset="UTF-8">
-  <style>body{font-family:Arial,sans-serif;direction:rtl;padding:20px;}h1{color:#27ae60;}table{border-collapse:collapse;}td{padding:3px 10px;}ul{padding-right:18px;}</style></head>
-  <body><h1>🥗 דוח תזונה — ${fmtFull(keys[0])} עד ${fmtFull(keys[keys.length-1])}</h1>
-  <p>שם: ${S.name||'לא הוגדר'} | יעד יומי: ${S.calGoal} קלוריות</p>
-  <h2>גרף קלוריות</h2>${chartSVG}
-  <h2>פירוט ימים</h2>${rows}</body></html>`;
-
+  const rows=keys.map(k=>{const d=S.historyData[k];const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;let meals='';if(d.meals)Object.entries(d.meals).forEach(([mt,items])=>{if(items&&items.length){meals+=`<h4 style="color:#27ae60;margin:5px 0 3px;">${ML[mt]||mt}</h4><ul>`;items.forEach(f=>meals+=`<li>${f.name} — ${f.cal} קל׳</li>`);meals+='</ul>';}});return`<div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #eee;"><h3 style="color:#2c3e50;">${hebrewDate(k)} (${fmtFull(k)})</h3><p><strong>קלוריות:</strong> ${d.cal||0} / ${S.calGoal} (${pct}%) &nbsp;|&nbsp; <strong>מים:</strong> ${d.water||0} / ${S.waterGoal} כוסות</p>${meals}</div>`;}).join('');
+  const html=`<html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;direction:rtl;padding:20px;}h1{color:#27ae60;}ul{padding-right:18px;}</style></head><body><h1>🥗 דוח תזונה</h1><p>שם: ${S.name||'לא הוגדר'} | יעד: ${S.calGoal} קלוריות/יום | תקופה: ${fmtFull(keys[0])} – ${fmtFull(keys[keys.length-1])}</p><h2>גרף קלוריות</h2>${buildExportChart(keys)}<h2>פירוט ימים</h2>${rows}</body></html>`;
   const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.doc`;
-  a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.doc`;a.click();
   toast('קובץ Word הורד ✅','success');
 }
 
-function buildExportChart(keys){
-  const W=500,H=140,pad={t:16,b:28,l:6,r:6};
-  const chartH=H-pad.t-pad.b;
-  const bw=Math.min(30,Math.floor((W-pad.l-pad.r)/keys.length-4));
-  const gap=Math.max(2,(W-pad.l-pad.r-bw*keys.length)/Math.max(keys.length-1,1));
-  const maxCal=Math.max(...keys.map(k=>S.historyData[k]?.cal||0),S.calGoal,500);
-  let bars='',labels='';
-  keys.forEach((k,i)=>{
-    const cal=S.historyData[k]?.cal||0;
-    const x=pad.l+i*(bw+gap);
-    const bh=Math.max(cal/maxCal*chartH,1);
-    const y=pad.t+chartH-bh;
-    const col=cal>S.calGoal?'#e74c3c':'#2ecc71';
-    bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${col}" rx="3"/>`;
-    if(cal)bars+=`<text x="${x+bw/2}" y="${y-3}" text-anchor="middle" font-size="8">${cal}</text>`;
-    labels+=`<text x="${x+bw/2}" y="${H-2}" text-anchor="middle" font-size="7" fill="#666">${fmtShort(k)}</text>`;
-  });
-  const gy=pad.t+chartH-(S.calGoal/maxCal*chartH);
-  return`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid #eee;border-radius:8px;">${bars}${labels}
-  <line x1="${pad.l}" y1="${gy}" x2="${W-pad.r}" y2="${gy}" stroke="#e67e22" stroke-width="1" stroke-dasharray="3,2"/>
-  <text x="${W-pad.r}" y="${gy-2}" text-anchor="end" font-size="7" fill="#e67e22">יעד</text></svg>`;
-}
-
-// ── AI CHAT (restricted to nutrition/health) ──
-function updateChatWelcome(){
-  const nm=S.name?`, ${S.name}`:'';
-  const el=document.getElementById('chat-welcome');
-  if(el)el.textContent=`היי${nm}! 👋 אני יועץ התזונה ואורח החיים שלך. אוכל לעזור בתזונה, ספורט, שינה, ניהול משקל ובריאות כללית. במה אוכל לעזור? 🥗`;
-}
-async function send(){
-  const inp=document.getElementById('cinp'),txt=inp.value.trim();if(!txt)return;inp.value='';
-  addUser(txt);await getAI(txt);
-}
+// ── AI CHAT ──
+function updateChatWelcome(){const nm=S.name?`, ${S.name}`:'';const el=document.getElementById('chat-welcome');if(el)el.textContent=`היי${nm}! 👋 אני יועץ התזונה שלך. שאל/י על תזונה, ספורט, שינה ובריאות 🥗`;}
+async function send(){const inp=document.getElementById('cinp'),txt=inp.value.trim();if(!txt)return;inp.value='';addUser(txt);await getAI(txt);}
 function sq(btn){const t=btn.textContent.trim();addUser(t);getAI(t);}
 function addUser(t){addMsg(t,'user');S.ch.push({role:'user',content:t});}
 function addBot(t){addMsg(t,'bot');}
-function addMsg(t,role){
-  const a=document.getElementById('chat'),d=document.createElement('div');
-  d.className='msg '+role;d.textContent=t;a.appendChild(d);a.scrollTop=a.scrollHeight;
-}
+function addMsg(t,role){const a=document.getElementById('chat'),d=document.createElement('div');d.className='msg '+role;d.textContent=t;a.appendChild(d);a.scrollTop=a.scrollHeight;}
 function addTyping(){addMsg('⏳ כותב...','bot');document.getElementById('chat').lastChild.id='typ';}
 function rmTyping(){const e=document.getElementById('typ');if(e)e.remove();}
 async function getAI(msg){
   if(!KEY){document.getElementById('apinote').style.display='block';addMsg('⚠️ הזן מפתח API בהגדרות','bot err');return;}
   addTyping();
-  const allF=Object.values(S.meals).flat();
-  const tc=allF.reduce((a,f)=>a+f.cal,0);
-  const nm=S.name||'החבר/ה שלי';
-  const gender_str=S.gender==='female'?'נקבה':'זכר';
-  const sys=`אתה יועץ תזונה ואורח חיים בריא מקצועי לנוער. שמך "יועץ תזונה".
-IMPORTANT: אתה עונה רק על שאלות הקשורות לתזונה, ספורט, שינה, ניהול משקל, בריאות גופנית ונפשית, ואורח חיים בריא.
-אם שואלים משהו שלא קשור לנושאים אלה, ענה בנימוס שאתה יועץ תזונה ויכול לעזור רק בנושאי תזונה ובריאות.
-ענה בעברית, ידידותי, קצר (2-5 משפטים), עם אמוג'י לפעמים.
-המשתמש: שם ${nm} | מין ${gender_str} | יעד ${S.calGoal}קל/יום | אכל היום ${tc}קל | מים ${S.water}/${S.waterGoal} | מטרה:${S.goal==='gain'?'עלייה':S.goal==='lose'?'ירידה':'שמירה במשקל'}
-פנה למשתמש בשם ${nm} ובהתאמה לפי המין שלו/ה.`;
+  const allF=Object.values(S.meals).flat();const tc=allF.reduce((a,f)=>a+f.cal,0);
+  const f=S.gender==='female';
+  const sys=`אתה יועץ תזונה ואורח חיים בריא לנוער. עונה רק על שאלות הקשורות לתזונה, ספורט, שינה, ניהול משקל ובריאות. על כל שאלה אחרת ענה בנימוס שאתה יועץ תזונה בלבד.
+ענה בעברית, ידידותי, קצר (2-5 משפטים), עם אמוג'י לפעמים. פנה ל${S.name||'המשתמש'} ב${f?'נקבה':'זכר'}.
+נתונים: שם:${S.name||'?'} | יעד:${S.calGoal}קל | אכל:${tc}קל | מים:${S.water}/${S.waterGoal} | מטרה:${S.goal==='gain'?'עלייה':S.goal==='lose'?'ירידה':'שמירה'}`;
   try{
-    const r=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:sys,messages:[...S.ch.slice(-8),{role:'user',content:msg}]})
-    });
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:sys,messages:[...S.ch.slice(-8),{role:'user',content:msg}]})});
     const data=await r.json();rmTyping();
     if(data.error){addMsg('❌ '+data.error.message,'bot err');return;}
     const rep=data.content?.[0]?.text||'לא הצלחתי לענות.';
@@ -1095,17 +1055,13 @@ IMPORTANT: אתה עונה רק על שאלות הקשורות לתזונה, ס�
 }
 
 // ── INIT ──
-load();
+loadAll();
 updateHdr();
 syncToday();
-// Show onboarding if no name
-if(!S.name){
-  setTimeout(()=>{document.getElementById('onboarding').style.display='flex';},300);
-}
-// Init reminder
-if(S.reminderMinutes>0){
-  reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);
-}
+// Onboarding if no name
+if(!S.name){setTimeout(()=>document.getElementById('onboarding').style.display='flex',300);}
+// Water reminder
+if(S.reminderMinutes>0){reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);}
 uhome();rfood();rsettings();
 </script>
 </body>
