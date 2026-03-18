@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>תזונה 🥗</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green:#2ecc71;--green-dark:#27ae60;--green-light:#d5f5e3;
+    --blue:#3498db;--blue-light:#d6eaf8;--orange:#e67e22;--orange-light:#fdebd0;
+    --red:#e74c3c;--red-light:#fadbd8;--purple:#9b59b6;--purple-light:#e8daef;
+    --yellow:#f1c40f;--yellow-light:#fef9e7;
+    --bg:#f0faf5;--card:#fff;--text:#2c3e50;--text-light:#7f8c8d;
+    --border:#e8e8e8;--shadow:0 2px 16px rgba(0,0,0,0.07);--radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{width:100%;overflow-x:hidden;}
+  body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:72px;}
+
+  header{background:linear-gradient(135deg,#27ae60,#2ecc71,#1abc9c);color:white;padding:16px 16px 46px;text-align:center;overflow:hidden;position:relative;}
+  header h1{font-size:1.9rem;font-weight:900;}
+  .ver-badge{position:absolute;top:14px;left:14px;background:rgba(255,255,255,0.25);color:white;font-size:0.7rem;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.3px;}
+
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:6px 0 10px;box-shadow:0 -3px 16px rgba(0,0,0,0.1);z-index:100;}
+  .nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:0.63rem;color:var(--text-light);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:10px;min-width:0;}
+  .nav-btn.active{color:var(--green-dark);}
+  .nav-btn.active .nav-icon{background:var(--green-light);}
+  .nav-icon{font-size:1.25rem;padding:5px 7px;border-radius:10px;}
+
+  .page{display:none;padding:0 12px;margin-top:-34px;}
+  .page.active{display:block;}
+  .card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
+  .card-title{font-size:0.78rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+  /* RINGS */
+  .rings-row{display:flex;justify-content:space-around;align-items:center;margin:4px 0 10px;}
+  .ring-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .ring-container{position:relative;display:flex;align-items:center;justify-content:center;}
+  .ring-svg{transform:rotate(-90deg);display:block;}
+  .ring-track{fill:none;stroke:#f0f0f0;}
+  .ring-fill{fill:none;stroke-linecap:round;transition:stroke-dashoffset .6s ease;}
+  .ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;}
+  .ring-center .big{font-size:1.2rem;font-weight:900;color:var(--text);line-height:1;}
+  .ring-center .small{font-size:0.6rem;color:var(--text-light);}
+  .ring-label{font-size:0.7rem;color:var(--text-light);font-weight:700;text-align:center;}
+
+  .gbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:700;margin-top:4px;}
+  .gl{background:var(--blue-light);color:var(--blue);}
+  .gm{background:var(--green-light);color:var(--green-dark);}
+  .gg{background:var(--orange-light);color:var(--orange);}
+
+  .water-cups{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0;}
+  .cup{width:33px;height:40px;background:#e0f0ff;border:2px solid #b0d4f1;border-radius:0 0 9px 9px;border-top:none;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:0.8rem;transition:all .3s;position:relative;overflow:hidden;}
+  .cup::before{content:'';position:absolute;bottom:0;left:0;right:0;height:0%;background:var(--blue);transition:height .4s;border-radius:0 0 7px 7px;}
+  .cup.filled::before{height:100%;}.cup.filled{border-color:var(--blue);}
+  .cup span{position:relative;z-index:1;}
+
+  .mood-row{display:flex;gap:5px;justify-content:center;margin:6px 0;}
+  .mood-btn{font-size:1.45rem;background:none;border:3px solid transparent;border-radius:10px;padding:3px 5px;cursor:pointer;}
+  .mood-btn.sel{border-color:var(--green);background:var(--green-light);}
+
+  .hday{padding:9px 12px;background:#fafafa;border-radius:10px;margin-bottom:6px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .hday .dd{font-size:0.76rem;color:var(--text-light);font-weight:700;}
+  .hday .dc{font-weight:900;color:var(--green-dark);font-size:.95rem;}
+
+  /* FOOD PAGE - MEAL SECTIONS */
+  .meal-section{margin-bottom:14px;}
+  .meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  .meal-title{font-size:0.95rem;font-weight:900;display:flex;align-items:center;gap:6px;}
+  .meal-cal-total{font-size:0.78rem;font-weight:700;color:var(--text-light);}
+
+  .meal-add-row{display:flex;gap:6px;margin-bottom:8px;}
+  .meal-add-row input{flex:1;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:0.86rem;outline:none;min-width:0;background:white;}
+  .meal-add-row input:focus{border-color:var(--green);}
+
+  .food-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+  .fi{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;background:#fafafa;border-radius:10px;border:1px solid var(--border);animation:si .3s ease;}
+  .fi.loading{opacity:.6;background:#f5fff8;}
+  .fn{font-weight:600;font-size:0.84rem;}
+  .fcal{font-weight:900;color:var(--green-dark);font-size:0.86rem;white-space:nowrap;}
+  .del{background:none;border:none;cursor:pointer;color:#ccc;font-size:0.95rem;padding:0 4px;}
+  .del:active{color:var(--red);}
+
+  .meal-divider{border:none;border-top:1px dashed var(--border);margin:14px 0;}
+
+  /* AI SPINNER */
+  .ai-loading{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:var(--green-dark);}
+  .spinner{width:14px;height:14px;border:2px solid var(--green-light);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* BTN */
+  .btn{padding:10px 13px;border:none;border-radius:10px;font-family:'Heebo',sans-serif;font-weight:700;font-size:0.84rem;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+  .bg{background:var(--green);color:white;}.bb{background:var(--blue);color:white;}.br{background:var(--red);color:white;}
+  .bo{background:transparent;border:2px solid var(--green);color:var(--green-dark);}
+  .bsm{padding:7px 11px;font-size:0.77rem;}.bfull{width:100%;display:block;text-align:center;margin-top:2px;}
+  .btn-ai{background:linear-gradient(135deg,#667eea,#764ba2);color:white;}
+
+  /* CHAT */
+  .chat-area{height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:4px 0 8px;}
+  .msg{max-width:86%;padding:9px 13px;border-radius:14px;font-size:0.84rem;line-height:1.5;animation:fu .3s;word-break:break-word;}
+  .msg.bot{background:var(--green-light);color:var(--text);align-self:flex-start;border-bottom-right-radius:3px;}
+  .msg.user{background:var(--green);color:white;align-self:flex-end;border-bottom-left-radius:3px;}
+  .msg.err{background:var(--red-light);color:var(--red);align-self:flex-start;border-radius:10px;}
+  .chat-ir{display:flex;gap:6px;margin-top:8px;}
+  .chat-ir input{flex:1;padding:11px 14px;border:2px solid var(--border);border-radius:22px;font-family:'Heebo',sans-serif;font-size:0.84rem;outline:none;min-width:0;}
+  .chat-ir input:focus{border-color:var(--green);}
+  .csend{background:var(--green);color:white;border:none;border-radius:50%;width:44px;height:44px;font-size:1.1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .qq{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+  .q{background:white;border:2px solid var(--green-light);color:var(--green-dark);padding:5px 9px;border-radius:16px;font-size:0.75rem;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;}
+  .q:active{background:var(--green-light);}
+
+  .api-notice{background:#fff8e1;border:2px solid #ffe082;border-radius:12px;padding:12px 14px;margin-bottom:10px;font-size:0.81rem;line-height:1.5;}
+  .api-notice a{color:#e65100;}
+  .akr{display:flex;gap:6px;margin-top:8px;}
+  .akr input{flex:1;padding:9px 11px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:0.79rem;outline:none;min-width:0;direction:ltr;}
+  .akr input:focus{border-color:var(--green);}
+
+  /* CALC */
+  .cf{display:flex;flex-direction:column;gap:10px;}
+  .ff{display:flex;flex-direction:column;gap:4px;}
+  .ff label{font-size:0.76rem;font-weight:700;color:var(--text-light);}
+  .ff input,.ff select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:0.86rem;outline:none;background:white;}
+  .ff input:focus,.ff select:focus{border-color:var(--green);}
+  .gbs,.goalbts{display:flex;gap:6px;}
+  .gb,.goalb{flex:1;padding:9px 5px;border:2px solid var(--border);border-radius:10px;background:white;font-family:'Heebo',sans-serif;font-size:0.78rem;cursor:pointer;font-weight:600;text-align:center;}
+  .gb.act{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+  .goalb.act.lose{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
+  .goalb.act.maintain{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+  .goalb.act.gain{border-color:var(--orange);background:var(--orange-light);color:var(--orange);}
+  .rb{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;border-radius:14px;padding:18px;text-align:center;animation:fu .4s;margin-top:4px;}
+  .rb .rc{font-size:2.2rem;font-weight:900;}
+  .rb.lr{background:linear-gradient(135deg,var(--blue),#2471a3);}
+  .rb.gr{background:linear-gradient(135deg,var(--orange),#d35400);}
+
+  /* SETTINGS */
+  .si-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
+  .si-row:last-child{border-bottom:none;}
+  .sl{font-weight:600;font-size:0.86rem;}.ss{font-size:0.7rem;color:var(--text-light);margin-top:1px;}
+  .fmi{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:#fafafa;border-radius:9px;margin-bottom:5px;}
+
+  .empty{text-align:center;padding:16px;color:var(--text-light);}
+  .empty .ei{font-size:1.6rem;margin-bottom:4px;}
+  .empty p{font-size:0.78rem;}
+
+  @keyframes si{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fu{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<header>
+  <span class="ver-badge">v1.0</span>
+  <h1>🥗 תזונה</h1>
+</header>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="pg('home')"><span class="nav-icon">🏠</span>בית</button>
+  <button class="nav-btn" onclick="pg('food')"><span class="nav-icon">🍽️</span>אכלתי</button>
+  <button class="nav-btn" onclick="pg('ai')"><span class="nav-icon">🤖</span>עוזר AI</button>
+  <button class="nav-btn" onclick="pg('calc')"><span class="nav-icon">🧮</span>מחשבון</button>
+  <button class="nav-btn" onclick="pg('settings')"><span class="nav-icon">⚙️</span>הגדרות</button>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+      <div><div style="font-size:1rem;font-weight:900;" id="greet">שלום! 👋</div><div id="gbadge"></div></div>
+      <div id="moodd" style="font-size:1.6rem;">😊</div>
+    </div>
+    <div class="rings-row">
+      <div class="ring-wrap">
+        <div class="ring-container">
+          <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
+            <circle class="ring-track" cx="50" cy="50" r="42" stroke-width="9"/>
+            <circle class="ring-fill" id="cring" cx="50" cy="50" r="42" stroke="#2ecc71" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="264"/>
+          </svg>
+          <div class="ring-center"><div class="big" id="cdis">0</div><div class="small" id="cgdis">/ 2000</div></div>
+        </div>
+        <div class="ring-label">🔥 קלוריות</div>
+      </div>
+      <div class="ring-wrap">
+        <div class="ring-container">
+          <svg class="ring-svg" width="82" height="82" viewBox="0 0 82 82">
+            <circle class="ring-track" cx="41" cy="41" r="33" stroke-width="8"/>
+            <circle class="ring-fill" id="wring" cx="41" cy="41" r="33" stroke="#3498db" stroke-width="8" stroke-dasharray="207" stroke-dashoffset="207"/>
+          </svg>
+          <div class="ring-center"><div class="big" id="wdis" style="font-size:1.1rem;">0</div><div class="small" id="wgdis">/ 6</div></div>
+        </div>
+        <div class="ring-label">💧 מים</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💧 שתיית מים</div>
+    <div class="water-cups" id="wc"></div>
+    <div style="display:flex;gap:8px;margin-top:9px;">
+      <button class="btn bb bsm" onclick="addW()">+ כוס שתיתי</button>
+      <button class="btn bo bsm" onclick="rstW()">איפוס</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">😊 איך אתה מרגיש?</div>
+    <div class="mood-row">
+      <button class="mood-btn" onclick="setMood(this,'😩')">😩</button>
+      <button class="mood-btn" onclick="setMood(this,'😕')">😕</button>
+      <button class="mood-btn" onclick="setMood(this,'😐')">😐</button>
+      <button class="mood-btn" onclick="setMood(this,'😊')">😊</button>
+      <button class="mood-btn" onclick="setMood(this,'🤩')">🤩</button>
+    </div>
+  </div>
+
+  <div class="card"><div class="card-title">📅 היסטוריה</div><div id="hist"><div class="empty"><div class="ei">📊</div><p>עדיין אין נתונים</p></div></div></div>
+</div>
+
+<!-- FOOD PAGE -->
+<div class="page" id="page-food">
+  <div class="card">
+    <div style="font-size:.8rem;color:var(--text-light);margin-bottom:14px;line-height:1.5;background:var(--green-light);padding:10px 12px;border-radius:10px;">
+      💡 <strong>כתוב שם מאכל</strong> ו-AI יחשב את הקלוריות אוטומטית לפי מנה ביתית רגילה
+    </div>
+
+    <!-- BREAKFAST -->
+    <div class="meal-section">
+      <div class="meal-header">
+        <div class="meal-title">🌅 ארוחת בוקר</div>
+        <div class="meal-cal-total" id="cal-breakfast">0 קל׳</div>
+      </div>
+      <div class="meal-add-row">
+        <input type="text" id="inp-breakfast" placeholder="מה אכלת בבוקר?" onkeydown="if(event.key==='Enter')addItem('breakfast')"/>
+        <button class="btn bg bsm" onclick="addItem('breakfast')">+ הוסף</button>
+      </div>
+      <ul class="food-list" id="list-breakfast"></ul>
+    </div>
+
+    <hr class="meal-divider"/>
+
+    <!-- LUNCH -->
+    <div class="meal-section">
+      <div class="meal-header">
+        <div class="meal-title">☀️ ארוחת צהריים</div>
+        <div class="meal-cal-total" id="cal-lunch">0 קל׳</div>
+      </div>
+      <div class="meal-add-row">
+        <input type="text" id="inp-lunch" placeholder="מה אכלת בצהריים?" onkeydown="if(event.key==='Enter')addItem('lunch')"/>
+        <button class="btn bg bsm" onclick="addItem('lunch')">+ הוסף</button>
+      </div>
+      <ul class="food-list" id="list-lunch"></ul>
+    </div>
+
+    <hr class="meal-divider"/>
+
+    <!-- DINNER -->
+    <div class="meal-section">
+      <div class="meal-header">
+        <div class="meal-title">🌙 ארוחת ערב</div>
+        <div class="meal-cal-total" id="cal-dinner">0 קל׳</div>
+      </div>
+      <div class="meal-add-row">
+        <input type="text" id="inp-dinner" placeholder="מה אכלת בערב?" onkeydown="if(event.key==='Enter')addItem('dinner')"/>
+        <button class="btn bg bsm" onclick="addItem('dinner')">+ הוסף</button>
+      </div>
+      <ul class="food-list" id="list-dinner"></ul>
+    </div>
+
+    <hr class="meal-divider"/>
+
+    <!-- SNACKS -->
+    <div class="meal-section">
+      <div class="meal-header">
+        <div class="meal-title">🍎 נשנושים וביניים</div>
+        <div class="meal-cal-total" id="cal-snacks">0 קל׳</div>
+      </div>
+      <div class="meal-add-row">
+        <input type="text" id="inp-snacks" placeholder="נשנוש, פרי, שתייה..." onkeydown="if(event.key==='Enter')addItem('snacks')"/>
+        <button class="btn bg bsm" onclick="addItem('snacks')">+ הוסף</button>
+      </div>
+      <ul class="food-list" id="list-snacks"></ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- AI -->
+<div class="page" id="page-ai">
+  <div id="apinote" class="api-notice" style="display:none;">
+    <strong>⚠️ נדרש מפתח API</strong><br>
+    קבל מפתח חינמי מ-<a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+    <div class="akr">
+      <input type="password" id="akin" placeholder="sk-ant-..."/>
+      <button class="btn bg bsm" onclick="saveKey()">שמור ✓</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🤖 עוזר תזונה AI</div>
+    <div class="qq">
+      <button class="q" onclick="sq(this)">💪 לעלות במשקל</button>
+      <button class="q" onclick="sq(this)">📋 תפריט לשבוע</button>
+      <button class="q" onclick="sq(this)">🏋️ לפני אימון מה לאכול?</button>
+      <button class="q" onclick="sq(this)">💧 כמה מים לשתות?</button>
+      <button class="q" onclick="sq(this)">🥩 מזון עשיר בחלבון</button>
+      <button class="q" onclick="sq(this)">🎯 לרדת במשקל</button>
+    </div>
+    <div class="chat-area" id="chat">
+      <div class="msg bot">היי! 👋 אני עוזר התזונה שלך. שאל אותי כל שאלה על אכילה בריאה! 🥗</div>
+    </div>
+    <div class="chat-ir">
+      <input type="text" id="cinp" placeholder="כתוב שאלה..." onkeydown="if(event.key==='Enter')send()"/>
+      <button class="csend" onclick="send()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- CALC -->
+<div class="page" id="page-calc">
+  <div class="card">
+    <div class="card-title">🧮 מחשבון קלוריות אישי</div>
+    <div class="cf">
+      <div class="ff"><label>מין</label><div class="gbs"><button class="gb act" id="bm" onclick="setG('male')">👦 זכר</button><button class="gb" id="bf" onclick="setG('female')">👧 נקבה</button></div></div>
+      <div class="ff"><label>גיל</label><input type="number" id="age" placeholder="שנים" min="10" max="25"/></div>
+      <div class="ff"><label>משקל (ק״ג)</label><input type="number" id="wt" placeholder="משקל"/></div>
+      <div class="ff"><label>גובה (ס״מ)</label><input type="number" id="ht" placeholder="גובה"/></div>
+      <div class="ff"><label>פעילות</label>
+        <select id="act">
+          <option value="1.2">יושבני</option>
+          <option value="1.375">קלה (1-3×/שבוע)</option>
+          <option value="1.55" selected>בינונית (3-5×/שבוע)</option>
+          <option value="1.725">גבוהה (כל יום)</option>
+          <option value="1.9">גבוהה מאוד</option>
+        </select>
+      </div>
+      <div class="ff"><label>מטרה</label>
+        <div class="goalbts">
+          <button class="goalb lose" id="gl" onclick="setGl('lose')">📉 לרדת</button>
+          <button class="goalb maintain act" id="gm" onclick="setGl('maintain')">⚖️ לשמור</button>
+          <button class="goalb gain" id="gg" onclick="setGl('gain')">📈 לעלות</button>
+        </div>
+      </div>
+      <button class="btn bg bfull" onclick="calc()">חשב לי! 🚀</button>
+      <div id="cres" style="display:none;"></div>
+    </div>
+  </div>
+  <div class="card"><div class="card-title">💡 טיפים</div><div id="tips"><p style="font-size:.82rem;color:var(--text-light);">חשב קלוריות לקבלת טיפים!</p></div></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="card">
+    <div class="card-title">👤 הפרופיל שלי</div>
+    <div style="display:flex;flex-direction:column;gap:9px;">
+      <div class="ff"><label>שם</label><input type="text" id="sname" placeholder="השם שלי" oninput="sv('name',this.value)"/></div>
+      <div class="ff"><label>יעד קלוריות</label><input type="number" id="scal" placeholder="2000" oninput="sv('calGoal',this.value)"/></div>
+      <div class="ff"><label>יעד מים (כוסות)</label><input type="number" id="swat" placeholder="6" oninput="sv('waterGoal',this.value)"/></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">🔑 מפתח AI</div>
+    <p style="font-size:.76rem;color:var(--text-light);margin-bottom:7px;line-height:1.5;">
+      נדרש לחישוב קלוריות ולעוזר AI.<br>
+      קבל מ-<a href="https://console.anthropic.com" target="_blank" style="color:var(--green-dark);">console.anthropic.com</a>
+      <span style="color:var(--orange);"> (חינמי) ⚠️ נשמר רק במכשיר</span>
+    </p>
+    <div class="akr">
+      <input type="password" id="skey" placeholder="sk-ant-..."/>
+      <button class="btn bg bsm" onclick="saveKeyS()">שמור ✓</button>
+    </div>
+    <div id="kst" style="font-size:.76rem;margin-top:6px;color:var(--green-dark);"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚙️ נוסף</div>
+    <div class="si-row"><div><div class="sl">איפוס יום</div><div class="ss">מחק ארוחות ומים</div></div><button class="btn br bsm" onclick="rstDay()">איפוס</button></div>
+    <div class="si-row"><div><div class="sl">איפוס מלא</div><div class="ss">מחק הכל</div></div><button class="btn br bsm" onclick="rstAll()">מחק הכל</button></div>
+  </div>
+</div>
+
+<script>
+const VERSION = '1.0';
+
+// State — meals are now split by type
+let S={
+  meals:{breakfast:[],lunch:[],dinner:[],snacks:[]},
+  water:0,calGoal:2000,waterGoal:6,name:'',goal:'maintain',
+  gender:'male',calcGoal:'maintain',mood:'😊',history:[],streak:0,ch:[]
+};
+let KEY='';
+
+// ── PERSIST ──
+function load(){
+  try{
+    const d=localStorage.getItem('tz4');if(d)S={...S,...JSON.parse(d)};
+    // migrate old format
+    if(!S.meals) S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
+    KEY=localStorage.getItem('tzkey')||'';
+    const today=new Date().toDateString(),last=localStorage.getItem('tzday');
+    if(last&&last!==today){
+      const allFoods=Object.values(S.meals).flat();
+      if(allFoods.length>0){
+        const tc=allFoods.reduce((a,f)=>a+f.cal,0);
+        S.history.unshift({date:last,cal:tc,foods:allFoods.length});
+        if(S.history.length>7)S.history.pop();
+        S.streak=(S.streak||0)+1;
+      }
+      S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
+      S.water=0;
+    }
+    localStorage.setItem('tzday',today);
+  }catch(e){}
+}
+function save(){try{localStorage.setItem('tz4',JSON.stringify(S));}catch(e){}}
+
+// ── API KEY ──
+function saveKey(){
+  const k=document.getElementById('akin').value.trim();if(!k)return;
+  KEY=k;localStorage.setItem('tzkey',k);
+  document.getElementById('apinote').style.display='none';
+  addBot('✅ מפתח נשמר! עכשיו תוכל לשוחח ולחשב קלוריות 😊');
+}
+function saveKeyS(){
+  const k=document.getElementById('skey').value.trim();if(!k)return;
+  KEY=k;localStorage.setItem('tzkey',k);
+  document.getElementById('kst').textContent='✅ מפתח נשמר!';
+  document.getElementById('apinote').style.display='none';
+}
+
+// ── NAVIGATION ──
+function pg(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  ['home','food','ai','calc','settings'].forEach((n,i)=>{
+    if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');
+  });
+  if(id==='home')uhome();
+  if(id==='food')rfood();
+  if(id==='settings')rsettings();
+  if(id==='ai'&&!KEY)document.getElementById('apinote').style.display='block';
+}
+
+// ── HOME ──
+function grt(){const h=new Date().getHours(),n=S.name?`, ${S.name}`:'';return h<12?`בוקר טוב${n}! ☀️`:h<17?`צהריים טובים${n}! 🌤️`:`ערב טוב${n}! 🌙`;}
+
+function uhome(){
+  document.getElementById('greet').textContent=grt();
+  const allFoods=Object.values(S.meals).flat();
+  const tc=allFoods.reduce((a,f)=>a+f.cal,0);
+  const pct=Math.min(tc/S.calGoal,1);
+  document.getElementById('cring').style.strokeDashoffset=264-pct*264;
+  document.getElementById('cdis').textContent=tc;
+  document.getElementById('cgdis').textContent='/ '+S.calGoal;
+  const wp=Math.min(S.water/S.waterGoal,1);
+  document.getElementById('wring').style.strokeDashoffset=207-wp*207;
+  document.getElementById('wdis').textContent=S.water;
+  document.getElementById('wgdis').textContent='/ '+S.waterGoal;
+  const bs={lose:'<span class="gbadge gl">📉 ירידה</span>',maintain:'<span class="gbadge gm">⚖️ שמירה</span>',gain:'<span class="gbadge gg">📈 עלייה</span>'};
+  document.getElementById('gbadge').innerHTML=bs[S.goal]||'';
+  document.getElementById('moodd').textContent=S.mood;
+  rwc();rhist();
+}
+
+function rwc(){
+  const w=document.getElementById('wc');w.innerHTML='';
+  for(let i=0;i<S.waterGoal;i++){
+    const c=document.createElement('div');c.className='cup'+(i<S.water?' filled':'');
+    c.innerHTML=`<span>${i<S.water?'💧':''}</span>`;
+    c.onclick=()=>{S.water=i+1;save();uhome();};w.appendChild(c);
+  }
+}
+function rhist(){
+  const el=document.getElementById('hist');
+  if(!S.history||!S.history.length){el.innerHTML='<div class="empty"><div class="ei">📊</div><p>עדיין אין היסטוריה</p></div>';return;}
+  el.innerHTML=S.history.slice(0,5).map(h=>`<div class="hday"><div><div class="dd">${h.date}</div><div style="font-size:.7rem;color:var(--text-light);">${h.foods} פריטים</div></div><div class="dc">${h.cal} קל׳</div></div>`).join('');
+}
+function addW(){if(S.water<S.waterGoal){S.water++;save();uhome();}}
+function rstW(){S.water=0;save();uhome();}
+function setMood(btn,m){
+  S.mood=m;save();
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');document.getElementById('moodd').textContent=m;
+}
+
+// ── FOOD PAGE ──
+const MEAL_LABELS={breakfast:'ארוחת בוקר',lunch:'ארוחת צהריים',dinner:'ארוחת ערב',snacks:'נשנושים'};
+
+function rfood(){
+  ['breakfast','lunch','dinner','snacks'].forEach(m=>renderMeal(m));
+}
+
+function renderMeal(meal){
+  const list=document.getElementById('list-'+meal);
+  const items=S.meals[meal]||[];
+  const total=items.reduce((a,f)=>a+f.cal,0);
+  document.getElementById('cal-'+meal).textContent=total>0?total+' קל׳':'';
+  if(!items.length){list.innerHTML='<div class="empty"><div class="ei" style="font-size:1.2rem;">—</div></div>';return;}
+  list.innerHTML=items.map((f,i)=>`
+    <li class="fi">
+      <div class="fn">${f.name}</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="fcal">${f.cal} קל׳</span>
+        <button class="del" onclick="rmItem('${meal}',${i})">✕</button>
+      </div>
+    </li>`).join('');
+}
+
+// Add item with AI calorie calculation
+async function addItem(meal){
+  const inp=document.getElementById('inp-'+meal);
+  const name=inp.value.trim();
+  if(!name)return;
+  inp.value='';
+
+  if(!KEY){
+    // No API key — add with 0 and prompt
+    S.meals[meal].push({name,cal:0});
+    save();renderMeal(meal);uhome();
+    if(!document.getElementById('apinote').style.display||document.getElementById('apinote').style.display==='none'){
+      document.getElementById('apinote').style.display='block';
+    }
+    return;
+  }
+
+  // Add placeholder with spinner
+  const tempId='temp-'+Date.now();
+  const list=document.getElementById('list-'+meal);
+  const li=document.createElement('li');
+  li.className='fi loading';li.id=tempId;
+  li.innerHTML=`<div class="fn">${name}</div><div class="ai-loading"><div class="spinner"></div> מחשב...</div>`;
+  // Remove empty state if present
+  const emp=list.querySelector('.empty');if(emp)emp.remove();
+  list.appendChild(li);
+
+  try{
+    const cal=await calcCalAI(name);
+    li.remove();
+    S.meals[meal].push({name,cal});
+    save();renderMeal(meal);uhome();
+  }catch(e){
+    li.remove();
+    S.meals[meal].push({name,cal:0});
+    save();renderMeal(meal);uhome();
+  }
+}
+
+async function calcCalAI(foodName){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:100,
+      system:`אתה מחשב קלוריות לפי מנה ביתית רגילה ומתונה (לא מנת מסעדה גדולה). ענה רק במספר שלם של קלוריות, ללא טקסט נוסף. לדוגמה: 250`,
+      messages:[{role:'user',content:`כמה קלוריות יש ב: ${foodName}`}]
+    })
+  });
+  const d=await r.json();
+  if(d.error)throw new Error(d.error.message);
+  const txt=d.content?.[0]?.text||'0';
+  const num=parseInt(txt.replace(/[^\d]/g,''));
+  return isNaN(num)?0:num;
+}
+
+function rmItem(meal,i){S.meals[meal].splice(i,1);save();renderMeal(meal);uhome();}
+
+// ── SETTINGS ──
+function rsettings(){
+  document.getElementById('sname').value=S.name||'';
+  document.getElementById('scal').value=S.calGoal;
+  document.getElementById('swat').value=S.waterGoal;
+  if(KEY)document.getElementById('kst').textContent='✅ מפתח AI שמור';
+}
+function sv(k,v){
+  if(k==='calGoal')S.calGoal=parseInt(v)||2000;
+  else if(k==='waterGoal'){S.waterGoal=parseInt(v)||6;rwc();}
+  else if(k==='name')S.name=v;
+  save();uhome();
+}
+function rstDay(){
+  if(confirm('למחוק נתוני היום?')){
+    S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;
+    save();uhome();rfood();
+  }
+}
+function rstAll(){if(confirm('למחוק הכל?')){localStorage.clear();location.reload();}}
+
+// ── CALC ──
+function setG(g){S.gender=g;document.getElementById('bm').classList.toggle('act',g==='male');document.getElementById('bf').classList.toggle('act',g==='female');}
+function setGl(g){
+  S.calcGoal=g;
+  document.getElementById('gl').classList.remove('act');
+  document.getElementById('gm').classList.remove('act');
+  document.getElementById('gg').classList.remove('act');
+  document.getElementById(g==='lose'?'gl':g==='maintain'?'gm':'gg').classList.add('act');
+}
+function calc(){
+  const a=parseInt(document.getElementById('age').value),w=parseFloat(document.getElementById('wt').value),h=parseFloat(document.getElementById('ht').value),ac=parseFloat(document.getElementById('act').value);
+  if(!a||!w||!h){alert('מלא את כל השדות');return;}
+  let bmr=S.gender==='male'?10*w+6.25*h-5*a+5:10*w+6.25*h-5*a-161;
+  const tdee=Math.round(bmr*ac);
+  let t,cls,txt,ic;
+  if(S.calcGoal==='lose'){t=tdee-500;cls='lr';txt='ירידה במשקל';ic='📉';}
+  else if(S.calcGoal==='gain'){t=tdee+400;cls='gr';txt='עלייה במשקל';ic='📈';}
+  else{t=tdee;cls='';txt='שמירה';ic='⚖️';}
+  document.getElementById('cres').style.display='block';
+  document.getElementById('cres').innerHTML=`<div class="rb ${cls}"><div style="font-size:1.4rem;">${ic}</div><div class="rc">${t}</div><div style="font-size:.82rem;opacity:.9;">קלוריות ביום – ${txt}</div><div style="font-size:.73rem;opacity:.7;margin-top:2px;">TDEE: ${tdee}</div><button class="btn" style="margin-top:11px;background:rgba(255,255,255,.25);color:white;font-size:.8rem;" onclick="applyG(${t},'${S.calcGoal}')">🎯 הגדר כיעד שלי</button></div>`;
+  rtips(S.calcGoal,w);
+}
+function applyG(c,g){S.calGoal=c;S.goal=g;save();uhome();alert(`✅ יעד ${c} קלוריות הוגדר!`);}
+function rtips(goal,w){
+  const t={
+    gain:['🥚 5-6 ארוחות ביום',`🥩 ${Math.round((w||60)*1.8)}g חלבון ביום`,'🥜 שומנים בריאים: אגוזים, אבוקדו','🥛 שייק חלבון אחרי אימון','🍚 פחמימות מורכבות','💪 אימוני כוח 3-4×/שבוע'],
+    lose:['🥗 חלבון בכל ארוחה','🥦 ירקות בכל צלחת','💧 מים לפני כל ארוחה','🚶 30 דקות הליכה ביום','⏰ ארוחות קטנות כל 3-4 שעות','🚫 הימנע ממשקאות ממותקים'],
+    maintain:['⚖️ עקביות בארוחות','🌈 גוון את התזונה',`💧 ${Math.round((w||60)*0.03)} ליטר מים`,'🏃 ספורט 3-4×/שבוע','😴 שינה מספקת','🧘 הימנע מאכילה ממתח']
+  };
+  document.getElementById('tips').innerHTML=(t[goal]||t.maintain).map(x=>`<div style="padding:7px 10px;background:#f8f8f8;border-radius:9px;font-size:.81rem;margin-bottom:4px;">${x}</div>`).join('');
+}
+
+// ── AI CHAT ──
+async function send(){
+  const inp=document.getElementById('cinp'),txt=inp.value.trim();if(!txt)return;inp.value='';
+  addUser(txt);await getAI(txt);
+}
+function sq(btn){const t=btn.textContent.trim();addUser(t);getAI(t);}
+function addUser(t){addMsg(t,'user');S.ch.push({role:'user',content:t});}
+function addBot(t){addMsg(t,'bot');}
+function addMsg(t,role){
+  const a=document.getElementById('chat'),d=document.createElement('div');
+  d.className='msg '+role;d.textContent=t;a.appendChild(d);a.scrollTop=a.scrollHeight;
+}
+function addTyping(){addMsg('⏳ כותב...','bot');document.getElementById('chat').lastChild.id='typ';}
+function rmTyping(){const e=document.getElementById('typ');if(e)e.remove();}
+
+async function getAI(msg){
+  if(!KEY){
+    document.getElementById('apinote').style.display='block';
+    addMsg('⚠️ הזן מפתח API בהגדרות','bot err');return;
+  }
+  addTyping();
+  const allFoods=Object.values(S.meals).flat();
+  const tc=allFoods.reduce((a,f)=>a+f.cal,0);
+  const mealsSummary=Object.entries(S.meals).map(([k,v])=>v.length?`${MEAL_LABELS[k]}: ${v.map(f=>f.name).join(', ')}`:'').filter(Boolean).join(' | ');
+  const sys=`אתה עוזר תזונה מקצועי לנוער. ענה בעברית, ידידותי, קצר (2-5 משפטים), עם אמוג'י לפעמים.
+נתונים: שם:${S.name||'?'} | יעד:${S.calGoal}קל | אכל:${tc}קל | מים:${S.water}/${S.waterGoal} | מטרה:${S.goal==='gain'?'עלייה':S.goal==='lose'?'ירידה':'שמירה'} | ${mealsSummary||'לא נרשמו ארוחות'}`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:[...S.ch.slice(-6),{role:'user',content:msg}]})
+    });
+    const data=await r.json();rmTyping();
+    if(data.error){addMsg('❌ '+data.error.message,'bot err');return;}
+    const rep=data.content?.[0]?.text||'לא הצלחתי לענות.';
+    addBot(rep);S.ch.push({role:'assistant',content:rep});
+  }catch(e){rmTyping();addMsg('❌ שגיאה: '+e.message,'bot err');}
+}
+
+// ── INIT ──
+load();uhome();rfood();rsettings();
+</script>
+</body>
+</html>
