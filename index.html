@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>תזונה 🥗</title>
+<!-- PWA meta -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="תזונה">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="תזונה">
+<meta name="theme-color" content="#27ae60">
+<meta name="description" content="יומן תזונה חכם לנוער">
+<!-- icon injected by JS below -->
+<link id="apple-icon" rel="apple-touch-icon">
+<link id="pwa-manifest" rel="manifest">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -15,41 +26,68 @@
   --border:#e8e8e8;--shadow:0 2px 16px rgba(0,0,0,.07);--radius:16px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{width:100%;overflow-x:hidden;}
-body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:72px;}
+html{height:100%;}
+body{font-family:'Heebo',sans-serif;background:#1a2a1a;color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;}
 
-header{background:linear-gradient(135deg,#27ae60,#2ecc71,#1abc9c);color:white;padding:11px 12px 16px;position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+/* ── DESKTOP SHELL ── */
+.app-shell{
+  width:100%;max-width:430px;min-height:100vh;
+  background:var(--bg);
+  position:relative;
+  display:flex;flex-direction:column;
+  box-shadow:0 0 60px rgba(0,0,0,.5);
+}
+/* Desktop: show decorative sidebar */
+@media(min-width:900px){
+  body{background:linear-gradient(135deg,#0f2010 0%,#1a3a1a 40%,#0a1a0a 100%);align-items:center;padding:20px 0;}
+  .app-shell{border-radius:28px;overflow:hidden;max-height:96vh;flex:none;}
+  .app-shell-inner{overflow-y:auto;height:calc(96vh - 56px);padding-bottom:72px;}
+  .bottom-nav{border-radius:0 0 28px 28px;}
+  /* Desktop sidebar info */
+  .desktop-side{display:flex!important;}
+}
+@media(max-width:899px){
+  .desktop-side{display:none!important;}
+  .app-shell-inner{overflow-y:visible;}
+}
+.desktop-wrap{display:flex;gap:32px;align-items:flex-start;max-width:900px;width:100%;padding:0 20px;}
+.desktop-side{display:none;flex-direction:column;gap:16px;padding-top:24px;color:white;width:200px;flex-shrink:0;}
+.desktop-side h2{font-size:1.4rem;font-weight:900;color:#2ecc71;}
+.desktop-side p{font-size:.82rem;opacity:.7;line-height:1.6;}
+.desktop-tip{background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.3);border-radius:12px;padding:12px;font-size:.78rem;color:#2ecc71;line-height:1.6;}
+
+header{background:linear-gradient(135deg,#27ae60,#2ecc71,#1abc9c);color:white;padding:11px 12px 16px;position:relative;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-shrink:0;}
 .ver-badge{background:rgba(255,255,255,.25);color:white;font-size:.65rem;font-weight:700;padding:3px 8px;border-radius:20px;flex-shrink:0;}
 header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
-.date-btn{background:rgba(255,255,255,.2);border:none;color:white;font-family:'Heebo',sans-serif;font-size:.7rem;font-weight:700;padding:4px 9px;border-radius:20px;cursor:pointer;flex-shrink:0;line-height:1.4;text-align:right;}
+.date-btn{background:rgba(255,255,255,.2);border:none;color:white;font-family:'Heebo',sans-serif;font-size:.7rem;font-weight:700;padding:4px 9px;border-radius:20px;cursor:pointer;flex-shrink:0;line-height:1.4;}
 .date-btn.alt{background:var(--orange);}
-#date-inp{position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;}
 
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0 9px;box-shadow:0 -3px 16px rgba(0,0,0,.1);z-index:100;}
+.bottom-nav{position:sticky;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0 9px;box-shadow:0 -3px 16px rgba(0,0,0,.1);z-index:100;flex-shrink:0;}
 .nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.6rem;color:var(--text-light);background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:10px;min-width:0;}
 .nav-btn.active{color:var(--green-dark);}
 .nav-btn.active .nav-icon{background:var(--green-light);}
 .nav-icon{font-size:1.2rem;padding:5px 6px;border-radius:10px;}
 
-.page{display:none;padding:0 12px;margin-top:8px;}
+.pages-wrap{flex:1;overflow-y:auto;}
+.page{display:none;padding:0 12px;margin-top:8px;padding-bottom:8px;}
 .page.active{display:block;}
 .card{background:var(--card);border-radius:var(--radius);padding:15px;margin-bottom:11px;box-shadow:var(--shadow);}
 .card-title{font-size:.75rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
 
 /* OVERLAY / MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px;}
 .modal{background:white;border-radius:20px;padding:22px;width:100%;max-width:360px;animation:fu .3s;}
 .modal h2{font-size:1.2rem;font-weight:900;margin-bottom:6px;text-align:center;}
 .modal p{font-size:.85rem;color:var(--text-light);text-align:center;margin-bottom:16px;line-height:1.5;}
 
 /* TOAST */
-.toast{position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--text);color:white;padding:10px 20px;border-radius:24px;font-size:.82rem;font-weight:600;z-index:400;animation:fu .3s;white-space:nowrap;max-width:90vw;text-overflow:ellipsis;overflow:hidden;}
-.toast.success{background:var(--green-dark);}
-.toast.warn{background:var(--orange);}
-.toast.water{background:var(--blue);}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(44,62,80,.95);color:white;padding:10px 20px;border-radius:24px;font-size:.82rem;font-weight:600;z-index:500;animation:fu .3s;white-space:nowrap;max-width:85vw;overflow:hidden;text-overflow:ellipsis;backdrop-filter:blur(8px);}
+.toast.success{background:rgba(39,174,96,.95);}
+.toast.warn{background:rgba(230,126,34,.95);}
+.toast.water{background:rgba(52,152,219,.95);}
 
-/* WATER REMINDER */
-.water-banner{background:var(--blue);color:white;padding:10px 14px;border-radius:12px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:.83rem;font-weight:700;animation:fu .3s;}
+/* WATER REMINDER BANNER */
+.water-banner{background:linear-gradient(135deg,#3498db,#2980b9);color:white;padding:12px 14px;border-radius:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:.83rem;font-weight:700;animation:fu .3s;box-shadow:0 4px 12px rgba(52,152,219,.35);}
 
 /* RINGS */
 .rings-row{display:flex;justify-content:space-around;align-items:center;margin:4px 0 10px;}
@@ -64,7 +102,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .ring-label{font-size:.7rem;color:var(--text-light);font-weight:700;text-align:center;}
 
 /* QUOTE */
-.quote-box{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:14px;padding:13px 15px;margin-bottom:11px;position:relative;}
+.quote-box{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-radius:14px;padding:13px 15px;margin-bottom:11px;position:relative;box-shadow:0 4px 16px rgba(102,126,234,.3);}
 .quote-box .qt{font-size:.9rem;font-weight:600;line-height:1.5;padding-left:24px;}
 .qt-new{position:absolute;top:10px;left:10px;font-size:.78rem;opacity:.75;cursor:pointer;background:none;border:none;color:white;padding:2px;}
 
@@ -76,14 +114,14 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 /* WATER CUPS */
 .water-cups{display:flex;gap:5px;flex-wrap:wrap;margin:7px 0;}
 .cup{width:33px;height:40px;background:#e0f0ff;border:2px solid #b0d4f1;border-radius:0 0 9px 9px;border-top:none;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;padding-bottom:2px;font-size:.8rem;transition:all .3s;position:relative;overflow:hidden;}
-.cup::before{content:'';position:absolute;bottom:0;left:0;right:0;height:0%;background:var(--blue);transition:height .4s;border-radius:0 0 7px 7px;}
+.cup::before{content:'';position:absolute;bottom:0;left:0;right:0;height:0%;background:linear-gradient(to top,#3498db,#5dade2);transition:height .4s;border-radius:0 0 7px 7px;}
 .cup.filled::before{height:100%;}.cup.filled{border-color:var(--blue);}
 .cup span{position:relative;z-index:1;}
 
 /* MOOD */
 .mood-row{display:flex;gap:5px;justify-content:center;margin:6px 0;}
-.mood-btn{font-size:1.4rem;background:none;border:3px solid transparent;border-radius:10px;padding:3px 5px;cursor:pointer;}
-.mood-btn.sel{border-color:var(--green);background:var(--green-light);}
+.mood-btn{font-size:1.4rem;background:none;border:3px solid transparent;border-radius:10px;padding:3px 5px;cursor:pointer;transition:all .2s;}
+.mood-btn.sel{border-color:var(--green);background:var(--green-light);transform:scale(1.15);}
 
 /* CHART */
 .period-btns{display:flex;gap:5px;}
@@ -92,49 +130,46 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .chart-wrap{width:100%;overflow-x:auto;margin:10px 0 4px;}
 
 /* HISTORY */
-.hday{padding:9px 12px;background:#fafafa;border-radius:10px;margin-bottom:5px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.hday{padding:9px 12px;background:#fafafa;border-radius:10px;margin-bottom:5px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background .2s;}
+.hday:hover{background:var(--green-light);}
 .hday.today{border-color:var(--green);background:var(--green-light);}
 .hday .dd{font-size:.74rem;color:var(--text-light);font-weight:700;}
 .hday .dc{font-weight:900;color:var(--green-dark);}
 
-/* FOOD PAGE */
+/* FOOD */
 .meal-section{margin-bottom:12px;}
 .meal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
 .meal-title{font-size:.92rem;font-weight:900;}
 .meal-cal-total{font-size:.75rem;font-weight:700;color:var(--text-light);}
-
-/* INPUT ROW */
 .meal-add-row{display:flex;gap:5px;margin-bottom:6px;}
 .meal-add-row input{flex:1;padding:9px 11px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.84rem;outline:none;min-width:0;background:white;}
 .meal-add-row input:focus{border-color:var(--green);}
-
-/* ICON BUTTONS for camera/gallery/mic */
-.icon-btn{border:none;border-radius:10px;padding:9px 10px;cursor:pointer;font-size:1rem;flex-shrink:0;transition:opacity .2s;}
-.icon-btn:active{opacity:.7;}
+.icon-btn{border:none;border-radius:10px;padding:9px 10px;cursor:pointer;font-size:1rem;flex-shrink:0;transition:transform .15s,opacity .15s;}
+.icon-btn:active{transform:scale(.92);opacity:.8;}
 .btn-cam{background:#e8daef;color:var(--purple);}
 .btn-gallery{background:#d6eaf8;color:var(--blue);}
 .btn-mic{background:#fdebd0;color:var(--orange);}
 .btn-mic.recording{background:var(--red);color:white;animation:pulse-rec .8s infinite;}
-@keyframes pulse-rec{0%,100%{opacity:1}50%{opacity:.6}}
-.btn-add{background:var(--green);color:white;border:none;border-radius:10px;padding:9px 13px;cursor:pointer;font-family:'Heebo',sans-serif;font-weight:700;font-size:.84rem;flex-shrink:0;}
+@keyframes pulse-rec{0%,100%{opacity:1}50%{opacity:.55}}
+.btn-add{background:var(--green);color:white;border:none;border-radius:10px;padding:9px 13px;cursor:pointer;font-family:'Heebo',sans-serif;font-weight:700;font-size:.84rem;flex-shrink:0;transition:background .2s;}
+.btn-add:hover{background:var(--green-dark);}
 
-/* FOOD LIST */
 .food-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
 .fi{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:#fafafa;border-radius:10px;border:1px solid var(--border);animation:si .3s ease;}
 .fi.loading{opacity:.6;background:#f5fff8;}
-.fn{font-weight:600;font-size:.82rem;flex:1;min-width:0;}
-.fcal{font-weight:900;color:var(--green-dark);font-size:.82rem;white-space:nowrap;margin:0 4px;}
+.fn{font-weight:600;font-size:.82rem;flex:1;min-width:0;margin-left:4px;}
+.fcal{font-weight:900;color:var(--green-dark);font-size:.82rem;white-space:nowrap;margin:0 3px;}
 .recalc-btn{background:var(--orange-light);color:var(--orange);border:none;border-radius:6px;font-size:.67rem;font-weight:700;padding:2px 7px;cursor:pointer;font-family:'Heebo',sans-serif;}
-.del{background:none;border:none;cursor:pointer;color:#ccc;font-size:.9rem;padding:0 3px;}
+.del{background:none;border:none;cursor:pointer;color:#ccc;font-size:.9rem;padding:0 3px;transition:color .2s;}
+.del:hover{color:var(--red);}
 .meal-divider{border:none;border-top:1px dashed var(--border);margin:11px 0;}
-
-/* SPINNER */
 .ai-loading{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;color:var(--green-dark);white-space:nowrap;}
 .spinner{width:13px;height:13px;border:2px solid var(--green-light);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* BTN */
-.btn{padding:10px 13px;border:none;border-radius:10px;font-family:'Heebo',sans-serif;font-weight:700;font-size:.83rem;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.btn{padding:10px 13px;border:none;border-radius:10px;font-family:'Heebo',sans-serif;font-weight:700;font-size:.83rem;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity .2s;}
+.btn:active{opacity:.8;}
 .bg{background:var(--green);color:white;}.bb{background:var(--blue);color:white;}.br{background:var(--red);color:white;}
 .bo{background:transparent;border:2px solid var(--green);color:var(--green-dark);}
 .bsm{padding:7px 10px;font-size:.75rem;}.bfull{width:100%;display:block;text-align:center;margin-top:4px;}
@@ -142,10 +177,10 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 /* FORM */
 .ff{display:flex;flex-direction:column;gap:4px;margin-bottom:9px;}
 .ff label{font-size:.75rem;font-weight:700;color:var(--text-light);}
-.ff input,.ff select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.85rem;outline:none;background:white;}
+.ff input,.ff select{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.85rem;outline:none;background:white;transition:border .2s;}
 .ff input:focus,.ff select:focus{border-color:var(--green);}
 .gbs,.goalbts{display:flex;gap:6px;margin-top:2px;}
-.gb,.goalb{flex:1;padding:9px 5px;border:2px solid var(--border);border-radius:10px;background:white;font-family:'Heebo',sans-serif;font-size:.76rem;cursor:pointer;font-weight:600;text-align:center;}
+.gb,.goalb{flex:1;padding:9px 5px;border:2px solid var(--border);border-radius:10px;background:white;font-family:'Heebo',sans-serif;font-size:.76rem;cursor:pointer;font-weight:600;text-align:center;transition:all .2s;}
 .gb.act{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
 .goalb.act.lose{border-color:var(--blue);background:var(--blue-light);color:var(--blue);}
 .goalb.act.maintain{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
@@ -159,14 +194,15 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .chat-area{height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding:4px 0 8px;}
 .msg{max-width:86%;padding:9px 13px;border-radius:14px;font-size:.83rem;line-height:1.5;animation:fu .3s;word-break:break-word;}
 .msg.bot{background:var(--green-light);color:var(--text);align-self:flex-start;border-bottom-right-radius:3px;}
-.msg.user{background:var(--green);color:white;align-self:flex-end;border-bottom-left-radius:3px;}
+.msg.user{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;align-self:flex-end;border-bottom-left-radius:3px;}
 .msg.err{background:var(--red-light);color:var(--red);align-self:flex-start;border-radius:10px;}
 .chat-ir{display:flex;gap:6px;margin-top:8px;}
-.chat-ir input{flex:1;padding:10px 13px;border:2px solid var(--border);border-radius:22px;font-family:'Heebo',sans-serif;font-size:.83rem;outline:none;min-width:0;}
+.chat-ir input{flex:1;padding:10px 13px;border:2px solid var(--border);border-radius:22px;font-family:'Heebo',sans-serif;font-size:.83rem;outline:none;min-width:0;transition:border .2s;}
 .chat-ir input:focus{border-color:var(--green);}
-.csend{background:var(--green);color:white;border:none;border-radius:50%;width:42px;height:42px;font-size:1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.csend{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;border:none;border-radius:50%;width:42px;height:42px;font-size:1rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(39,174,96,.35);}
 .qq{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
-.q{background:white;border:2px solid var(--green-light);color:var(--green-dark);padding:5px 9px;border-radius:16px;font-size:.73rem;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;}
+.q{background:white;border:2px solid var(--green-light);color:var(--green-dark);padding:5px 9px;border-radius:16px;font-size:.73rem;font-weight:600;cursor:pointer;font-family:'Heebo',sans-serif;transition:background .2s;}
+.q:hover{background:var(--green-light);}
 
 /* API NOTICE */
 .api-notice{background:#fff8e1;border:2px solid #ffe082;border-radius:12px;padding:11px 13px;margin-bottom:10px;font-size:.79rem;line-height:1.5;}
@@ -178,6 +214,10 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .si-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
 .si-row:last-child{border-bottom:none;}
 .sl{font-weight:600;font-size:.85rem;}.ss{font-size:.7rem;color:var(--text-light);margin-top:1px;}
+
+/* INSTALL BANNER */
+.install-banner{background:linear-gradient(135deg,#27ae60,#1abc9c);color:white;border-radius:14px;padding:12px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;font-size:.82rem;font-weight:600;animation:fu .4s;}
+.install-banner button{background:rgba(255,255,255,.25);border:none;color:white;border-radius:20px;padding:5px 12px;font-family:'Heebo',sans-serif;font-weight:700;font-size:.76rem;cursor:pointer;}
 
 .empty{text-align:center;padding:12px;color:var(--text-light);}
 .empty .ei{font-size:1.4rem;margin-bottom:4px;}
@@ -194,13 +234,10 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
   <div class="modal">
     <div style="text-align:center;font-size:2.2rem;margin-bottom:8px;">🥗</div>
     <h2>ברוכ/ה הבא/ה!</h2>
-    <p>ספר/י לנו קצת על עצמך כדי שנוכל להתאים את האפליקציה עבורך</p>
+    <p>ספר/י לנו קצת על עצמך</p>
     <div class="ff"><label>השם שלך</label><input type="text" id="ob-name" placeholder="כתוב/י שם..."/></div>
     <div class="ff"><label>מין</label>
-      <div class="gbs">
-        <button class="gb act" id="ob-male" onclick="obG('male')">👦 זכר</button>
-        <button class="gb" id="ob-female" onclick="obG('female')">👧 נקבה</button>
-      </div>
+      <div class="gbs"><button class="gb act" id="ob-male" onclick="obG('male')">👦 זכר</button><button class="gb" id="ob-female" onclick="obG('female')">👧 נקבה</button></div>
     </div>
     <button class="btn bg bfull" onclick="finishOB()">בואו נתחיל! 🚀</button>
   </div>
@@ -213,10 +250,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
     <div class="ff"><label>מתאריך</label><input type="date" id="exp-from"/></div>
     <div class="ff"><label>עד תאריך</label><input type="date" id="exp-to"/></div>
     <div class="ff"><label>פורמט</label>
-      <div class="gbs">
-        <button class="gb act" id="ef-excel" onclick="setExpFmt('excel')">📊 Excel</button>
-        <button class="gb" id="ef-word" onclick="setExpFmt('word')">📝 Word</button>
-      </div>
+      <div class="gbs"><button class="gb act" id="ef-excel" onclick="setExpFmt('excel')">📊 Excel</button><button class="gb" id="ef-word" onclick="setExpFmt('word')">📝 Word</button></div>
     </div>
     <div style="display:flex;gap:8px;margin-top:4px;">
       <button class="btn bg" style="flex:1;" onclick="doExport()">ייצא ⬇️</button>
@@ -225,297 +259,291 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
   </div>
 </div>
 
-<!-- HIDDEN FILE INPUTS (two separate ones: camera + gallery) -->
-<input type="file" id="cam-capture" accept="image/*" capture="environment" style="display:none;" onchange="onImageFile(event,'capture')"/>
-<input type="file" id="cam-gallery" accept="image/*" style="display:none;" onchange="onImageFile(event,'gallery')"/>
+<!-- HIDDEN INPUTS -->
+<input type="file" id="cam-capture" accept="image/*" capture="environment" style="display:none;" onchange="onImageFile(event)"/>
+<input type="file" id="cam-gallery" accept="image/*" style="display:none;" onchange="onImageFile(event)"/>
 
-<!-- HEADER -->
-<header>
-  <span class="ver-badge">v1.3</span>
-  <h1>🥗 תזונה</h1>
-  <button class="date-btn" id="date-btn" onclick="openDatePicker()">טוען...</button>
-  <input type="date" id="date-inp" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" onchange="onDatePick(this.value)"/>
-</header>
+<!-- ══ APP SHELL ══ -->
+<div class="app-shell">
+  <header>
+    <span class="ver-badge">v1.4</span>
+    <h1>🥗 תזונה</h1>
+    <button class="date-btn" id="date-btn" onclick="openDatePicker()">טוען...</button>
+    <input type="date" id="date-inp" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" onchange="onDatePick(this.value)"/>
+  </header>
 
-<!-- NAV -->
-<nav class="bottom-nav">
-  <button class="nav-btn active" onclick="pg('home')"><span class="nav-icon">🏠</span>בית</button>
-  <button class="nav-btn" onclick="pg('food')"><span class="nav-icon">🍽️</span>אכלתי</button>
-  <button class="nav-btn" onclick="pg('ai')"><span class="nav-icon">🤖</span>יועץ AI</button>
-  <button class="nav-btn" onclick="pg('calc')"><span class="nav-icon">🧮</span>מחשבון</button>
-  <button class="nav-btn" onclick="pg('settings')"><span class="nav-icon">⚙️</span>הגדרות</button>
-</nav>
+  <div class="pages-wrap">
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <div id="water-reminder-wrap"></div>
+      <div id="install-wrap"></div>
 
-<!-- HOME -->
-<div class="page active" id="page-home">
-  <div id="water-reminder-wrap"></div>
+      <div class="quote-box">
+        <button class="qt-new" onclick="newQuote()">🔄</button>
+        <div class="qt" id="quote-text">טוען...</div>
+      </div>
 
-  <div class="quote-box">
-    <button class="qt-new" onclick="newQuote()">🔄</button>
-    <div class="qt" id="quote-text">טוען...</div>
-  </div>
-
-  <div id="view-banner" style="display:none;">
-    <div style="background:var(--orange);color:white;border-radius:12px;padding:10px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;font-size:.82rem;font-weight:700;">
-      <span>👁 צופה ב: <span id="view-lbl"></span></span>
-      <button class="btn" style="background:rgba(255,255,255,.25);color:white;padding:5px 10px;font-size:.73rem;" onclick="backToToday()">היום</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-      <div><div style="font-size:.97rem;font-weight:900;" id="greet">שלום!</div><div id="gbadge"></div></div>
-      <div id="moodd" style="font-size:1.5rem;">😊</div>
-    </div>
-    <div class="rings-row">
-      <div class="ring-wrap">
-        <div class="ring-container">
-          <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
-            <circle class="ring-track" cx="50" cy="50" r="42" stroke-width="9"/>
-            <circle class="ring-fill" id="cring" cx="50" cy="50" r="42" stroke="#2ecc71" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="264"/>
-          </svg>
-          <div class="ring-center"><div class="big" id="cdis">0</div><div class="small" id="cgdis">/ 2000</div></div>
+      <div id="view-banner" style="display:none;">
+        <div style="background:var(--orange);color:white;border-radius:12px;padding:10px 14px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;font-size:.82rem;font-weight:700;">
+          <span>👁 צופה ב: <span id="view-lbl"></span></span>
+          <button class="btn" style="background:rgba(255,255,255,.25);color:white;padding:5px 10px;font-size:.73rem;" onclick="backToToday()">היום</button>
         </div>
-        <div class="ring-label">🔥 קלוריות</div>
       </div>
-      <div class="ring-wrap">
-        <div class="ring-container">
-          <svg class="ring-svg" width="82" height="82" viewBox="0 0 82 82">
-            <circle class="ring-track" cx="41" cy="41" r="33" stroke-width="8"/>
-            <circle class="ring-fill" id="wring" cx="41" cy="41" r="33" stroke="#3498db" stroke-width="8" stroke-dasharray="207" stroke-dashoffset="207"/>
-          </svg>
-          <div class="ring-center"><div class="big" id="wdis" style="font-size:1.1rem;">0</div><div class="small" id="wgdis">/ 6</div></div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+          <div><div style="font-size:.97rem;font-weight:900;" id="greet">שלום!</div><div id="gbadge"></div></div>
+          <div id="moodd" style="font-size:1.5rem;cursor:pointer;" onclick="pg('home')" title="לחץ לשנות מצב רוח">😊</div>
         </div>
-        <div class="ring-label">💧 מים</div>
+        <div class="rings-row">
+          <div class="ring-wrap">
+            <div class="ring-container">
+              <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
+                <circle class="ring-track" cx="50" cy="50" r="42" stroke-width="9"/>
+                <circle class="ring-fill" id="cring" cx="50" cy="50" r="42" stroke="#2ecc71" stroke-width="9" stroke-dasharray="264" stroke-dashoffset="264"/>
+              </svg>
+              <div class="ring-center"><div class="big" id="cdis">0</div><div class="small" id="cgdis">/ 2000</div></div>
+            </div>
+            <div class="ring-label">🔥 קלוריות</div>
+          </div>
+          <div class="ring-wrap">
+            <div class="ring-container">
+              <svg class="ring-svg" width="82" height="82" viewBox="0 0 82 82">
+                <circle class="ring-track" cx="41" cy="41" r="33" stroke-width="8"/>
+                <circle class="ring-fill" id="wring" cx="41" cy="41" r="33" stroke="#3498db" stroke-width="8" stroke-dasharray="207" stroke-dashoffset="207"/>
+              </svg>
+              <div class="ring-center"><div class="big" id="wdis" style="font-size:1.1rem;">0</div><div class="small" id="wgdis">/ 6</div></div>
+            </div>
+            <div class="ring-label">💧 מים</div>
+          </div>
+        </div>
+        <!-- Cal remaining bar -->
+        <div id="cal-status-bar" style="margin-top:4px;"></div>
+      </div>
+
+      <div class="card" id="water-card">
+        <div class="card-title">💧 שתיית מים</div>
+        <div class="water-cups" id="wc"></div>
+        <div style="display:flex;gap:7px;margin-top:8px;">
+          <button class="btn bb bsm" onclick="addW()">+ כוס שתיתי</button>
+          <button class="btn bo bsm" onclick="rstW()">איפוס</button>
+        </div>
+      </div>
+
+      <div class="card" id="mood-card">
+        <div class="card-title" id="mood-title">😊 איך אתה מרגיש?</div>
+        <div class="mood-row">
+          <button class="mood-btn" onclick="setMood(this,'😩')">😩</button>
+          <button class="mood-btn" onclick="setMood(this,'😕')">😕</button>
+          <button class="mood-btn" onclick="setMood(this,'😐')">😐</button>
+          <button class="mood-btn" onclick="setMood(this,'😊')">😊</button>
+          <button class="mood-btn" onclick="setMood(this,'🤩')">🤩</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📈 גרף קלוריות
+          <div class="period-btns">
+            <button class="period-btn act" onclick="setPeriod(7,this)">שבוע</button>
+            <button class="period-btn" onclick="setPeriod(30,this)">חודש</button>
+            <button class="period-btn" onclick="setPeriod(0,this)">הכל</button>
+          </div>
+        </div>
+        <div class="chart-wrap" id="chart-wrap"><div class="empty"><div class="ei">📊</div><p>אין נתונים עדיין</p></div></div>
+      </div>
+
+      <div class="card"><div class="card-title">📅 יומן ימים</div><div id="hist"></div></div>
+    </div>
+
+    <!-- FOOD -->
+    <div class="page" id="page-food">
+      <div class="card">
+        <div style="background:var(--green-light);padding:9px 12px;border-radius:10px;margin-bottom:11px;font-size:.76rem;color:#27ae60;line-height:1.7;">
+          ✏️ <strong>כתוב</strong> &nbsp;|&nbsp; 📷 <strong>מצלמה</strong> &nbsp;|&nbsp; 🖼️ <strong>גלריה</strong> &nbsp;|&nbsp; 🎙️ <strong>קול</strong> — AI יחשב קלוריות
+        </div>
+
+        <div class="meal-section">
+          <div class="meal-header"><div class="meal-title">🌅 ארוחת בוקר</div><div class="meal-cal-total" id="cal-breakfast"></div></div>
+          <div class="meal-add-row">
+            <input type="text" id="inp-breakfast" placeholder="מה אכלת בבוקר?" onkeydown="if(event.key==='Enter')addItem('breakfast')"/>
+            <button class="icon-btn btn-cam" onclick="openCamera('breakfast')" title="מצלמה">📷</button>
+            <button class="icon-btn btn-gallery" onclick="openGallery('breakfast')" title="גלריה">🖼️</button>
+            <button class="icon-btn btn-mic" id="mic-breakfast" onclick="toggleVoice('breakfast')" title="הקלטה">🎙️</button>
+            <button class="btn-add" onclick="addItem('breakfast')">+</button>
+          </div>
+          <ul class="food-list" id="list-breakfast"></ul>
+        </div>
+        <hr class="meal-divider"/>
+
+        <div class="meal-section">
+          <div class="meal-header"><div class="meal-title">☀️ ארוחת צהריים</div><div class="meal-cal-total" id="cal-lunch"></div></div>
+          <div class="meal-add-row">
+            <input type="text" id="inp-lunch" placeholder="מה אכלת בצהריים?" onkeydown="if(event.key==='Enter')addItem('lunch')"/>
+            <button class="icon-btn btn-cam" onclick="openCamera('lunch')">📷</button>
+            <button class="icon-btn btn-gallery" onclick="openGallery('lunch')">🖼️</button>
+            <button class="icon-btn btn-mic" id="mic-lunch" onclick="toggleVoice('lunch')">🎙️</button>
+            <button class="btn-add" onclick="addItem('lunch')">+</button>
+          </div>
+          <ul class="food-list" id="list-lunch"></ul>
+        </div>
+        <hr class="meal-divider"/>
+
+        <div class="meal-section">
+          <div class="meal-header"><div class="meal-title">🌙 ארוחת ערב</div><div class="meal-cal-total" id="cal-dinner"></div></div>
+          <div class="meal-add-row">
+            <input type="text" id="inp-dinner" placeholder="מה אכלת בערב?" onkeydown="if(event.key==='Enter')addItem('dinner')"/>
+            <button class="icon-btn btn-cam" onclick="openCamera('dinner')">📷</button>
+            <button class="icon-btn btn-gallery" onclick="openGallery('dinner')">🖼️</button>
+            <button class="icon-btn btn-mic" id="mic-dinner" onclick="toggleVoice('dinner')">🎙️</button>
+            <button class="btn-add" onclick="addItem('dinner')">+</button>
+          </div>
+          <ul class="food-list" id="list-dinner"></ul>
+        </div>
+        <hr class="meal-divider"/>
+
+        <div class="meal-section">
+          <div class="meal-header"><div class="meal-title">🍎 נשנושים וביניים</div><div class="meal-cal-total" id="cal-snacks"></div></div>
+          <div class="meal-add-row">
+            <input type="text" id="inp-snacks" placeholder="נשנוש, פרי..." onkeydown="if(event.key==='Enter')addItem('snacks')"/>
+            <button class="icon-btn btn-cam" onclick="openCamera('snacks')">📷</button>
+            <button class="icon-btn btn-gallery" onclick="openGallery('snacks')">🖼️</button>
+            <button class="icon-btn btn-mic" id="mic-snacks" onclick="toggleVoice('snacks')">🎙️</button>
+            <button class="btn-add" onclick="addItem('snacks')">+</button>
+          </div>
+          <ul class="food-list" id="list-snacks"></ul>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div class="card" id="water-card">
-    <div class="card-title">💧 שתיית מים</div>
-    <div class="water-cups" id="wc"></div>
-    <div style="display:flex;gap:7px;margin-top:8px;">
-      <button class="btn bb bsm" onclick="addW()">+ כוס שתיתי</button>
-      <button class="btn bo bsm" onclick="rstW()">איפוס</button>
-    </div>
-  </div>
-
-  <div class="card" id="mood-card">
-    <div class="card-title" id="mood-title">😊 איך אתה מרגיש?</div>
-    <div class="mood-row">
-      <button class="mood-btn" onclick="setMood(this,'😩')">😩</button>
-      <button class="mood-btn" onclick="setMood(this,'😕')">😕</button>
-      <button class="mood-btn" onclick="setMood(this,'😐')">😐</button>
-      <button class="mood-btn" onclick="setMood(this,'😊')">😊</button>
-      <button class="mood-btn" onclick="setMood(this,'🤩')">🤩</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">📈 גרף קלוריות
-      <div class="period-btns">
-        <button class="period-btn act" onclick="setPeriod(7,this)">שבוע</button>
-        <button class="period-btn" onclick="setPeriod(30,this)">חודש</button>
-        <button class="period-btn" onclick="setPeriod(0,this)">הכל</button>
+    <!-- AI -->
+    <div class="page" id="page-ai">
+      <div id="apinote" class="api-notice" style="display:none;">
+        <strong>⚠️ נדרש מפתח API</strong><br>
+        קבל מ-<a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+        <div class="akr"><input type="password" id="akin" placeholder="sk-ant-..."/><button class="btn bg bsm" onclick="saveKey()">שמור ✓</button></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🤖 יועץ תזונה ואורח חיים בריא</div>
+        <div class="qq">
+          <button class="q" onclick="sq(this)">💪 לעלות במשקל</button>
+          <button class="q" onclick="sq(this)">📋 תפריט לשבוע</button>
+          <button class="q" onclick="sq(this)">🏋️ לפני אימון מה לאכול?</button>
+          <button class="q" onclick="sq(this)">💧 כמה מים לשתות?</button>
+          <button class="q" onclick="sq(this)">🥩 מזון עשיר בחלבון</button>
+          <button class="q" onclick="sq(this)">🎯 לרדת במשקל</button>
+          <button class="q" onclick="sq(this)">😴 שינה ובריאות</button>
+          <button class="q" onclick="sq(this)">🧘 סטרס ואכילה</button>
+        </div>
+        <div class="chat-area" id="chat">
+          <div class="msg bot" id="chat-welcome">היי! 👋 אני יועץ התזונה שלך 🥗</div>
+        </div>
+        <div class="chat-ir">
+          <input type="text" id="cinp" placeholder="שאל/י על תזונה ובריאות..." onkeydown="if(event.key==='Enter')send()"/>
+          <button class="csend" onclick="send()">➤</button>
+        </div>
       </div>
     </div>
-    <div class="chart-wrap" id="chart-wrap"><div class="empty"><div class="ei">📊</div><p>אין נתונים עדיין</p></div></div>
-  </div>
 
-  <div class="card"><div class="card-title">📅 יומן ימים</div><div id="hist"></div></div>
-</div>
-
-<!-- FOOD -->
-<div class="page" id="page-food">
-  <div class="card">
-    <!-- Tip bar -->
-    <div style="background:var(--green-light);padding:9px 12px;border-radius:10px;margin-bottom:11px;font-size:.77rem;color:#27ae60;line-height:1.6;">
-      ✏️ <strong>כתוב</strong> שם מאכל &nbsp;|&nbsp;
-      📷 <strong>צלם</strong> עם מצלמה &nbsp;|&nbsp;
-      🖼️ <strong>גלריה</strong> &nbsp;|&nbsp;
-      🎙️ <strong>הקלטה</strong> קולית
-    </div>
-
-    <!-- BREAKFAST -->
-    <div class="meal-section">
-      <div class="meal-header"><div class="meal-title">🌅 ארוחת בוקר</div><div class="meal-cal-total" id="cal-breakfast"></div></div>
-      <div class="meal-add-row">
-        <input type="text" id="inp-breakfast" placeholder="מה אכלת בבוקר?" onkeydown="if(event.key==='Enter')addItem('breakfast')"/>
-        <button class="icon-btn btn-cam" onclick="openCamera('breakfast')" title="צלם עם מצלמה">📷</button>
-        <button class="icon-btn btn-gallery" onclick="openGallery('breakfast')" title="בחר מגלריה">🖼️</button>
-        <button class="icon-btn btn-mic" id="mic-breakfast" onclick="toggleVoice('breakfast')" title="הקלטה קולית">🎙️</button>
-        <button class="btn-add" onclick="addItem('breakfast')">+</button>
+    <!-- CALC -->
+    <div class="page" id="page-calc">
+      <div class="card">
+        <div class="card-title">🧮 מחשבון קלוריות אישי</div>
+        <div class="ff"><label>מין</label><div class="gbs"><button class="gb act" id="bm" onclick="setG('male')">👦 זכר</button><button class="gb" id="bf" onclick="setG('female')">👧 נקבה</button></div></div>
+        <div class="ff"><label>גיל</label><input type="number" id="age" placeholder="שנים" min="10" max="25"/></div>
+        <div class="ff"><label>משקל (ק״ג)</label><input type="number" id="wt" placeholder="משקל"/></div>
+        <div class="ff"><label>גובה (ס״מ)</label><input type="number" id="ht" placeholder="גובה"/></div>
+        <div class="ff"><label>פעילות</label>
+          <select id="act"><option value="1.2">יושבני</option><option value="1.375">קלה (1-3×/שבוע)</option><option value="1.55" selected>בינונית (3-5×/שבוע)</option><option value="1.725">גבוהה (כל יום)</option><option value="1.9">גבוהה מאוד</option></select>
+        </div>
+        <div class="ff"><label>מטרה</label>
+          <div class="goalbts">
+            <button class="goalb lose" id="gl" onclick="setGl('lose')">📉 לרדת</button>
+            <button class="goalb maintain act" id="gm" onclick="setGl('maintain')">⚖️ לשמור</button>
+            <button class="goalb gain" id="gg" onclick="setGl('gain')">📈 לעלות</button>
+          </div>
+        </div>
+        <button class="btn bg bfull" onclick="calcTDEE()">חשב לי! 🚀</button>
+        <div id="cres" style="display:none;margin-top:8px;"></div>
       </div>
-      <ul class="food-list" id="list-breakfast"></ul>
+      <div class="card"><div class="card-title">💡 טיפים</div><div id="tips"><p style="font-size:.8rem;color:var(--text-light);">חשב קלוריות לקבלת טיפים!</p></div></div>
     </div>
-    <hr class="meal-divider"/>
 
-    <!-- LUNCH -->
-    <div class="meal-section">
-      <div class="meal-header"><div class="meal-title">☀️ ארוחת צהריים</div><div class="meal-cal-total" id="cal-lunch"></div></div>
-      <div class="meal-add-row">
-        <input type="text" id="inp-lunch" placeholder="מה אכלת בצהריים?" onkeydown="if(event.key==='Enter')addItem('lunch')"/>
-        <button class="icon-btn btn-cam" onclick="openCamera('lunch')">📷</button>
-        <button class="icon-btn btn-gallery" onclick="openGallery('lunch')">🖼️</button>
-        <button class="icon-btn btn-mic" id="mic-lunch" onclick="toggleVoice('lunch')">🎙️</button>
-        <button class="btn-add" onclick="addItem('lunch')">+</button>
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="card">
+        <div class="card-title">👤 הפרופיל שלי</div>
+        <div class="ff"><label>שם</label><input type="text" id="sname" placeholder="השם שלי" oninput="sv('name',this.value)"/></div>
+        <div class="ff"><label>מין</label>
+          <div class="gbs"><button class="gb" id="sg-male" onclick="sv('gender','male')">👦 זכר</button><button class="gb" id="sg-female" onclick="sv('gender','female')">👧 נקבה</button></div>
+        </div>
+        <div class="ff"><label>יעד קלוריות יומי</label><input type="number" id="scal" placeholder="2000" oninput="sv('calGoal',this.value)"/></div>
+        <div class="ff"><label>יעד מים (כוסות)</label><input type="number" id="swat" placeholder="6" oninput="sv('waterGoal',this.value)"/></div>
+        <div class="ff"><label>מטרה</label>
+          <div class="goalbts">
+            <button class="goalb lose" id="sg-lose" onclick="sv('goal','lose')">📉 לרדת</button>
+            <button class="goalb maintain" id="sg-maintain" onclick="sv('goal','maintain')">⚖️ לשמור</button>
+            <button class="goalb gain" id="sg-gain" onclick="sv('goal','gain')">📈 לעלות</button>
+          </div>
+        </div>
       </div>
-      <ul class="food-list" id="list-lunch"></ul>
-    </div>
-    <hr class="meal-divider"/>
 
-    <!-- DINNER -->
-    <div class="meal-section">
-      <div class="meal-header"><div class="meal-title">🌙 ארוחת ערב</div><div class="meal-cal-total" id="cal-dinner"></div></div>
-      <div class="meal-add-row">
-        <input type="text" id="inp-dinner" placeholder="מה אכלת בערב?" onkeydown="if(event.key==='Enter')addItem('dinner')"/>
-        <button class="icon-btn btn-cam" onclick="openCamera('dinner')">📷</button>
-        <button class="icon-btn btn-gallery" onclick="openGallery('dinner')">🖼️</button>
-        <button class="icon-btn btn-mic" id="mic-dinner" onclick="toggleVoice('dinner')">🎙️</button>
-        <button class="btn-add" onclick="addItem('dinner')">+</button>
+      <div class="card">
+        <div class="card-title">💧 תזכורת מים</div>
+        <div class="ff"><label>תזכר אותי כל...</label>
+          <select id="reminder-sel" onchange="setReminder(this.value)">
+            <option value="0">כבוי</option>
+            <option value="30">כל 30 דקות</option>
+            <option value="60">כל שעה</option>
+            <option value="90">כל שעה וחצי</option>
+            <option value="120">כל שעתיים</option>
+          </select>
+        </div>
+        <div id="reminder-status" style="font-size:.74rem;color:var(--green-dark);margin-top:2px;"></div>
       </div>
-      <ul class="food-list" id="list-dinner"></ul>
-    </div>
-    <hr class="meal-divider"/>
 
-    <!-- SNACKS -->
-    <div class="meal-section">
-      <div class="meal-header"><div class="meal-title">🍎 נשנושים וביניים</div><div class="meal-cal-total" id="cal-snacks"></div></div>
-      <div class="meal-add-row">
-        <input type="text" id="inp-snacks" placeholder="נשנוש, פרי..." onkeydown="if(event.key==='Enter')addItem('snacks')"/>
-        <button class="icon-btn btn-cam" onclick="openCamera('snacks')">📷</button>
-        <button class="icon-btn btn-gallery" onclick="openGallery('snacks')">🖼️</button>
-        <button class="icon-btn btn-mic" id="mic-snacks" onclick="toggleVoice('snacks')">🎙️</button>
-        <button class="btn-add" onclick="addItem('snacks')">+</button>
+      <div class="card">
+        <div class="card-title">🔑 מפתח AI</div>
+        <p style="font-size:.73rem;color:var(--text-light);margin-bottom:7px;line-height:1.5;">נדרש לחישוב קלוריות, זיהוי תמונות ויועץ AI.<br>קבל מ-<a href="https://console.anthropic.com" target="_blank" style="color:var(--green-dark);">console.anthropic.com</a> <span style="color:var(--orange);">(חינמי)</span></p>
+        <div class="akr"><input type="password" id="skey" placeholder="sk-ant-..."/><button class="btn bg bsm" onclick="saveKeyS()">שמור ✓</button></div>
+        <div id="kst" style="font-size:.74rem;margin-top:5px;color:var(--green-dark);"></div>
       </div>
-      <ul class="food-list" id="list-snacks"></ul>
-    </div>
-  </div>
-</div>
 
-<!-- AI -->
-<div class="page" id="page-ai">
-  <div id="apinote" class="api-notice" style="display:none;">
-    <strong>⚠️ נדרש מפתח API</strong><br>
-    קבל מ-<a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
-    <div class="akr"><input type="password" id="akin" placeholder="sk-ant-..."/><button class="btn bg bsm" onclick="saveKey()">שמור ✓</button></div>
-  </div>
-  <div class="card">
-    <div class="card-title">🤖 יועץ תזונה ואורח חיים בריא</div>
-    <div class="qq">
-      <button class="q" onclick="sq(this)">💪 לעלות במשקל</button>
-      <button class="q" onclick="sq(this)">📋 תפריט לשבוע</button>
-      <button class="q" onclick="sq(this)">🏋️ לפני אימון מה לאכול?</button>
-      <button class="q" onclick="sq(this)">💧 כמה מים לשתות?</button>
-      <button class="q" onclick="sq(this)">🥩 מזון עשיר בחלבון</button>
-      <button class="q" onclick="sq(this)">🎯 לרדת במשקל</button>
-      <button class="q" onclick="sq(this)">😴 שינה ובריאות</button>
-      <button class="q" onclick="sq(this)">🧘 סטרס ואכילה</button>
-    </div>
-    <div class="chat-area" id="chat">
-      <div class="msg bot" id="chat-welcome">היי! 👋 אני יועץ התזונה שלך. שאל/י כל שאלה על תזונה, ספורט, שינה ובריאות 🥗</div>
-    </div>
-    <div class="chat-ir">
-      <input type="text" id="cinp" placeholder="שאל/י על תזונה ובריאות..." onkeydown="if(event.key==='Enter')send()"/>
-      <button class="csend" onclick="send()">➤</button>
-    </div>
-  </div>
-</div>
+      <div class="card">
+        <div class="card-title">📤 ייצוא נתונים</div>
+        <button class="btn bg bfull" onclick="openExport()">בחר תאריכים וייצא ⬇️</button>
+      </div>
 
-<!-- CALC -->
-<div class="page" id="page-calc">
-  <div class="card">
-    <div class="card-title">🧮 מחשבון קלוריות אישי</div>
-    <div class="ff"><label>מין</label><div class="gbs"><button class="gb act" id="bm" onclick="setG('male')">👦 זכר</button><button class="gb" id="bf" onclick="setG('female')">👧 נקבה</button></div></div>
-    <div class="ff"><label>גיל</label><input type="number" id="age" placeholder="שנים" min="10" max="25"/></div>
-    <div class="ff"><label>משקל (ק״ג)</label><input type="number" id="wt" placeholder="משקל"/></div>
-    <div class="ff"><label>גובה (ס״מ)</label><input type="number" id="ht" placeholder="גובה"/></div>
-    <div class="ff"><label>פעילות</label>
-      <select id="act"><option value="1.2">יושבני</option><option value="1.375">קלה (1-3×/שבוע)</option><option value="1.55" selected>בינונית (3-5×/שבוע)</option><option value="1.725">גבוהה (כל יום)</option><option value="1.9">גבוהה מאוד</option></select>
-    </div>
-    <div class="ff"><label>מטרה</label>
-      <div class="goalbts">
-        <button class="goalb lose" id="gl" onclick="setGl('lose')">📉 לרדת</button>
-        <button class="goalb maintain act" id="gm" onclick="setGl('maintain')">⚖️ לשמור</button>
-        <button class="goalb gain" id="gg" onclick="setGl('gain')">📈 לעלות</button>
+      <div class="card">
+        <div class="card-title">💾 גיבוי ושחזור</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="btn bg bsm" onclick="backupData()">⬇️ הורד גיבוי (JSON)</button>
+          <div class="ff" style="margin-bottom:0;"><label>שחזר מגיבוי</label><input type="file" id="restore-file" accept=".json" onchange="restoreData(event)"/></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">⚙️ נוסף</div>
+        <div class="si-row"><div><div class="sl">איפוס יום</div><div class="ss">מחק ארוחות ומים (כולל גיבוי אוטומטי)</div></div><button class="btn br bsm" onclick="rstDay()">איפוס</button></div>
+        <div class="si-row"><div><div class="sl">איפוס מלא</div><div class="ss">מחק הכל (כולל גיבוי אוטומטי)</div></div><button class="btn br bsm" onclick="rstAll()">מחק הכל</button></div>
       </div>
     </div>
-    <button class="btn bg bfull" onclick="calcTDEE()">חשב לי! 🚀</button>
-    <div id="cres" style="display:none;margin-top:8px;"></div>
-  </div>
-  <div class="card"><div class="card-title">💡 טיפים</div><div id="tips"><p style="font-size:.8rem;color:var(--text-light);">חשב קלוריות לקבלת טיפים!</p></div></div>
-</div>
+  </div><!-- /pages-wrap -->
 
-<!-- SETTINGS -->
-<div class="page" id="page-settings">
-  <div class="card">
-    <div class="card-title">👤 הפרופיל שלי</div>
-    <div class="ff"><label>שם</label><input type="text" id="sname" placeholder="השם שלי" oninput="sv('name',this.value)"/></div>
-    <div class="ff"><label>מין</label>
-      <div class="gbs">
-        <button class="gb" id="sg-male" onclick="sv('gender','male')">👦 זכר</button>
-        <button class="gb" id="sg-female" onclick="sv('gender','female')">👧 נקבה</button>
-      </div>
-    </div>
-    <div class="ff"><label>יעד קלוריות יומי</label><input type="number" id="scal" placeholder="2000" oninput="sv('calGoal',this.value)"/></div>
-    <div class="ff"><label>יעד מים (כוסות)</label><input type="number" id="swat" placeholder="6" oninput="sv('waterGoal',this.value)"/></div>
-    <div class="ff"><label>מטרה</label>
-      <div class="goalbts">
-        <button class="goalb lose" id="sg-lose" onclick="sv('goal','lose')">📉 לרדת</button>
-        <button class="goalb maintain" id="sg-maintain" onclick="sv('goal','maintain')">⚖️ לשמור</button>
-        <button class="goalb gain" id="sg-gain" onclick="sv('goal','gain')">📈 לעלות</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">💧 תזכורת מים</div>
-    <div class="ff"><label>תזכר אותי כל...</label>
-      <select id="reminder-sel" onchange="setReminder(this.value)">
-        <option value="0">כבוי</option>
-        <option value="30">כל 30 דקות</option>
-        <option value="60">כל שעה</option>
-        <option value="90">כל שעה וחצי</option>
-        <option value="120">כל שעתיים</option>
-      </select>
-    </div>
-    <div id="reminder-status" style="font-size:.74rem;color:var(--green-dark);margin-top:2px;"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">🔑 מפתח AI</div>
-    <p style="font-size:.73rem;color:var(--text-light);margin-bottom:7px;line-height:1.5;">נדרש לחישוב קלוריות, זיהוי תמונות ויועץ AI.<br>קבל מ-<a href="https://console.anthropic.com" target="_blank" style="color:var(--green-dark);">console.anthropic.com</a> <span style="color:var(--orange);">(חינמי)</span></p>
-    <div class="akr"><input type="password" id="skey" placeholder="sk-ant-..."/><button class="btn bg bsm" onclick="saveKeyS()">שמור ✓</button></div>
-    <div id="kst" style="font-size:.74rem;margin-top:5px;color:var(--green-dark);"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">📤 ייצוא נתונים</div>
-    <button class="btn bg bfull" onclick="openExport()">בחר תאריכים וייצא ⬇️</button>
-  </div>
-
-  <div class="card">
-    <div class="card-title">💾 גיבוי ושחזור</div>
-    <div style="display:flex;flex-direction:column;gap:8px;">
-      <button class="btn bg bsm" onclick="backupData()">⬇️ הורד גיבוי (JSON)</button>
-      <div class="ff" style="margin-bottom:0;"><label>שחזר מגיבוי</label><input type="file" id="restore-file" accept=".json" onchange="restoreData(event)"/></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">⚙️ נוסף</div>
-    <div class="si-row"><div><div class="sl">איפוס יום</div><div class="ss">מחק ארוחות ומים (כולל גיבוי)</div></div><button class="btn br bsm" onclick="rstDay()">איפוס</button></div>
-    <div class="si-row"><div><div class="sl">איפוס מלא</div><div class="ss">מחק הכל (כולל גיבוי)</div></div><button class="btn br bsm" onclick="rstAll()">מחק הכל</button></div>
-  </div>
-</div>
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="pg('home')"><span class="nav-icon">🏠</span>בית</button>
+    <button class="nav-btn" onclick="pg('food')"><span class="nav-icon">🍽️</span>אכלתי</button>
+    <button class="nav-btn" onclick="pg('ai')"><span class="nav-icon">🤖</span>יועץ AI</button>
+    <button class="nav-btn" onclick="pg('calc')"><span class="nav-icon">🧮</span>מחשבון</button>
+    <button class="nav-btn" onclick="pg('settings')"><span class="nav-icon">⚙️</span>הגדרות</button>
+  </nav>
+</div><!-- /app-shell -->
 
 <script>
-const VERSION='1.3';
-const STORAGE_KEY='tzuna_v13';
+const VERSION='1.4';
+const STORAGE_KEY='tzuna_v14';
 
 const QUOTES=['כל ארוחה היא הזדמנות חדשה לטפל בגוף שלך 💚','גוף בריא מתחיל בבחירות קטנות שעושים כל יום 🌱','שתיית מים זה המעשה הכי פשוט והכי חשוב 💧','אתה לא צריך להיות מושלם — פשוט קצת טוב יותר מאתמול ⭐','כל צעד קטן לעבר אורח חיים בריא הוא ניצחון 🏆','הגוף שלך מדהים — תן לו את הדלק שהוא צריך 🚀','תזונה טובה היא ההשקעה הטובה ביותר בעצמך 💪','אכול ירקות, שתה מים, זוז — זה הסוד 🥦','כוס מים עכשיו שווה יותר ממשקה ממותק 💧✨','הגוף שלך זוכר כל דבר טוב שעשית לו 🙏','ארוחת בוקר טובה מתחילה את היום בצורה הכי טובה ☀️','מנוחה וצחוק הם חלק מאורח חיים בריא 😄','כשאתה ישן טוב — הגוף שלך עובד טוב 😴💚','לאכול לאט ולהרגיש את הטעם — זה חלק מהבריאות 🍽️','ספורט לא חייב להיות קשה — גם הליכה מעולה 🚶'];
 
-// ── DEFAULT STATE ──
 const DEFAULT_STATE={
   meals:{breakfast:[],lunch:[],dinner:[],snacks:[]},
   water:0,calGoal:2000,waterGoal:6,name:'',gender:'male',
@@ -525,17 +553,87 @@ const DEFAULT_STATE={
 };
 let S=JSON.parse(JSON.stringify(DEFAULT_STATE));
 let KEY='';
-let viewingDate=null;
-let chartPeriod=7;
-let expFmt2='excel';
-let reminderTimer=null;
+let viewingDate=null,chartPeriod=7,expFmt2='excel';
+let reminderTimer=null,voiceMeal=null,speechRecognition=null,isRecording=false;
+let imageMeal='breakfast';
+let deferredInstallPrompt=null;
 
-// ── VOICE RECORDING STATE ──
-let voiceMeal=null;
-let mediaRecorder=null;
-let audioChunks=[];
-let isRecording=false;
-let speechRecognition=null;
+// ── PWA SETUP ──
+function setupPWA(){
+  // Generate icon using canvas
+  const canvas=document.createElement('canvas');canvas.width=192;canvas.height=192;
+  const ctx=canvas.getContext('2d');
+  // Background circle
+  const grad=ctx.createLinearGradient(0,0,192,192);
+  grad.addColorStop(0,'#27ae60');grad.addColorStop(1,'#1abc9c');
+  ctx.fillStyle=grad;
+  ctx.beginPath();ctx.arc(96,96,96,0,Math.PI*2);ctx.fill();
+  // Emoji
+  ctx.font='110px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🥗',96,96);
+  const iconUrl=canvas.toDataURL('image/png');
+  document.getElementById('apple-icon').href=iconUrl;
+
+  // Manifest as blob
+  const manifest={
+    name:'תזונה — יומן חכם',short_name:'תזונה',
+    start_url:window.location.href,display:'standalone',
+    background_color:'#f0faf5',theme_color:'#27ae60',
+    orientation:'portrait',
+    icons:[{src:iconUrl,sizes:'192x192',type:'image/png'},{src:iconUrl,sizes:'512x512',type:'image/png'}]
+  };
+  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
+
+  // Install prompt
+  window.addEventListener('beforeinstallprompt',e=>{
+    e.preventDefault();deferredInstallPrompt=e;showInstallBanner();
+  });
+}
+
+function showInstallBanner(){
+  const wrap=document.getElementById('install-wrap');
+  if(!wrap||wrap.innerHTML)return;
+  wrap.innerHTML=`<div class="install-banner">📲 הוסף למסך הבית כאפליקציה!<button onclick="installApp()">התקן</button><button onclick="hideInstall()" style="background:rgba(255,255,255,.15);margin-right:6px;">לא עכשיו</button></div>`;
+}
+function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();deferredInstallPrompt=null;hideInstall();}}
+function hideInstall(){document.getElementById('install-wrap').innerHTML='';}
+
+// ── WATER SOUND (Web Audio API) ──
+let audioCtx=null;
+function getAudioCtx(){
+  if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  return audioCtx;
+}
+function playWaterSound(){
+  try{
+    const ctx=getAudioCtx();
+    // Play 3 water drops with slight delays
+    [0,0.18,0.38].forEach(delay=>playDrop(ctx,delay));
+  }catch(e){console.log('Audio not available');}
+}
+function playDrop(ctx,startDelay){
+  const now=ctx.currentTime+startDelay;
+  const dur=0.5;
+  const bufLen=Math.floor(ctx.sampleRate*dur);
+  const buf=ctx.createBuffer(1,bufLen,ctx.sampleRate);
+  const data=buf.getChannelData(0);
+  for(let i=0;i<bufLen;i++){
+    const t=i/ctx.sampleRate;
+    const env=Math.exp(-t*14)*(1-Math.exp(-t*120));
+    data[i]=(Math.random()*2-1)*env;
+  }
+  const src=ctx.createBufferSource();src.buffer=buf;
+
+  // High-pass + band-pass for water character
+  const hp=ctx.createBiquadFilter();hp.type='highpass';hp.frequency.value=600;
+  const bp=ctx.createBiquadFilter();bp.type='bandpass';bp.frequency.setValueAtTime(1200,now);bp.frequency.exponentialRampToValueAtTime(600,now+0.3);bp.Q.value=1.2;
+
+  const gain=ctx.createGain();gain.gain.setValueAtTime(1.8,now);gain.gain.exponentialRampToValueAtTime(0.001,now+dur);
+
+  src.connect(hp);hp.connect(bp);bp.connect(gain);gain.connect(ctx.destination);
+  src.start(now);src.stop(now+dur);
+}
 
 // ── DATE HELPERS ──
 function todayKey(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -543,89 +641,41 @@ function fmtShort(k){const[y,m,d]=k.split('-');const mn=['ינו','פבר','מר
 function fmtFull(k){const[y,m,d]=k.split('-');return`${parseInt(d)}/${m}/${y}`;}
 function hebrewDate(k){const t=todayKey();if(k===t)return'היום';const y=new Date();y.setDate(y.getDate()-1);const yk=y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');if(k===yk)return'אתמול';return fmtFull(k);}
 
-// ── PERSIST — saves ALL user data in one object ──
+// ── PERSIST ──
 function saveAll(){
-  try{
-    const toSave={...S};
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(toSave));
-    localStorage.setItem('tzkey',KEY);
-    localStorage.setItem('tzday_v13',todayKey());
-  }catch(e){console.error('Save failed',e);}
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(S));localStorage.setItem('tzkey',KEY);localStorage.setItem('tzday_v14',todayKey());}catch(e){}
 }
 function loadAll(){
   try{
     const raw=localStorage.getItem(STORAGE_KEY);
-    if(raw){
-      const parsed=JSON.parse(raw);
-      S={...DEFAULT_STATE,...parsed};
-      // ensure nested defaults
-      if(!S.meals)S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
-      if(!S.historyData)S.historyData={};
-      if(!S.meals.breakfast)S.meals.breakfast=[];
-      if(!S.meals.lunch)S.meals.lunch=[];
-      if(!S.meals.dinner)S.meals.dinner=[];
-      if(!S.meals.snacks)S.meals.snacks=[];
-    }
+    if(raw){const p=JSON.parse(raw);S={...DEFAULT_STATE,...p};if(!S.meals)S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};if(!S.historyData)S.historyData={};}
     KEY=localStorage.getItem('tzkey')||'';
-    // Day rollover
-    const today=todayKey();
-    const lastDay=localStorage.getItem('tzday_v13');
+    const today=todayKey(),lastDay=localStorage.getItem('tzday_v14');
     if(lastDay&&lastDay!==today){
       const allF=Object.values(S.meals).flat();
-      if(allF.length>0){
-        const tc=allF.reduce((a,f)=>a+f.cal,0);
-        S.historyData[lastDay]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
-        S.streak=(S.streak||0)+1;
-      }
-      S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
-      S.water=0;
-      localStorage.setItem('tzday_v13',today);
-    } else if(!lastDay){
-      localStorage.setItem('tzday_v13',today);
+      if(allF.length>0){const tc=allF.reduce((a,f)=>a+f.cal,0);S.historyData[lastDay]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};S.streak=(S.streak||0)+1;}
+      S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;
     }
-  }catch(e){console.error('Load failed',e);}
+    localStorage.setItem('tzday_v14',today);
+  }catch(e){}
 }
 function syncToday(){
-  const k=todayKey();
-  const allF=Object.values(S.meals).flat();
-  const tc=allF.reduce((a,f)=>a+f.cal,0);
-  if(tc>0||S.water>0){
-    S.historyData[k]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
-  }
+  const k=todayKey();const allF=Object.values(S.meals).flat();const tc=allF.reduce((a,f)=>a+f.cal,0);
+  if(tc>0||S.water>0)S.historyData[k]={cal:tc,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
   saveAll();
 }
 
 // ── BACKUP ──
-function backupData(){
-  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`tzuna-backup-${todayKey()}.json`;a.click();
-  toast('גיבוי הורד ✅','success');
-}
-function restoreData(evt){
-  const file=evt.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{try{const d=JSON.parse(e.target.result);S={...DEFAULT_STATE,...d};saveAll();loadAll();uhome();rfood();rsettings();toast('שחזור הושלם ✅','success');}catch(ex){toast('קובץ לא תקין ❌','');}};
-  reader.readAsText(file);
-}
-function autoBackup(){
-  try{const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`tzuna-autobackup-${todayKey()}.json`;a.click();}catch(e){}
-}
+function backupData(){const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`tzuna-backup-${todayKey()}.json`;a.click();toast('גיבוי הורד ✅','success');}
+function restoreData(evt){const file=evt.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=e=>{try{const d=JSON.parse(e.target.result);S={...DEFAULT_STATE,...d};saveAll();loadAll();uhome();rfood();rsettings();toast('שחזור הושלם ✅','success');}catch(ex){toast('קובץ לא תקין ❌','');}};reader.readAsText(file);}
+function autoBackup(){try{const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`tzuna-autobackup-${todayKey()}.json`;a.click();}catch(e){}}
 
 // ── ONBOARDING ──
 function obG(g){S.gender=g;document.getElementById('ob-male').classList.toggle('act',g==='male');document.getElementById('ob-female').classList.toggle('act',g==='female');}
-function finishOB(){
-  const n=document.getElementById('ob-name').value.trim();if(n)S.name=n;
-  document.getElementById('onboarding').style.display='none';
-  saveAll();uhome();rsettings();
-  const f=S.gender==='female';
-  toast(`ברוכ${f?'ה':''} הב${f?'א':'א'}, ${S.name||'חבר'}! 🎉`,'success');
-}
+function finishOB(){const n=document.getElementById('ob-name').value.trim();if(n)S.name=n;document.getElementById('onboarding').style.display='none';saveAll();uhome();rsettings();const f=S.gender==='female';toast(`ברוכ${f?'ה':''} הב${f?'א':'א'}, ${S.name||'חבר'}! 🎉`,'success');}
 
 // ── TOAST ──
-function toast(msg,type=''){
-  const el=document.createElement('div');el.className='toast '+(type||'');el.textContent=msg;
-  document.body.appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(()=>el.remove(),400);},2800);
-}
+function toast(msg,type=''){const el=document.createElement('div');el.className='toast '+(type||'');el.textContent=msg;document.body.appendChild(el);setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(()=>el.remove(),400);},2800);}
 
 // ── WATER REMINDER ──
 function setReminder(mins){
@@ -637,6 +687,7 @@ function setReminder(mins){
   reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);
 }
 function showWaterReminder(){
+  playWaterSound(); // 🔊 water sound at high volume
   document.getElementById('water-reminder-wrap').innerHTML=`<div class="water-banner">💧 ${S.name||'היי'}, הגיע הזמן לשתות מים!<button onclick="dismissWR()" style="background:rgba(255,255,255,.3);border:none;color:white;padding:5px 10px;border-radius:8px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:700;font-size:.77rem;">שתיתי ✓</button></div>`;
 }
 function dismissWR(){document.getElementById('water-reminder-wrap').innerHTML='';S.water=Math.min(S.water+1,S.waterGoal);syncToday();uhome();}
@@ -657,9 +708,7 @@ function pg(id){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
   ['home','food','ai','calc','settings'].forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
-  if(id==='home')uhome();
-  if(id==='food')rfood();
-  if(id==='settings')rsettings();
+  if(id==='home')uhome();if(id==='food')rfood();if(id==='settings')rsettings();
   if(id==='ai'){if(!KEY)document.getElementById('apinote').style.display='block';updateChatWelcome();}
 }
 
@@ -668,21 +717,14 @@ function newQuote(){S.quoteIdx=(S.quoteIdx+1)%QUOTES.length;document.getElementB
 function showQuote(){document.getElementById('quote-text').textContent=QUOTES[S.quoteIdx%QUOTES.length];}
 
 // ── HOME ──
-function grt(){
-  const h=new Date().getHours(),n=S.name?`, ${S.name}`:'';
-  if(h<12)return`בוקר טוב${n}! ☀️`;if(h<17)return`צהריים טובים${n}! 🌤️`;return`ערב טוב${n}! 🌙`;
-}
-function getDD(){
-  if(viewingDate){const d=S.historyData[viewingDate];if(d)return{cal:d.cal,water:d.water};return{cal:0,water:0};}
-  const allF=Object.values(S.meals).flat();return{cal:allF.reduce((a,f)=>a+f.cal,0),water:S.water};
-}
+function grt(){const h=new Date().getHours(),n=S.name?`, ${S.name}`:'';if(h<12)return`בוקר טוב${n}! ☀️`;if(h<17)return`צהריים טובים${n}! 🌤️`;return`ערב טוב${n}! 🌙`;}
+function getDD(){if(viewingDate){const d=S.historyData[viewingDate];if(d)return{cal:d.cal,water:d.water};return{cal:0,water:0};}const allF=Object.values(S.meals).flat();return{cal:allF.reduce((a,f)=>a+f.cal,0),water:S.water};}
 function uhome(){
   const isToday=!viewingDate;
   document.getElementById('view-banner').style.display=isToday?'none':'block';
   if(!isToday)document.getElementById('view-lbl').textContent=fmtFull(viewingDate);
   document.getElementById('water-card').style.display=isToday?'block':'none';
   document.getElementById('mood-card').style.display=isToday?'block':'none';
-  // mood title gender
   const f=S.gender==='female';
   document.getElementById('mood-title').textContent=`😊 איך את${f?'':'ה'} מרגיש${f?'ה':''}?`;
   showQuote();
@@ -697,64 +739,61 @@ function uhome(){
   const bs={lose:'<span class="gbadge gl">📉 ירידה</span>',maintain:'<span class="gbadge gm">⚖️ שמירה</span>',gain:'<span class="gbadge gg">📈 עלייה</span>'};
   document.getElementById('gbadge').innerHTML=bs[S.goal]||'';
   document.getElementById('moodd').textContent=S.mood;
+
+  // Cal status bar
+  const rem=Math.max(S.calGoal-cal,0);const over=cal-S.calGoal;
+  const statEl=document.getElementById('cal-status-bar');
+  if(cal>0){
+    if(over>0)statEl.innerHTML=`<div style="font-size:.76rem;color:var(--red);font-weight:700;text-align:center;margin-top:2px;">⚠️ חרגת ב-${over} קל׳ מהיעד</div>`;
+    else statEl.innerHTML=`<div style="font-size:.76rem;color:var(--green-dark);text-align:center;margin-top:2px;">נותרו <strong>${rem}</strong> קל׳ ליעד היומי</div>`;
+  }else statEl.innerHTML='';
+
   if(isToday)rwc();
   drawChart();rhist();
 }
-function rwc(){
-  const w=document.getElementById('wc');w.innerHTML='';
-  for(let i=0;i<S.waterGoal;i++){
-    const c=document.createElement('div');c.className='cup'+(i<S.water?' filled':'');
-    c.innerHTML=`<span>${i<S.water?'💧':''}</span>`;c.onclick=()=>{S.water=i+1;syncToday();uhome();};w.appendChild(c);
-  }
-}
+function rwc(){const w=document.getElementById('wc');w.innerHTML='';for(let i=0;i<S.waterGoal;i++){const c=document.createElement('div');c.className='cup'+(i<S.water?' filled':'');c.innerHTML=`<span>${i<S.water?'💧':''}</span>`;c.onclick=()=>{S.water=i+1;syncToday();uhome();};w.appendChild(c);}}
 function addW(){if(S.water<S.waterGoal){S.water++;syncToday();uhome();}}
 function rstW(){S.water=0;syncToday();uhome();}
 function setMood(btn,m){S.mood=m;saveAll();document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');document.getElementById('moodd').textContent=m;}
 
 // ── CHART ──
 function setPeriod(d,btn){chartPeriod=d;document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('act'));btn.classList.add('act');drawChart();}
-function getChartData(){
-  const today=todayKey();let keys=Object.keys(S.historyData).sort();if(!keys.length)return[];
-  if(chartPeriod>0){const c=new Date();c.setDate(c.getDate()-(chartPeriod-1));const ck=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');keys=keys.filter(k=>k>=ck);}
-  return keys.map(k=>({key:k,cal:S.historyData[k]?.cal||0,isToday:k===today}));
-}
 function drawChart(){
-  const wrap=document.getElementById('chart-wrap');const data=getChartData();
-  if(!data.length){wrap.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים — התחל להזין ארוחות!</p></div>';return;}
-  const bw=34,gap=10,W=Math.max(data.length*(bw+gap)+20,wrap.clientWidth||300),H=155;
+  const wrap=document.getElementById('chart-wrap');
+  let keys=Object.keys(S.historyData).sort();if(!keys.length){wrap.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים — התחל להזין ארוחות!</p></div>';return;}
+  if(chartPeriod>0){const c=new Date();c.setDate(c.getDate()-(chartPeriod-1));const ck=c.getFullYear()+'-'+String(c.getMonth()+1).padStart(2,'0')+'-'+String(c.getDate()).padStart(2,'0');keys=keys.filter(k=>k>=ck);}
+  if(!keys.length){wrap.innerHTML='<div class="empty"><div class="ei">📊</div><p>אין נתונים בתקופה זו</p></div>';return;}
+  const today=todayKey();const bw=34,gap=10,W=Math.max(keys.length*(bw+gap)+20,wrap.clientWidth||300),H=155;
   const pad={t:20,b:34,l:6,r:6};const chartH=H-pad.t-pad.b;
-  const maxCal=Math.max(...data.map(d=>d.cal),S.calGoal,500);
+  const maxCal=Math.max(...keys.map(k=>S.historyData[k]?.cal||0),S.calGoal,500);
   let bars='',labels='';
-  data.forEach((d,i)=>{
-    const x=pad.l+i*(bw+gap);const bh=Math.max(d.cal/maxCal*chartH,2);const y=pad.t+chartH-bh;
-    const col=d.isToday?'#27ae60':d.cal>S.calGoal?'#e74c3c':'#2ecc71';
-    bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="5" fill="${col}" opacity=".85" style="cursor:pointer;" onclick="onDatePick('${d.key}')"/>`;
-    if(d.cal>0)bars+=`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="8" fill="#666" font-family="Heebo">${d.cal}</text>`;
-    labels+=`<text x="${x+bw/2}" y="${H-3}" text-anchor="middle" font-size="8" fill="${d.isToday?'#27ae60':'#999'}" font-weight="${d.isToday?'bold':'normal'}" font-family="Heebo">${fmtShort(d.key)}</text>`;
+  keys.forEach((k,i)=>{
+    const cal=S.historyData[k]?.cal||0;const x=pad.l+i*(bw+gap);const bh=Math.max(cal/maxCal*chartH,2);const y=pad.t+chartH-bh;
+    const isT=k===today;const col=isT?'#27ae60':cal>S.calGoal?'#e74c3c':'#2ecc71';
+    bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" rx="6" fill="${col}" opacity="${viewingDate===k?1:.8}" style="cursor:pointer;" onclick="onDatePick('${k}')"/>`;
+    if(cal>0)bars+=`<text x="${x+bw/2}" y="${y-4}" text-anchor="middle" font-size="8" fill="#555" font-family="Heebo">${cal}</text>`;
+    labels+=`<text x="${x+bw/2}" y="${H-3}" text-anchor="middle" font-size="8" fill="${isT?'#27ae60':'#999'}" font-weight="${isT?'bold':'normal'}" font-family="Heebo">${fmtShort(k)}</text>`;
   });
   const goalY=pad.t+chartH-(S.calGoal/maxCal*chartH);const lw=W-pad.l-pad.r;
-  wrap.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">${bars}${labels}
-  <line x1="${pad.l}" y1="${goalY}" x2="${pad.l+lw}" y2="${goalY}" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/>
-  <text x="${pad.l+lw}" y="${goalY-3}" text-anchor="end" font-size="7.5" fill="#e67e22" font-family="Heebo">יעד ${S.calGoal}</text></svg>`;
+  wrap.innerHTML=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;">${bars}${labels}<line x1="${pad.l}" y1="${goalY}" x2="${pad.l+lw}" y2="${goalY}" stroke="#e67e22" stroke-width="1.5" stroke-dasharray="4,3"/><text x="${pad.l+lw}" y="${goalY-3}" text-anchor="end" font-size="7.5" fill="#e67e22" font-family="Heebo">יעד ${S.calGoal}</text></svg>`;
 }
 function rhist(){
   const el=document.getElementById('hist');const today=todayKey();
   const keys=Object.keys(S.historyData).sort().reverse();
   if(!keys.length){el.innerHTML='<div class="empty"><div class="ei">📅</div><p>אין נתוני ימים עדיין</p></div>';return;}
-  el.innerHTML=keys.map(k=>{const d=S.historyData[k];const isT=k===today;return`<div class="hday${isT?' today':''}" onclick="onDatePick('${k}')"><div><div class="dd">${hebrewDate(k)}${isT?' 📌':''}</div><div style="font-size:.67rem;color:var(--text-light);">${d.foods||0} פריטים • 💧${d.water||0}</div></div><div class="dc">${d.cal||0} קל׳</div></div>`;}).join('');
+  el.innerHTML=keys.map(k=>{const d=S.historyData[k];const isT=k===today;const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;return`<div class="hday${isT?' today':''}" onclick="onDatePick('${k}')"><div><div class="dd">${hebrewDate(k)}${isT?' 📌':''}</div><div style="font-size:.67rem;color:var(--text-light);">${d.foods||0} פריטים • 💧${d.water||0} • ${pct}% מהיעד</div></div><div class="dc">${d.cal||0} קל׳</div></div>`;}).join('');
 }
 
 // ── FOOD ──
 const ML={breakfast:'ארוחת בוקר',lunch:'ארוחת צהריים',dinner:'ארוחת ערב',snacks:'נשנושים'};
 function rfood(){['breakfast','lunch','dinner','snacks'].forEach(m=>renderMeal(m));}
 function renderMeal(meal){
-  const list=document.getElementById('list-'+meal);
-  const items=S.meals[meal]||[];
+  const list=document.getElementById('list-'+meal);const items=S.meals[meal]||[];
   const total=items.reduce((a,f)=>a+f.cal,0);
   document.getElementById('cal-'+meal).textContent=total>0?total+' קל׳':'';
   if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.78rem;">—</div>';return;}
   list.innerHTML=items.map((f,i)=>`<li class="fi">
-    <div class="fn">${f.name}${f.fromPhoto?'<span style="font-size:.65rem;color:var(--purple);margin-right:4px;">📷</span>':''}</div>
+    <div class="fn">${f.name}${f.fromPhoto?'<span style="font-size:.6rem;color:var(--purple);"> 📷</span>':''}${f.fromVoice?'<span style="font-size:.6rem;color:var(--orange);"> 🎙️</span>':''}</div>
     <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
       <span class="fcal">${f.cal===0&&f.name?'?':f.cal} קל׳</span>
       ${f.cal===0&&KEY?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i},this)">חשב</button>`:''}
@@ -762,36 +801,16 @@ function renderMeal(meal){
     </div>
   </li>`).join('');
 }
-
-async function recalcItem(meal,idx,btn){
-  const item=S.meals[meal][idx];if(!item||!KEY)return;
-  const orig=btn.textContent;btn.textContent='...';btn.disabled=true;
-  try{const cal=await calcCalAI(item.name);S.meals[meal][idx].cal=cal;syncToday();renderMeal(meal);uhome();}
-  catch(e){btn.textContent=orig;btn.disabled=false;}
-}
-
+async function recalcItem(meal,idx,btn){const item=S.meals[meal][idx];if(!item||!KEY)return;const orig=btn.textContent;btn.textContent='...';btn.disabled=true;try{const cal=await calcCalAI(item.name);S.meals[meal][idx].cal=cal;syncToday();renderMeal(meal);uhome();}catch(e){btn.textContent=orig;btn.disabled=false;}}
+function addLoadingRow(meal,label){const list=document.getElementById('list-'+meal);const li=document.createElement('li');li.className='fi loading loading-tmp';li.innerHTML=`<div class="fn">${label}</div><div class="ai-loading"><div class="spinner"></div>מחשב...</div>`;list.appendChild(li);}
+function removeLoadingRow(meal){const li=document.getElementById('list-'+meal).querySelector('.loading-tmp');if(li)li.remove();}
 async function addItem(meal){
   const inp=document.getElementById('inp-'+meal);const name=inp.value.trim();if(!name)return;inp.value='';
   if(!KEY){S.meals[meal].push({name,cal:0});syncToday();renderMeal(meal);uhome();document.getElementById('apinote').style.display='block';return;}
-  // Show loading row
   addLoadingRow(meal,name);
   try{const cal=await calcCalAI(name);removeLoadingRow(meal);S.meals[meal].push({name,cal});syncToday();renderMeal(meal);uhome();}
   catch(e){removeLoadingRow(meal);S.meals[meal].push({name,cal:0});syncToday();renderMeal(meal);uhome();}
 }
-
-// Loading row helpers
-function addLoadingRow(meal,label){
-  const list=document.getElementById('list-'+meal);
-  const existing=list.querySelector('.loading-tmp');if(existing)existing.remove();
-  const li=document.createElement('li');li.className='fi loading loading-tmp';
-  li.innerHTML=`<div class="fn">${label}</div><div class="ai-loading"><div class="spinner"></div>מחשב...</div>`;
-  list.appendChild(li);
-}
-function removeLoadingRow(meal){
-  const list=document.getElementById('list-'+meal);
-  const li=list.querySelector('.loading-tmp');if(li)li.remove();
-}
-
 async function calcCalAI(foodName){
   const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
@@ -799,17 +818,14 @@ async function calcCalAI(foodName){
       system:'אתה מחשב קלוריות לפי מנה ביתית מתונה. ענה רק במספר שלם של קלוריות ללא טקסט נוסף. דוגמה: 250',
       messages:[{role:'user',content:`כמה קלוריות ב: ${foodName}`}]})});
   const d=await r.json();if(d.error)throw new Error(d.error.message);
-  const num=parseInt((d.content?.[0]?.text||'0').replace(/[^\d]/g,''));
-  return isNaN(num)?0:num;
+  const num=parseInt((d.content?.[0]?.text||'0').replace(/[^\d]/g,''));return isNaN(num)?0:num;
 }
 function rmItem(meal,i){S.meals[meal].splice(i,1);syncToday();renderMeal(meal);uhome();}
 
-// ── CAMERA (captures from camera only) ──
-let imageMeal='breakfast';
+// ── CAMERA / GALLERY ──
 function openCamera(meal){imageMeal=meal;document.getElementById('cam-capture').click();}
 function openGallery(meal){imageMeal=meal;document.getElementById('cam-gallery').click();}
-
-async function onImageFile(evt,source){
+async function onImageFile(evt){
   const file=evt.target.files[0];if(!file)return;evt.target.value='';
   const meal=imageMeal;
   if(!KEY){toast('נדרש מפתח API לזיהוי תמונות','warn');return;}
@@ -817,141 +833,86 @@ async function onImageFile(evt,source){
   reader.onload=async(e)=>{
     const base64=e.target.result.split(',')[1];
     const mediaType=(file.type&&file.type.startsWith('image/'))?file.type:'image/jpeg';
-    // Show loading row
     addLoadingRow(meal,'🖼️ מזהה תמונה...');
     try{
       const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
         body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,
-          system:'אתה מזהה אוכל בתמונות ומחשב קלוריות לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות — לדוגמה: שניצל עם אורז|420. אם יש כמה מאכלים כתוב כולל.',
+          system:'אתה מזהה אוכל בתמונות ומחשב קלוריות לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות — לדוגמה: שניצל עם אורז|420',
           messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'מה האוכל בתמונה וכמה קלוריות?'}]}]})});
-      const data=await r.json();
-      removeLoadingRow(meal);
+      const data=await r.json();removeLoadingRow(meal);
       if(data.error)throw new Error(data.error.message);
       const txt=(data.content?.[0]?.text||'').trim();
-      // parse name|cal
       let name='אוכל מתמונה',cal=0;
       if(txt.includes('|')){const p=txt.split('|');name=p[0].trim()||'אוכל מתמונה';cal=parseInt((p[1]||'0').replace(/[^\d]/g,''))||0;}
-      else{name=txt.split('\n')[0].trim()||'אוכל מתמונה';}
-      S.meals[meal].push({name,cal,fromPhoto:true});
-      syncToday();renderMeal(meal);uhome();
+      S.meals[meal].push({name,cal,fromPhoto:true});syncToday();renderMeal(meal);uhome();
       toast(`📷 זוהה: ${name} — ${cal} קל׳`,'success');
     }catch(err){
       removeLoadingRow(meal);
-      // Still add as unknown item
       S.meals[meal].push({name:'אוכל מתמונה',cal:0,fromPhoto:true});
       syncToday();renderMeal(meal);uhome();
-      toast(`⚠️ לא הצלחתי לזהות — הוסף קלוריות ידנית`,'warn');
+      toast('לא הצלחתי לזהות — לחץ "חשב" לנסיון נוסף','warn');
     }
   };
   reader.readAsDataURL(file);
 }
 
-// ── VOICE RECORDING ──
-// Uses Web Speech API (SpeechRecognition) - built into Chrome/Android
-// Fallback: MediaRecorder + send transcript to AI
-function toggleVoice(meal){
-  if(isRecording&&voiceMeal===meal){stopVoice();}
-  else{if(isRecording)stopVoice();startVoice(meal);}
-}
-
+// ── VOICE ──
+function toggleVoice(meal){if(isRecording&&voiceMeal===meal){stopVoice();}else{if(isRecording)stopVoice();startVoice(meal);}}
 function startVoice(meal){
-  voiceMeal=meal;
-  const micBtn=document.getElementById('mic-'+meal);
-
-  // Try Web Speech API first
-  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(SpeechRecognition){
-    speechRecognition=new SpeechRecognition();
-    speechRecognition.lang='he-IL';
-    speechRecognition.continuous=false;
-    speechRecognition.interimResults=false;
-    isRecording=true;
-    micBtn.classList.add('recording');
-    micBtn.textContent='⏹️';
-    toast('🎙️ מקשיב... דבר/י ואז לחץ/י שוב','water');
-
-    speechRecognition.onresult=(e)=>{
-      const transcript=e.results[0][0].transcript;
-      stopVoice();
-      processVoiceText(transcript,meal);
-    };
-    speechRecognition.onerror=(e)=>{
-      stopVoice();
-      toast('שגיאה בזיהוי קול: '+e.error,'');
-    };
-    speechRecognition.onend=()=>{if(isRecording)stopVoice();};
-    speechRecognition.start();
-  } else {
-    // Fallback: use text input as prompt
-    toast('הדפדפן לא תומך בהקלטה — כתוב ידנית','warn');
-    document.getElementById('inp-'+meal).focus();
-  }
+  voiceMeal=meal;const micBtn=document.getElementById('mic-'+meal);
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){toast('הדפדפן לא תומך בהקלטה — כתוב ידנית','warn');return;}
+  speechRecognition=new SR();speechRecognition.lang='he-IL';speechRecognition.continuous=false;speechRecognition.interimResults=false;
+  isRecording=true;micBtn.classList.add('recording');micBtn.textContent='⏹️';
+  toast('🎙️ מקשיב... לחץ/י שוב לעצירה','water');
+  speechRecognition.onresult=e=>{const t=e.results[0][0].transcript;stopVoice();processVoiceText(t,meal);};
+  speechRecognition.onerror=e=>{stopVoice();toast('שגיאה: '+e.error,'');};
+  speechRecognition.onend=()=>{if(isRecording)stopVoice();};
+  speechRecognition.start();
 }
-
 function stopVoice(){
   isRecording=false;
   if(speechRecognition){try{speechRecognition.stop();}catch(e){}speechRecognition=null;}
-  if(voiceMeal){
-    const btn=document.getElementById('mic-'+voiceMeal);
-    if(btn){btn.classList.remove('recording');btn.textContent='🎙️';}
-  }
+  if(voiceMeal){const btn=document.getElementById('mic-'+voiceMeal);if(btn){btn.classList.remove('recording');btn.textContent='🎙️';}}
   voiceMeal=null;
 }
-
 async function processVoiceText(text,meal){
-  toast(`🎙️ שמעתי: "${text}"`, 'success');
-  // Show in input field first
+  toast(`🎙️ שמעתי: "${text}"`,'success');
   document.getElementById('inp-'+meal).value=text;
-  if(!KEY){
-    S.meals[meal].push({name:text,cal:0});syncToday();renderMeal(meal);uhome();
-    document.getElementById('apinote').style.display='block';
-    return;
-  }
-  // Add loading row
+  if(!KEY){S.meals[meal].push({name:text,cal:0,fromVoice:true});syncToday();renderMeal(meal);uhome();return;}
   addLoadingRow(meal,`🎙️ ${text}`);
   try{
-    // Ask AI to extract food name + calories from the spoken text
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,
-        system:'אתה מחשב קלוריות ממה שאדם אמר בקול. חלץ את שם המאכל וחשב קלוריות לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות — דוגמה: עוף עם אורז|380',
+        system:'אתה מחשב קלוריות ממה שאדם אמר בקול. חלץ שם מאכל וחשב קלוריות לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות — דוגמה: עוף עם אורז|380',
         messages:[{role:'user',content:`אמרתי: "${text}" — מה אכלתי וכמה קלוריות?`}]})});
-    const data=await r.json();
-    removeLoadingRow(meal);
+    const data=await r.json();removeLoadingRow(meal);
     if(data.error)throw new Error(data.error.message);
     const txt=(data.content?.[0]?.text||'').trim();
     let name=text,cal=0;
     if(txt.includes('|')){const p=txt.split('|');name=p[0].trim()||text;cal=parseInt((p[1]||'0').replace(/[^\d]/g,''))||0;}
     document.getElementById('inp-'+meal).value='';
-    S.meals[meal].push({name,cal,fromVoice:true});
-    syncToday();renderMeal(meal);uhome();
+    S.meals[meal].push({name,cal,fromVoice:true});syncToday();renderMeal(meal);uhome();
     toast(`✅ נוסף: ${name} — ${cal} קל׳`,'success');
   }catch(err){
-    removeLoadingRow(meal);
-    S.meals[meal].push({name:text,cal:0,fromVoice:true});
-    document.getElementById('inp-'+meal).value='';
-    syncToday();renderMeal(meal);uhome();
+    removeLoadingRow(meal);S.meals[meal].push({name:text,cal:0,fromVoice:true});
+    document.getElementById('inp-'+meal).value='';syncToday();renderMeal(meal);uhome();
   }
 }
 
 // ── SETTINGS ──
 function rsettings(){
-  document.getElementById('sname').value=S.name||'';
-  document.getElementById('scal').value=S.calGoal;
-  document.getElementById('swat').value=S.waterGoal;
+  document.getElementById('sname').value=S.name||'';document.getElementById('scal').value=S.calGoal;document.getElementById('swat').value=S.waterGoal;
   document.getElementById('reminder-sel').value=S.reminderMinutes||60;
   if(S.reminderMinutes>0)document.getElementById('reminder-status').textContent=`✅ תזכורת כל ${S.reminderMinutes} דקות`;
-  document.getElementById('sg-male').classList.toggle('act',S.gender==='male');
-  document.getElementById('sg-female').classList.toggle('act',S.gender==='female');
-  ['lose','maintain','gain'].forEach(g=>document.getElementById('sg-'+g).classList.toggle('act',S.goal===g));
+  document.getElementById('sg-male').classList.toggle('act',S.gender==='male');document.getElementById('sg-female').classList.toggle('act',S.gender==='female');
   ['lose','maintain','gain'].forEach(g=>document.getElementById('sg-'+g).classList.toggle('act',S.goal===g));
   if(KEY)document.getElementById('kst').textContent='✅ מפתח AI שמור';
 }
 function sv(k,v){
-  if(k==='calGoal')S.calGoal=parseInt(v)||2000;
-  else if(k==='waterGoal')S.waterGoal=parseInt(v)||6;
-  else if(k==='name')S.name=v;
+  if(k==='calGoal')S.calGoal=parseInt(v)||2000;else if(k==='waterGoal')S.waterGoal=parseInt(v)||6;else if(k==='name')S.name=v;
   else if(k==='gender'){S.gender=v;document.getElementById('sg-male').classList.toggle('act',v==='male');document.getElementById('sg-female').classList.toggle('act',v==='female');}
   else if(k==='goal'){S.goal=v;['lose','maintain','gain'].forEach(g=>document.getElementById('sg-'+g).classList.toggle('act',g===v));}
   saveAll();uhome();
@@ -967,11 +928,8 @@ function setGl(g){S.calcGoal=g;['gl','gm','gg'].forEach(id=>document.getElementB
 function calcTDEE(){
   const a=parseInt(document.getElementById('age').value),w=parseFloat(document.getElementById('wt').value),h=parseFloat(document.getElementById('ht').value),ac=parseFloat(document.getElementById('act').value);
   if(!a||!w||!h){alert('מלא את כל השדות');return;}
-  let bmr=S.gender==='male'?10*w+6.25*h-5*a+5:10*w+6.25*h-5*a-161;
-  const tdee=Math.round(bmr*ac);let t,cls,txt,ic;
-  if(S.calcGoal==='lose'){t=tdee-500;cls='lr';txt='ירידה במשקל';ic='📉';}
-  else if(S.calcGoal==='gain'){t=tdee+400;cls='gr';txt='עלייה במשקל';ic='📈';}
-  else{t=tdee;cls='';txt='שמירה';ic='⚖️';}
+  let bmr=S.gender==='male'?10*w+6.25*h-5*a+5:10*w+6.25*h-5*a-161;const tdee=Math.round(bmr*ac);let t,cls,txt,ic;
+  if(S.calcGoal==='lose'){t=tdee-500;cls='lr';txt='ירידה במשקל';ic='📉';}else if(S.calcGoal==='gain'){t=tdee+400;cls='gr';txt='עלייה במשקל';ic='📈';}else{t=tdee;cls='';txt='שמירה';ic='⚖️';}
   const el=document.getElementById('cres');el.style.display='block';
   el.innerHTML=`<div class="rb ${cls}"><div style="font-size:1.4rem;">${ic}</div><div class="rc">${t}</div><div style="font-size:.8rem;opacity:.9;">קלוריות ביום – ${txt}</div><div style="font-size:.71rem;opacity:.7;margin-top:2px;">TDEE: ${tdee}</div><button class="btn" style="margin-top:10px;background:rgba(255,255,255,.25);color:white;font-size:.78rem;" onclick="applyG(${t},'${S.calcGoal}')">🎯 הגדר כיעד שלי</button></div>`;
   rtips(S.calcGoal,w);
@@ -985,82 +943,42 @@ function rtips(goal,w){
 }
 
 // ── EXPORT ──
-function openExport(){document.getElementById('exp-from').value=todayKey().slice(0,7)+'-01';document.getElementById('exp-to').value=todayKey();document.getElementById('ef-excel').classList.add('act');document.getElementById('ef-word').classList.remove('act');expFmt2='excel';document.getElementById('export-modal').style.display='flex';}
+function openExport(){document.getElementById('exp-from').value=todayKey().slice(0,7)+'-01';document.getElementById('exp-to').value=todayKey();expFmt2='excel';document.getElementById('ef-excel').classList.add('act');document.getElementById('ef-word').classList.remove('act');document.getElementById('export-modal').style.display='flex';}
 function closeExport(){document.getElementById('export-modal').style.display='none';}
 function setExpFmt(f){expFmt2=f;document.getElementById('ef-excel').classList.toggle('act',f==='excel');document.getElementById('ef-word').classList.toggle('act',f==='word');}
-function doExport(){
-  const from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value;
-  if(!from||!to){alert('בחר תאריכים');return;}
-  const keys=Object.keys(S.historyData).sort().filter(k=>k>=from&&k<=to);
-  if(!keys.length){toast('אין נתונים בתקופה זו','warn');closeExport();return;}
-  if(expFmt2==='excel')exportExcel(keys);else exportWord(keys);
-  closeExport();
-}
-function exportExcel(keys){
-  const wb=XLSX.utils.book_new();
-  const s1=[['תאריך','קלוריות','מים (כוסות)','פריטים','יעד','אחוז']];
-  keys.forEach(k=>{const d=S.historyData[k];s1.push([fmtFull(k),d.cal||0,d.water||0,d.foods||0,S.calGoal,d.cal?Math.round(d.cal/S.calGoal*100)+'%':'-']);});
-  const ws1=XLSX.utils.aoa_to_sheet(s1);ws1['!cols']=[{wch:14},{wch:12},{wch:14},{wch:10},{wch:10},{wch:10}];
-  XLSX.utils.book_append_sheet(wb,ws1,'סיכום');
-  const s2=[['תאריך','ארוחה','שם מאכל','קלוריות']];
-  keys.forEach(k=>{const d=S.historyData[k];if(d.meals)Object.entries(d.meals).forEach(([mt,items])=>{(items||[]).forEach(f=>s2.push([fmtFull(k),ML[mt]||mt,f.name,f.cal]));});});
-  const ws2=XLSX.utils.aoa_to_sheet(s2);ws2['!cols']=[{wch:14},{wch:16},{wch:24},{wch:10}];
-  XLSX.utils.book_append_sheet(wb,ws2,'פירוט');
-  XLSX.writeFile(wb,`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.xlsx`);
-  toast('קובץ Excel הורד ✅','success');
-}
-function buildExportChart(keys){
-  const W=480,H=130,pad={t:14,b:26,l:4,r:4};const chartH=H-pad.t-pad.b;
-  const bw=Math.max(8,Math.min(28,Math.floor((W-pad.l-pad.r)/(keys.length+1))-4));
-  const maxCal=Math.max(...keys.map(k=>S.historyData[k]?.cal||0),S.calGoal,500);
-  let bars='',labels='';
-  keys.forEach((k,i)=>{const cal=S.historyData[k]?.cal||0;const x=pad.l+i*(bw+4);const bh=Math.max(cal/maxCal*chartH,1);const y=pad.t+chartH-bh;const col=cal>S.calGoal?'#e74c3c':'#2ecc71';bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${col}" rx="2"/>`;if(cal)bars+=`<text x="${x+bw/2}" y="${y-2}" text-anchor="middle" font-size="7">${cal}</text>`;labels+=`<text x="${x+bw/2}" y="${H-2}" text-anchor="middle" font-size="6.5" fill="#666">${fmtShort(k)}</text>`;});
-  const gy=pad.t+chartH-(S.calGoal/maxCal*chartH);
-  return`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid #eee;border-radius:6px;">${bars}${labels}<line x1="${pad.l}" y1="${gy}" x2="${W-pad.r}" y2="${gy}" stroke="#e67e22" stroke-width="1" stroke-dasharray="3,2"/><text x="${W-pad.r}" y="${gy-1}" text-anchor="end" font-size="6.5" fill="#e67e22">יעד ${S.calGoal}</text></svg>`;
-}
-function exportWord(keys){
-  const rows=keys.map(k=>{const d=S.historyData[k];const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;let meals='';if(d.meals)Object.entries(d.meals).forEach(([mt,items])=>{if(items&&items.length){meals+=`<h4 style="color:#27ae60;margin:5px 0 3px;">${ML[mt]||mt}</h4><ul>`;items.forEach(f=>meals+=`<li>${f.name} — ${f.cal} קל׳</li>`);meals+='</ul>';}});return`<div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #eee;"><h3 style="color:#2c3e50;">${hebrewDate(k)} (${fmtFull(k)})</h3><p><strong>קלוריות:</strong> ${d.cal||0} / ${S.calGoal} (${pct}%) &nbsp;|&nbsp; <strong>מים:</strong> ${d.water||0} / ${S.waterGoal} כוסות</p>${meals}</div>`;}).join('');
-  const html=`<html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;direction:rtl;padding:20px;}h1{color:#27ae60;}ul{padding-right:18px;}</style></head><body><h1>🥗 דוח תזונה</h1><p>שם: ${S.name||'לא הוגדר'} | יעד: ${S.calGoal} קלוריות/יום | תקופה: ${fmtFull(keys[0])} – ${fmtFull(keys[keys.length-1])}</p><h2>גרף קלוריות</h2>${buildExportChart(keys)}<h2>פירוט ימים</h2>${rows}</body></html>`;
-  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.doc`;a.click();
-  toast('קובץ Word הורד ✅','success');
-}
+function doExport(){const from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value;if(!from||!to){alert('בחר תאריכים');return;}const keys=Object.keys(S.historyData).sort().filter(k=>k>=from&&k<=to);if(!keys.length){toast('אין נתונים בתקופה זו','warn');closeExport();return;}if(expFmt2==='excel')exportExcel(keys);else exportWord(keys);closeExport();}
+function exportExcel(keys){const wb=XLSX.utils.book_new();const s1=[['תאריך','קלוריות','מים','פריטים','יעד','%']];keys.forEach(k=>{const d=S.historyData[k];s1.push([fmtFull(k),d.cal||0,d.water||0,d.foods||0,S.calGoal,d.cal?Math.round(d.cal/S.calGoal*100)+'%':'-']);});const ws1=XLSX.utils.aoa_to_sheet(s1);ws1['!cols']=[{wch:14},{wch:12},{wch:8},{wch:8},{wch:8},{wch:8}];XLSX.utils.book_append_sheet(wb,ws1,'סיכום');const s2=[['תאריך','ארוחה','מאכל','קלוריות']];keys.forEach(k=>{const d=S.historyData[k];if(d.meals)Object.entries(d.meals).forEach(([mt,items])=>{(items||[]).forEach(f=>s2.push([fmtFull(k),ML[mt]||mt,f.name,f.cal]));});});const ws2=XLSX.utils.aoa_to_sheet(s2);ws2['!cols']=[{wch:14},{wch:16},{wch:24},{wch:10}];XLSX.utils.book_append_sheet(wb,ws2,'פירוט');XLSX.writeFile(wb,`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.xlsx`);toast('קובץ Excel הורד ✅','success');}
+function buildExportChart(keys){const W=480,H=130,pad={t:14,b:26,l:4,r:4};const chartH=H-pad.t-pad.b;const bw=Math.max(8,Math.min(28,Math.floor((W-pad.l-pad.r)/(keys.length+1))-4));const maxCal=Math.max(...keys.map(k=>S.historyData[k]?.cal||0),S.calGoal,500);let bars='',labels='';keys.forEach((k,i)=>{const cal=S.historyData[k]?.cal||0;const x=pad.l+i*(bw+4);const bh=Math.max(cal/maxCal*chartH,1);const y=pad.t+chartH-bh;const col=cal>S.calGoal?'#e74c3c':'#2ecc71';bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${col}" rx="2"/>`;if(cal)bars+=`<text x="${x+bw/2}" y="${y-2}" text-anchor="middle" font-size="7">${cal}</text>`;labels+=`<text x="${x+bw/2}" y="${H-2}" text-anchor="middle" font-size="6.5" fill="#666">${fmtShort(k)}</text>`;});const gy=pad.t+chartH-(S.calGoal/maxCal*chartH);return`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid #eee;border-radius:6px;">${bars}${labels}<line x1="${pad.l}" y1="${gy}" x2="${W-pad.r}" y2="${gy}" stroke="#e67e22" stroke-width="1" stroke-dasharray="3,2"/><text x="${W-pad.r}" y="${gy-1}" text-anchor="end" font-size="6.5" fill="#e67e22">יעד</text></svg>`;}
+function exportWord(keys){const rows=keys.map(k=>{const d=S.historyData[k];const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;let meals='';if(d.meals)Object.entries(d.meals).forEach(([mt,items])=>{if(items&&items.length){meals+=`<h4 style="color:#27ae60;margin:5px 0 3px;">${ML[mt]||mt}</h4><ul>`;items.forEach(f=>meals+=`<li>${f.name} — ${f.cal} קל׳</li>`);meals+='</ul>';}});return`<div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #eee;"><h3 style="color:#2c3e50;">${hebrewDate(k)} (${fmtFull(k)})</h3><p><strong>קלוריות:</strong> ${d.cal||0}/${S.calGoal} (${pct}%) | <strong>מים:</strong> ${d.water||0}/${S.waterGoal}</p>${meals}</div>`;}).join('');const html=`<html dir="rtl"><head><meta charset="UTF-8"><style>body{font-family:Arial;direction:rtl;padding:20px;}h1{color:#27ae60;}ul{padding-right:18px;}</style></head><body><h1>🥗 דוח תזונה</h1><p>שם: ${S.name||'—'} | יעד: ${S.calGoal} קל׳/יום</p><h2>גרף</h2>${buildExportChart(keys)}<h2>פירוט</h2>${rows}</body></html>`;const blob=new Blob(['\ufeff'+html],{type:'application/msword'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.doc`;a.click();toast('קובץ Word הורד ✅','success');}
 
 // ── AI CHAT ──
-function updateChatWelcome(){const nm=S.name?`, ${S.name}`:'';const el=document.getElementById('chat-welcome');if(el)el.textContent=`היי${nm}! 👋 אני יועץ התזונה שלך. שאל/י על תזונה, ספורט, שינה ובריאות 🥗`;}
+function updateChatWelcome(){const nm=S.name?`, ${S.name}`:'';const el=document.getElementById('chat-welcome');if(el)el.textContent=`היי${nm}! 👋 אני יועץ התזונה שלך 🥗`;}
 async function send(){const inp=document.getElementById('cinp'),txt=inp.value.trim();if(!txt)return;inp.value='';addUser(txt);await getAI(txt);}
 function sq(btn){const t=btn.textContent.trim();addUser(t);getAI(t);}
 function addUser(t){addMsg(t,'user');S.ch.push({role:'user',content:t});}
 function addBot(t){addMsg(t,'bot');}
 function addMsg(t,role){const a=document.getElementById('chat'),d=document.createElement('div');d.className='msg '+role;d.textContent=t;a.appendChild(d);a.scrollTop=a.scrollHeight;}
-function addTyping(){addMsg('⏳ כותב...','bot');document.getElementById('chat').lastChild.id='typ';}
-function rmTyping(){const e=document.getElementById('typ');if(e)e.remove();}
 async function getAI(msg){
   if(!KEY){document.getElementById('apinote').style.display='block';addMsg('⚠️ הזן מפתח API בהגדרות','bot err');return;}
-  addTyping();
-  const allF=Object.values(S.meals).flat();const tc=allF.reduce((a,f)=>a+f.cal,0);
-  const f=S.gender==='female';
-  const sys=`אתה יועץ תזונה ואורח חיים בריא לנוער. עונה רק על שאלות הקשורות לתזונה, ספורט, שינה, ניהול משקל ובריאות. על כל שאלה אחרת ענה בנימוס שאתה יועץ תזונה בלבד.
-ענה בעברית, ידידותי, קצר (2-5 משפטים), עם אמוג'י לפעמים. פנה ל${S.name||'המשתמש'} ב${f?'נקבה':'זכר'}.
+  const allF=Object.values(S.meals).flat();const tc=allF.reduce((a,f)=>a+f.cal,0);const f=S.gender==='female';
+  addMsg('⏳ כותב...','bot');document.getElementById('chat').lastChild.id='typ';
+  const sys=`אתה יועץ תזונה ואורח חיים בריא לנוער. עונה רק על שאלות הקשורות לתזונה, ספורט, שינה, ניהול משקל ובריאות. על שאלות אחרות ענה בנימוס שאתה יועץ תזונה בלבד.
+ענה בעברית, ידידותי, קצר (2-5 משפטים), עם אמוג'י. פנה ל${S.name||'המשתמש'} ב${f?'נקבה':'זכר'}.
 נתונים: שם:${S.name||'?'} | יעד:${S.calGoal}קל | אכל:${tc}קל | מים:${S.water}/${S.waterGoal} | מטרה:${S.goal==='gain'?'עלייה':S.goal==='lose'?'ירידה':'שמירה'}`;
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:sys,messages:[...S.ch.slice(-8),{role:'user',content:msg}]})});
-    const data=await r.json();rmTyping();
+    const data=await r.json();const e=document.getElementById('typ');if(e)e.remove();
     if(data.error){addMsg('❌ '+data.error.message,'bot err');return;}
-    const rep=data.content?.[0]?.text||'לא הצלחתי לענות.';
-    addBot(rep);S.ch.push({role:'assistant',content:rep});
-  }catch(e){rmTyping();addMsg('❌ שגיאה: '+e.message,'bot err');}
+    const rep=data.content?.[0]?.text||'לא הצלחתי לענות.';addBot(rep);S.ch.push({role:'assistant',content:rep});
+  }catch(e){const ty=document.getElementById('typ');if(ty)ty.remove();addMsg('❌ שגיאה: '+e.message,'bot err');}
 }
 
 // ── INIT ──
-loadAll();
-updateHdr();
-syncToday();
-// Onboarding if no name
-if(!S.name){setTimeout(()=>document.getElementById('onboarding').style.display='flex',300);}
-// Water reminder
+setupPWA();
+loadAll();updateHdr();syncToday();
+if(!S.name){setTimeout(()=>document.getElementById('onboarding').style.display='flex',400);}
 if(S.reminderMinutes>0){reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);}
 uhome();rfood();rsettings();
 </script>
