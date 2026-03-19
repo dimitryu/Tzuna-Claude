@@ -166,6 +166,11 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .recalc-btn{background:var(--orange-light);color:var(--orange);border:none;border-radius:6px;font-size:.67rem;font-weight:700;padding:2px 7px;cursor:pointer;font-family:'Heebo',sans-serif;}
 .del{background:none;border:none;cursor:pointer;color:#ccc;font-size:.9rem;padding:0 3px;transition:color .2s;}
 .del:hover{color:var(--red);}
+.edit-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:.82rem;padding:0 2px;transition:color .2s;}
+.edit-btn:hover{color:var(--blue);}
+.fi-edit-row{display:flex;gap:5px;padding:6px 11px;background:#f0f9ff;border-radius:10px;border:1px solid var(--blue-light);margin-top:3px;animation:si .2s ease;}
+.fi-edit-row input{flex:1;padding:6px 9px;border:1.5px solid var(--blue-light);border-radius:8px;font-family:'Heebo',sans-serif;font-size:.8rem;outline:none;min-width:0;}
+.fi-edit-row input:focus{border-color:var(--blue);}
 .meal-divider{border:none;border-top:1px dashed var(--border);margin:11px 0;}
 .ai-loading{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;color:var(--green-dark);white-space:nowrap;}
 .spinner{width:13px;height:13px;border:2px solid var(--green-light);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
@@ -236,6 +241,27 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .cup.extra{background:#e8f5ff;border-color:#85c1e9;border-style:dashed;}
 .cup.extra.filled::before{background:linear-gradient(to top,#5dade2,#85c1e9);}
 
+/* ── MENU PAGE ── */
+.pref-btn{background:white;border:2px solid var(--border);color:var(--text-light);padding:5px 10px;border-radius:20px;font-family:'Heebo',sans-serif;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.pref-btn.on{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.menu-mode-btn{flex:1;border:2px solid var(--border);background:white;border-radius:14px;padding:12px 8px;cursor:pointer;text-align:center;transition:all .2s;font-family:'Heebo',sans-serif;color:var(--text-light);}
+.menu-mode-btn.act{border-color:var(--green);background:var(--green-light);color:var(--green-dark);}
+.menu-week{display:flex;flex-direction:column;gap:10px;}
+.menu-day{background:var(--card);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;}
+.menu-day-header{background:linear-gradient(135deg,var(--green-dark),var(--green));color:white;padding:10px 14px;font-weight:900;font-size:.9rem;display:flex;justify-content:space-between;align-items:center;}
+.menu-day-header .day-total{font-size:.75rem;opacity:.85;font-weight:600;}
+.menu-meals{padding:10px 12px;display:flex;flex-direction:column;gap:7px;}
+.menu-meal-row{background:#fafafa;border-radius:10px;padding:9px 11px;border:1px solid var(--border);}
+.menu-meal-type{font-size:.7rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
+.menu-meal-name{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:2px;}
+.menu-meal-meta{font-size:.72rem;color:var(--text-light);}
+.menu-meal-meta span{margin-left:8px;}
+.menu-add-btn{background:var(--green-light);color:var(--green-dark);border:none;border-radius:8px;padding:4px 10px;font-family:'Heebo',sans-serif;font-size:.71rem;font-weight:700;cursor:pointer;float:left;transition:background .2s;}
+.menu-add-btn:hover{background:var(--green);}
+.menu-actions{display:flex;gap:7px;margin-top:10px;padding:0 2px;}
+.saved-menu-item{background:#fafafa;border-radius:10px;padding:10px 12px;border:1px solid var(--border);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;}
+.saved-menu-item:hover{background:var(--green-light);}
+
 @keyframes si{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 </style>
@@ -279,7 +305,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 <!-- ══ APP SHELL ══ -->
 <div class="app-shell">
   <header>
-    <span class="ver-badge">v1.8</span>
+    <span class="ver-badge" id="ver-badge">v2.1</span>
     <h1>🥗 תזונה</h1>
     <!-- date button + real input overlaid (iOS fix) -->
     <div style="position:relative;flex-shrink:0;">
@@ -311,7 +337,10 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
           <div><div style="font-size:.97rem;font-weight:900;" id="greet">שלום!</div><div id="gbadge"></div></div>
-          <div id="moodd" style="font-size:1.5rem;cursor:pointer;" onclick="pg('home')" title="לחץ לשנות מצב רוח">😊</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="streak-badge" style="display:none;background:var(--orange-light);color:var(--orange);font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:20px;"></span>
+            <div id="moodd" style="font-size:1.5rem;cursor:pointer;" onclick="pg('home')" title="לחץ לשנות מצב רוח">😊</div>
+          </div>
         </div>
         <div class="rings-row">
           <div class="ring-wrap">
@@ -452,7 +481,9 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
         <div class="akr"><input type="password" id="akin" placeholder="sk-ant-..."/><button class="btn bg bsm" onclick="saveKey()">שמור ✓</button></div>
       </div>
       <div class="card">
-        <div class="card-title">🤖 יועץ תזונה ואורח חיים בריא</div>
+        <div class="card-title">🤖 יועץ תזונה ואורח חיים בריא
+          <button onclick="clearChat()" style="background:none;border:1px solid var(--border);color:var(--text-light);border-radius:8px;padding:3px 9px;font-size:.68rem;cursor:pointer;font-family:Heebo,sans-serif;">🗑 נקה</button>
+        </div>
         <div class="qq">
           <button class="q" onclick="sq(this)">💪 לעלות במשקל</button>
           <button class="q" onclick="sq(this)">📋 תפריט לשבוע</button>
@@ -560,11 +591,114 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
         <div class="si-row"><div><div class="sl">איפוס מלא</div><div class="ss">מחק הכל (כולל גיבוי אוטומטי)</div></div><button class="btn br bsm" onclick="rstAll()">מחק הכל</button></div>
       </div>
     </div>
+    <!-- ══ MENU PAGE ══ -->
+    <div class="page" id="page-menu">
+
+      <!-- בחירת מצב -->
+      <div class="card" style="padding:12px;">
+        <div class="card-title" style="margin-bottom:10px;">📋 תפריט חכם עם AI</div>
+        <div style="display:flex;gap:8px;">
+          <button class="menu-mode-btn act" id="mode-weekly" onclick="setMenuMode('weekly')">
+            <div style="font-size:1.3rem;">📅</div>
+            <div style="font-size:.78rem;font-weight:700;margin-top:3px;">תפריט שבועי</div>
+            <div style="font-size:.67rem;opacity:.7;">3 ארוחות ליום</div>
+          </button>
+          <button class="menu-mode-btn" id="mode-fridge" onclick="setMenuMode('fridge')">
+            <div style="font-size:1.3rem;">🧊</div>
+            <div style="font-size:.78rem;font-weight:700;margin-top:3px;">מה יש במקרר?</div>
+            <div style="font-size:.67rem;opacity:.7;">ארוחה ממצרכים</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- אפשרות 1: תפריט שבועי -->
+      <div id="panel-weekly" class="card">
+        <div style="font-size:.78rem;color:var(--text-light);line-height:1.6;margin-bottom:11px;">
+          AI יבנה תפריט שבועי מלא לפי המטרות, הגיל והפעילות שלך.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px;margin-bottom:12px;">
+          <div class="ff">
+            <label>מטרה תזונתית</label>
+            <div class="gbs">
+              <button class="gb" id="mg-lose" onclick="setMenuGoal('lose')">📉 לרדת</button>
+              <button class="gb act" id="mg-maintain" onclick="setMenuGoal('maintain')">⚖️ לשמור</button>
+              <button class="gb" id="mg-gain" onclick="setMenuGoal('gain')">📈 לעלות</button>
+            </div>
+          </div>
+          <div class="ff">
+            <label>העדפות אכילה</label>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;" id="diet-prefs">
+              <button class="pref-btn" onclick="togglePref(this,'ללא גלוטן')">🌾 ללא גלוטן</button>
+              <button class="pref-btn" onclick="togglePref(this,'צמחוני')">🥦 צמחוני</button>
+              <button class="pref-btn" onclick="togglePref(this,'טבעוני')">🌱 טבעוני</button>
+              <button class="pref-btn" onclick="togglePref(this,'ללא לקטוז')">🥛 ללא לקטוז</button>
+              <button class="pref-btn" onclick="togglePref(this,'עשיר בחלבון')">💪 עשיר בחלבון</button>
+              <button class="pref-btn" onclick="togglePref(this,'ים תיכוני')">🫒 ים תיכוני</button>
+            </div>
+          </div>
+          <div class="ff">
+            <label>הערות (אופציונלי)</label>
+            <input type="text" id="menu-notes" placeholder="למשל: לא אוהב דגים, אלרגיה לאגוזים..."/>
+          </div>
+        </div>
+        <button class="btn bg bfull" id="gen-menu-btn" onclick="generateMenu()">✨ צור תפריט שבועי</button>
+      </div>
+
+      <!-- אפשרות 2: מצרכים מהמקרר -->
+      <div id="panel-fridge" class="card" style="display:none;">
+        <div style="font-size:.78rem;color:var(--text-light);line-height:1.6;margin-bottom:11px;">
+          כתוב מה יש לך במקרר ו-AI יציע ארוחה טעימה ומזינה מהמצרכים האלו.
+        </div>
+        <div class="ff">
+          <label>מצרכים במקרר / מחסן</label>
+          <textarea id="fridge-ingredients"
+            placeholder="למשל: ביצים, גבינה צהובה, עגבניות, לחם, עוף, אורז, ברוקולי, שמן זית..."
+            style="width:100%;min-height:90px;padding:10px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.85rem;outline:none;resize:vertical;line-height:1.5;"
+            onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        </div>
+        <div class="ff">
+          <label>כמה ארוחות לבנות?</label>
+          <div class="gbs">
+            <button class="gb act" id="fridge-cnt-1" onclick="setFridgeCnt(1)">ארוחה 1</button>
+            <button class="gb" id="fridge-cnt-3" onclick="setFridgeCnt(3)">3 ארוחות</button>
+            <button class="gb" id="fridge-cnt-7" onclick="setFridgeCnt(7)">שבוע</button>
+          </div>
+        </div>
+        <div class="ff" id="fridge-meal-type-wrap">
+          <label>סוג ארוחה</label>
+          <div class="gbs">
+            <button class="gb act" id="fmeal-any" onclick="setFridgeMealType('כלשהי')">🍽️ כלשהי</button>
+            <button class="gb" id="fmeal-break" onclick="setFridgeMealType('בוקר')">🌅 בוקר</button>
+            <button class="gb" id="fmeal-lunch" onclick="setFridgeMealType('צהריים')">☀️ צהריים</button>
+            <button class="gb" id="fmeal-dinner" onclick="setFridgeMealType('ערב')">🌙 ערב</button>
+          </div>
+        </div>
+        <button class="btn bg bfull" id="gen-fridge-btn" onclick="generateFridgeMeal()">🧊 צור ארוחה ממצרכים</button>
+      </div>
+
+      <!-- loading -->
+      <div id="menu-loading" style="display:none;text-align:center;padding:20px;color:var(--green-dark);">
+        <div class="spinner" style="width:24px;height:24px;border-width:3px;margin:0 auto 8px;"></div>
+        <div style="font-size:.85rem;font-weight:600;" id="menu-loading-txt">AI בונה תפריט...</div>
+        <div style="font-size:.75rem;color:var(--text-light);margin-top:4px;">זה לוקח כ-10-20 שניות</div>
+      </div>
+
+      <!-- תוצאת תפריט -->
+      <div id="menu-result" style="display:none;"></div>
+
+      <!-- תפריטים שמורים -->
+      <div id="saved-menus-section" style="display:none;" class="card">
+        <div class="card-title">💾 תפריטים שמורים</div>
+        <div id="saved-menus-list"></div>
+      </div>
+    </div>
+
   </div><!-- /pages-wrap -->
 
   <nav class="bottom-nav">
     <button class="nav-btn active" onclick="pg('home')"><span class="nav-icon">🏠</span>בית</button>
     <button class="nav-btn" onclick="pg('food')"><span class="nav-icon">🍽️</span>אכלתי</button>
+    <button class="nav-btn" onclick="pg('menu')"><span class="nav-icon">📋</span>תפריט</button>
     <button class="nav-btn" onclick="pg('ai')"><span class="nav-icon">🤖</span>יועץ AI</button>
     <button class="nav-btn" onclick="pg('calc')"><span class="nav-icon">🧮</span>מחשבון</button>
     <button class="nav-btn" onclick="pg('settings')"><span class="nav-icon">⚙️</span>הגדרות</button>
@@ -573,7 +707,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 <canvas id="confetti-canvas" style="display:none;"></canvas>
 
 <script>
-const VERSION='1.8';
+const VERSION='2.1';
 const STORAGE_KEY='tzuna_v15';
 // Legacy keys to migrate from (keeps user data across updates)
 const LEGACY_KEYS=['tzuna_v14','tzuna_v13','tz6','tz5','tz4','tz3'];
@@ -586,7 +720,8 @@ const DEFAULT_STATE={
   goal:'maintain',calcGoal:'maintain',mood:'😊',
   historyData:{},streak:0,ch:[],
   reminderMinutes:60,quoteIdx:0,
-  calcSaved:{} // saves calculator inputs
+  calcSaved:{},
+  savedMenus:[]
 };
 let S=JSON.parse(JSON.stringify(DEFAULT_STATE));
 let KEY='';
@@ -680,6 +815,8 @@ function hebrewDate(k){const t=todayKey();if(k===t)return'היום';const y=new 
 
 // ── PERSIST ──
 function saveAll(){
+  // הגבל היסטוריית צ'אט כדי לא לתפוח ב-localStorage
+  if(S.ch&&S.ch.length>20)S.ch=S.ch.slice(-20);
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(S));localStorage.setItem('tzkey',KEY);localStorage.setItem('tzday_v15',todayKey());}catch(e){}
 }
 function loadAll(){
@@ -705,7 +842,7 @@ function loadAll(){
 }
 function syncToday(){
   const k=todayKey();const allF=Object.values(S.meals).flat();const tc=allF.reduce((a,f)=>a+f.cal,0);const tp=allF.reduce((a,f)=>a+(f.prot||0),0);
-  if(tc>0||S.water>0)S.historyData[k]={cal:tc,prot:tp,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals))};
+  if(tc>0||S.water>0)S.historyData[k]={cal:tc,prot:tp,water:S.water,foods:allF.length,meals:JSON.parse(JSON.stringify(S.meals)),mood:S.mood};
   saveAll();
 }
 
@@ -762,14 +899,17 @@ function updateHdr(){
 }
 
 // ── NAV ──
+const NAV_PAGES=['home','food','menu','ai','calc','settings'];
 function pg(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+id).classList.add('active');
-  ['home','food','ai','calc','settings'].forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
-  if(id==='home')uhome();if(id==='food')rfood();if(id==='settings')rsettings();
+  NAV_PAGES.forEach((n,i)=>{if(n===id)document.querySelectorAll('.nav-btn')[i].classList.add('active');});
+  if(id==='home')uhome();
+  if(id==='food')rfood();
+  if(id==='settings')rsettings();
+  if(id==='menu')initMenuPage();
   if(id==='calc'){
-    // שחזר נתוני מחשבון שמורים
     if(S.calcSaved){
       if(S.calcSaved.age)document.getElementById('age').value=S.calcSaved.age;
       if(S.calcSaved.wt)document.getElementById('wt').value=S.calcSaved.wt;
@@ -778,6 +918,9 @@ function pg(id){
     }
     document.getElementById('bm').classList.toggle('act',S.gender==='male');
     document.getElementById('bf').classList.toggle('act',S.gender==='female');
+    ['gl','gm','gg'].forEach(id=>document.getElementById(id).classList.remove('act'));
+    const goalId=S.calcGoal==='lose'?'gl':S.calcGoal==='gain'?'gg':'gm';
+    document.getElementById(goalId).classList.add('act');
   }
   if(id==='ai'){if(!KEY)document.getElementById('apinote').style.display='block';updateChatWelcome();}
 }
@@ -790,6 +933,9 @@ function showQuote(){document.getElementById('quote-text').textContent=QUOTES[S.
 function grt(){const h=new Date().getHours(),n=S.name?`, ${S.name}`:'';if(h<12)return`בוקר טוב${n}! ☀️`;if(h<17)return`צהריים טובים${n}! 🌤️`;return`ערב טוב${n}! 🌙`;}
 function getDD(){if(viewingDate){const d=S.historyData[viewingDate];if(d)return{cal:d.cal,prot:d.prot||0,water:d.water};return{cal:0,prot:0,water:0};}const allF=Object.values(S.meals).flat();return{cal:allF.reduce((a,f)=>a+f.cal,0),prot:allF.reduce((a,f)=>a+(f.prot||0),0),water:S.water};}
 function uhome(){
+  // ver-badge מ-VERSION
+  const vb=document.getElementById('ver-badge');if(vb)vb.textContent='v'+VERSION;
+
   const isToday=!viewingDate;
   document.getElementById('view-banner').style.display=isToday?'none':'block';
   if(!isToday)document.getElementById('view-lbl').textContent=fmtFull(viewingDate);
@@ -797,8 +943,16 @@ function uhome(){
   document.getElementById('mood-card').style.display=isToday?'block':'none';
   const f=S.gender==='female';
   document.getElementById('mood-title').textContent=`😊 איך את${f?'':'ה'} מרגיש${f?'ה':''}?`;
+  // שחזר כפתור מצב רוח
+  document.querySelectorAll('.mood-btn').forEach(b=>{b.classList.toggle('sel',b.textContent.trim()===S.mood);});
   showQuote();
   document.getElementById('greet').textContent=grt();
+
+  // Streak badge
+  const sb=document.getElementById('streak-badge');
+  if(sb&&S.streak>0){sb.style.display='inline';sb.textContent=`🔥 ${S.streak} ימים ברצף`;}
+  else if(sb){sb.style.display='none';}
+
   const{cal,prot,water}=getDD();
 
   // Cal ring (circ=264)
@@ -978,9 +1132,22 @@ function drawChart(){
 }
 function rhist(){
   const el=document.getElementById('hist');const today=todayKey();
-  const keys=Object.keys(S.historyData).sort().reverse();
+  const allKeys=Object.keys(S.historyData).sort().reverse();
+  // הוסף "היום" גם אם אין נתונים עדיין
+  const keys=allKeys.includes(today)?allKeys:[today,...allKeys];
   if(!keys.length){el.innerHTML='<div class="empty"><div class="ei">📅</div><p>אין נתוני ימים עדיין</p></div>';return;}
-  el.innerHTML=keys.map(k=>{const d=S.historyData[k];const isT=k===today;const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;return`<div class="hday${isT?' today':''}" onclick="onDatePick('${k}')"><div><div class="dd">${hebrewDate(k)}${isT?' 📌':''}</div><div style="font-size:.67rem;color:var(--text-light);">${d.foods||0} פריטים • 💧${d.water||0} • ${pct}% מהיעד</div></div><div class="dc">${d.cal||0} קל׳</div></div>`;}).join('');
+  el.innerHTML=keys.map(k=>{
+    const d=S.historyData[k]||{cal:0,prot:0,water:0,foods:0};
+    const isT=k===today;
+    const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;
+    const moodStr=d.mood?` ${d.mood}`:'';
+    const emptyNote=isT&&!d.cal?'<span style="font-size:.65rem;color:var(--text-light);"> — עוד לא הוספת</span>':'';
+    return`<div class="hday${isT?' today':''}" onclick="onDatePick('${k}')">
+      <div><div class="dd">${hebrewDate(k)}${isT?' 📌':''}${moodStr}${emptyNote}</div>
+      <div style="font-size:.67rem;color:var(--text-light);">${d.foods||0} פריטים • 💧${d.water||0}${pct>0?` • ${pct}% מהיעד`:''}</div></div>
+      <div class="dc">${d.cal||0} קל׳</div>
+    </div>`;
+  }).join('');
 }
 
 // ── FOOD ──
@@ -1029,12 +1196,13 @@ function renderMeal(meal){
   document.getElementById('cal-'+meal).textContent=totalCal>0?`${totalCal} קל׳ • 💪${totalProt}g`:'';
   if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.78rem;">—</div>';return;}
   const isToday=!viewingDate;
-  list.innerHTML=items.map((f,i)=>`<li class="fi">
-    <div class="fn">${f.name}${f.fromPhoto?'<span style="font-size:.6rem;color:var(--purple);"> 📷</span>':''}${f.fromVoice?'<span style="font-size:.6rem;color:var(--orange);"> 🎙️</span>':''}</div>
+  list.innerHTML=items.map((f,i)=>`<li class="fi" id="fi-${meal}-${i}">
+    <div class="fn" style="flex:1;min-width:0;">${f.name}${f.fromPhoto?'<span style="font-size:.6rem;color:var(--purple);"> 📷</span>':''}${f.fromVoice?'<span style="font-size:.6rem;color:var(--orange);"> 🎙️</span>':''}</div>
     <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
       <span class="fcal">${f.cal===0&&f.name?'?':f.cal}קל׳</span>
       ${(f.prot||0)>0?`<span style="font-size:.72rem;color:var(--purple);font-weight:700;">💪${f.prot}g</span>`:''}
       ${f.cal===0&&KEY&&isToday?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i},this)">חשב</button>`:''}
+      ${isToday?`<button class="edit-btn" onclick="startEdit('${meal}',${i})" title="ערוך">✏️</button>`:''}
       ${isToday?`<button class="del" onclick="rmItem('${meal}',${i})">✕</button>`:''}
     </div>
   </li>`).join('');
@@ -1052,7 +1220,7 @@ async function addItem(meal){
 async function calcNutritionAI(foodName){
   const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:60,
+    body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:80,
       system:'אתה מחשב קלוריות וחלבון לפי מנה ביתית מתונה. ענה ONLY בפורמט: קלוריות|חלבון_גרם — דוגמה: 280|22 — רק מספרים שלמים, ללא טקסט.',
       messages:[{role:'user',content:`קלוריות וחלבון ב: ${foodName}`}]})});
   const d=await r.json();if(d.error)throw new Error(d.error.message);
@@ -1063,6 +1231,34 @@ async function calcNutritionAI(foodName){
   return{cal,prot};
 }
 function rmItem(meal,i){S.meals[meal].splice(i,1);syncToday();renderMeal(meal);uhome();}
+
+function startEdit(meal,i){
+  const f=S.meals[meal][i];
+  const li=document.getElementById(`fi-${meal}-${i}`);
+  if(!li)return;
+  // הוסף שורת עריכה מתחת
+  const existing=document.getElementById(`edit-${meal}-${i}`);
+  if(existing){existing.remove();return;} // toggle
+  const row=document.createElement('div');
+  row.id=`edit-${meal}-${i}`;row.className='fi-edit-row';
+  row.innerHTML=`
+    <input type="text" id="en-${meal}-${i}" value="${f.name}" placeholder="שם מאכל"/>
+    <input type="number" id="ec-${meal}-${i}" value="${f.cal}" placeholder="קל׳" style="flex:0 0 62px;"/>
+    <input type="number" id="ep-${meal}-${i}" value="${f.prot||0}" placeholder="חלב׳g" style="flex:0 0 58px;"/>
+    <button class="btn bg bsm" onclick="saveEdit('${meal}',${i})" style="padding:5px 10px;font-size:.75rem;">✓</button>
+    <button class="btn bo bsm" onclick="this.parentElement.remove()" style="padding:5px 8px;font-size:.75rem;">✕</button>`;
+  li.insertAdjacentElement('afterend',row);
+  document.getElementById(`en-${meal}-${i}`).focus();
+}
+function saveEdit(meal,i){
+  const name=document.getElementById(`en-${meal}-${i}`).value.trim();
+  const cal=parseInt(document.getElementById(`ec-${meal}-${i}`).value)||0;
+  const prot=parseInt(document.getElementById(`ep-${meal}-${i}`).value)||0;
+  if(!name)return;
+  S.meals[meal][i]={...S.meals[meal][i],name,cal,prot};
+  const row=document.getElementById(`edit-${meal}-${i}`);if(row)row.remove();
+  syncToday();renderMeal(meal);uhome();
+}
 
 // ── CAMERA / GALLERY ──
 function openCamera(meal){imageMeal=meal;document.getElementById('cam-capture').click();}
@@ -1079,7 +1275,7 @@ async function onImageFile(evt){
     try{
       const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,
+        body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:200,
           system:'אתה מזהה אוכל בתמונות ומחשב קלוריות וחלבון לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות|חלבון_גרם — לדוגמה: שניצל עם אורז|420|32',
           messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'מה האוכל בתמונה, כמה קלוריות וכמה חלבון?'}]}]})});
       const data=await r.json();removeLoadingRow(meal);
@@ -1127,7 +1323,7 @@ async function processVoiceText(text,meal){
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:100,
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:100,
         system:'אתה מחשב קלוריות וחלבון ממה שאדם אמר בקול. חלץ שם מאכל וחשב לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות|חלבון_גרם — דוגמה: עוף עם אורז|380|35',
         messages:[{role:'user',content:`אמרתי: "${text}" — מה אכלתי, כמה קלוריות וחלבון?`}]})});
     const data=await r.json();removeLoadingRow(meal);
@@ -1176,11 +1372,16 @@ function sv(k,v){
 function saveKey(){const k=document.getElementById('akin').value.trim();if(!k)return;KEY=k;saveAll();document.getElementById('apinote').style.display='none';addBot('✅ מפתח נשמר! 😊');}
 function saveKeyS(){const k=document.getElementById('skey').value.trim();if(!k)return;KEY=k;saveAll();document.getElementById('kst').textContent='✅ מפתח AI שמור';document.getElementById('apinote').style.display='none';}
 function rstDay(){if(!confirm('למחוק נתוני היום?'))return;autoBackup();S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};S.water=0;delete S.historyData[todayKey()];saveAll();uhome();rfood();toast('נתוני היום נמחקו (גיבוי הורד)','warn');}
-function rstAll(){if(!confirm('למחוק הכל?'))return;autoBackup();localStorage.clear();location.reload();}
+function rstAll(){
+  if(!confirm('למחוק הכל לגמרי? גיבוי יורד קודם.'))return;
+  // הורד גיבוי ורק אחרי 1.5 שניות מחק
+  autoBackup();
+  setTimeout(()=>{localStorage.clear();location.reload();},1500);
+}
 
 // ── CALC ──
 function setG(g){S.gender=g;document.getElementById('bm').classList.toggle('act',g==='male');document.getElementById('bf').classList.toggle('act',g==='female');}
-function setGl(g){S.calcGoal=g;['gl','gm','gg'].forEach(id=>document.getElementById(id).classList.remove('act'));document.getElementById(g==='lose'?'gl':g==='maintain'?'gm':'gg').classList.add('act');}
+function setGl(g){S.calcGoal=g;saveAll();['gl','gm','gg'].forEach(id=>document.getElementById(id).classList.remove('act'));document.getElementById(g==='lose'?'gl':g==='maintain'?'gm':'gg').classList.add('act');}
 function calcTDEE(){
   const a=parseInt(document.getElementById('age').value),w=parseFloat(document.getElementById('wt').value),h=parseFloat(document.getElementById('ht').value),ac=parseFloat(document.getElementById('act').value);
   if(!a||!w||!h){alert('מלא את כל השדות');return;}
@@ -1327,7 +1528,12 @@ function exportWord(keys){
 }
 
 // ── AI CHAT ──
-function updateChatWelcome(){const nm=S.name?`, ${S.name}`:'';const el=document.getElementById('chat-welcome');if(el)el.textContent=`היי${nm}! 👋 אני יועץ התזונה שלך 🥗`;}
+function clearChat(){
+  S.ch=[];saveAll();
+  const area=document.getElementById('chat');
+  area.innerHTML='<div class="msg bot" id="chat-welcome">היי! 👋 אני יועץ התזונה שלך 🥗</div>';
+  updateChatWelcome();
+}const nm=S.name?`, ${S.name}`:'';const el=document.getElementById('chat-welcome');if(el)el.textContent=`היי${nm}! 👋 אני יועץ התזונה שלך 🥗`;}
 async function send(){const inp=document.getElementById('cinp'),txt=inp.value.trim();if(!txt)return;inp.value='';addUser(txt);await getAI(txt);}
 function sq(btn){const t=btn.textContent.trim();addUser(t);getAI(t);}
 function addUser(t){addMsg(t,'user');S.ch.push({role:'user',content:t});}
@@ -1343,12 +1549,388 @@ async function getAI(msg){
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,system:sys,messages:[...S.ch.slice(-8),{role:'user',content:msg}]})});
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:sys,messages:[...S.ch.slice(-8),{role:'user',content:msg}]})});
     const data=await r.json();const e=document.getElementById('typ');if(e)e.remove();
     if(data.error){addMsg('❌ '+data.error.message,'bot err');return;}
     const rep=data.content?.[0]?.text||'לא הצלחתי לענות.';addBot(rep);S.ch.push({role:'assistant',content:rep});
   }catch(e){const ty=document.getElementById('typ');if(ty)ty.remove();addMsg('❌ שגיאה: '+e.message,'bot err');}
 }
+
+// ══════════════════════════════════════
+// ── WEEKLY MENU ──
+// ══════════════════════════════════════
+const DAYS_HE=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
+const MEAL_TYPES_HE={breakfast:'🌅 ארוחת בוקר',lunch:'☀️ ארוחת צהריים',dinner:'🌙 ארוחת ערב',snacks:'🍎 נשנוש'};
+let menuGoal='maintain';
+let menuPrefs=new Set();
+let currentMenu=null;
+
+function initMenuPage(){
+  // סנכרן מטרה עם הגדרות משתמש
+  menuGoal=S.goal||'maintain';
+  ['lose','maintain','gain'].forEach(g=>{
+    const btn=document.getElementById('mg-'+g);
+    if(btn)btn.classList.toggle('act',g===menuGoal);
+  });
+  renderSavedMenus();
+}
+
+// ── MENU MODE ──
+let menuMode='weekly';
+let fridgeCnt=1;
+let fridgeMealType='כלשהי';
+
+function setMenuMode(mode){
+  menuMode=mode;
+  document.getElementById('mode-weekly').classList.toggle('act',mode==='weekly');
+  document.getElementById('mode-fridge').classList.toggle('act',mode==='fridge');
+  document.getElementById('panel-weekly').style.display=mode==='weekly'?'block':'none';
+  document.getElementById('panel-fridge').style.display=mode==='fridge'?'block':'none';
+}
+function setFridgeCnt(n){
+  fridgeCnt=n;
+  [1,3,7].forEach(x=>{const el=document.getElementById('fridge-cnt-'+x);if(el)el.classList.toggle('act',x===n);});
+  // show/hide meal type selector (only for single meal)
+  const wrap=document.getElementById('fridge-meal-type-wrap');
+  if(wrap)wrap.style.display=n===1?'block':'none';
+}
+function setFridgeMealType(t){
+  fridgeMealType=t;
+  ['any','break','lunch','dinner'].forEach(x=>{const el=document.getElementById('fmeal-'+x);if(el)el.classList.remove('act');});
+  const map={כלשהי:'any',בוקר:'break',צהריים:'lunch',ערב:'dinner'};
+  const btn=document.getElementById('fmeal-'+map[t]);if(btn)btn.classList.add('act');
+}
+
+async function generateFridgeMeal(){
+  if(!KEY){document.getElementById('apinote').style.display='block';pg('ai');return;}
+  const ingredients=document.getElementById('fridge-ingredients').value.trim();
+  if(!ingredients){toast('כתוב מה יש לך במקרר 🧊','warn');return;}
+  const btn=document.getElementById('gen-fridge-btn');
+  btn.style.display='none';
+  document.getElementById('menu-loading').style.display='block';
+  document.getElementById('menu-loading-txt').textContent='AI בונה ארוחה מהמצרכים שלך...';
+  document.getElementById('menu-result').style.display='none';
+  const calTarget=S.calGoal||2000;
+  const protTarget=S.protGoal||120;
+  const age=S.calcSaved?.age||16;
+  const gender=S.gender==='female'?'נקבה':'זכר';
+  const f=S.gender==='female';
+  const mealTypeStr=fridgeCnt===1?`ארוחת ${fridgeMealType}`:`${fridgeCnt===3?'3 ארוחות ביום':'תפריט שבועי'} מהמצרכים הזמינים`;
+
+  const prompt=fridgeCnt===1
+    ?`בנה ${mealTypeStr} מהמצרכים הבאים עבור ${f?'נערה':'נער'} בגיל ${age}, מין: ${gender}.
+מצרכים זמינים: ${ingredients}
+יעד קלוריות יומי: ${calTarget}, יעד חלבון: ${protTarget}g
+ענה ב-JSON בלבד:
+{"name":"שם הארוחה","desc":"תיאור קצר של הארוחה","cal":350,"prot":25,"ingredients":["מרכיב 1","מרכיב 2"],"instructions":["שלב 1","שלב 2","שלב 3"]}`
+    :`בנה ${mealTypeStr} מהמצרכים הבאים עבור ${f?'נערה':'נער'} בגיל ${age}, מין: ${gender}.
+מצרכים זמינים: ${ingredients}
+יעד קלוריות יומי: ${calTarget}, יעד חלבון: ${protTarget}g
+ענה ב-JSON בלבד:
+{"summary":"משפט קצר","meals":[{"type":"בוקר/צהריים/ערב","name":"שם","desc":"תיאור","cal":300,"prot":20,"ingredients":["מרכיב 1"]}]}`;
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,
+        system:'אתה תזונאי מקצועי לנוער. ענה תמיד ב-JSON תקני בלבד, ללא שום טקסט מחוצה לו.',
+        messages:[{role:'user',content:prompt}]})
+    });
+    const data=await r.json();
+    document.getElementById('menu-loading').style.display='none';
+    btn.style.display='block';
+    if(data.error)throw new Error(data.error.message);
+    let txt=(data.content?.[0]?.text||'').trim().replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'');
+    const result=JSON.parse(txt);
+    renderFridgeResult(result,ingredients);
+  }catch(e){
+    document.getElementById('menu-loading').style.display='none';
+    btn.style.display='block';
+    document.getElementById('menu-result').innerHTML=`<div class="card" style="color:var(--red);font-size:.85rem;">❌ שגיאה: ${e.message}</div>`;
+    document.getElementById('menu-result').style.display='block';
+  }
+}
+
+function renderFridgeResult(result,ingredients){
+  const el=document.getElementById('menu-result');
+  // Single meal
+  if(result.name){
+    const stepsHtml=(result.instructions||[]).map((s,i)=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem;"><span style="color:var(--green-dark);font-weight:700;">${i+1}.</span> ${s}</div>`).join('');
+    const ingrHtml=(result.ingredients||[]).map(x=>`<span style="background:var(--green-light);color:var(--green-dark);padding:3px 9px;border-radius:12px;font-size:.75rem;">${x}</span>`).join(' ');
+    el.innerHTML=`
+      <div class="card">
+        <div style="font-size:1.1rem;font-weight:900;margin-bottom:4px;">🍳 ${result.name}</div>
+        <div style="font-size:.82rem;color:var(--text-light);margin-bottom:10px;">${result.desc||''}</div>
+        <div style="display:flex;gap:10px;margin-bottom:10px;">
+          <span style="background:var(--green-light);color:var(--green-dark);padding:4px 12px;border-radius:12px;font-size:.8rem;font-weight:700;">🔥 ${result.cal} קל׳</span>
+          <span style="background:var(--purple-light);color:var(--purple);padding:4px 12px;border-radius:12px;font-size:.8rem;font-weight:700;">💪 ${result.prot}g חלבון</span>
+        </div>
+        <div style="margin-bottom:10px;"><div style="font-size:.74rem;font-weight:700;color:var(--text-light);margin-bottom:5px;">מצרכים:</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${ingrHtml}</div></div>
+        ${stepsHtml?`<div style="margin-top:8px;"><div style="font-size:.74rem;font-weight:700;color:var(--text-light);margin-bottom:4px;">הוראות הכנה:</div>${stepsHtml}</div>`:''}
+        <div style="margin-top:12px;display:flex;gap:8px;">
+          <button class="btn bg bsm" onclick="addFridgeMealToday('${result.name}',${result.cal},${result.prot})">+ הוסף ליום</button>
+          <button class="btn bo bsm" onclick="generateFridgeMeal()">🔄 נסה שוב</button>
+        </div>
+      </div>`;
+  } else {
+    // Multiple meals
+    const mealsHtml=(result.meals||[]).map(m=>{
+      const ing=(m.ingredients||[]).map(x=>`<span style="background:var(--green-light);color:var(--green-dark);padding:2px 8px;border-radius:10px;font-size:.7rem;">${x}</span>`).join(' ');
+      return`<div style="padding:10px;background:#fafafa;border-radius:10px;margin-bottom:7px;border:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="flex:1;">
+            <div style="font-size:.72rem;color:var(--text-light);font-weight:700;">${m.type||''}</div>
+            <div style="font-size:.9rem;font-weight:800;">${m.name}</div>
+            <div style="font-size:.78rem;color:var(--text-light);margin:2px 0;">${m.desc||''}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;">${ing}</div>
+          </div>
+          <div style="text-align:left;flex-shrink:0;margin-right:8px;">
+            <div style="font-size:.72rem;color:var(--green-dark);font-weight:700;">🔥${m.cal}</div>
+            <div style="font-size:.72rem;color:var(--purple);font-weight:700;">💪${m.prot}g</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    el.innerHTML=`
+      <div class="card">
+        <div style="font-size:.85rem;color:var(--green-dark);font-weight:600;margin-bottom:10px;">💡 ${result.summary||'ארוחות מהמצרכים שלך'}</div>
+        ${mealsHtml}
+        <button class="btn bo bsm bfull" onclick="generateFridgeMeal()" style="margin-top:4px;">🔄 נסה שוב</button>
+      </div>`;
+  }
+  el.style.display='block';
+}
+function addFridgeMealToday(name,cal,prot){
+  S.meals.snacks.push({name,cal,prot:prot||0});
+  syncToday();toast(`✅ "${name}" נוסף!`,'success');
+}
+
+function setMenuGoal(g){
+  menuGoal=g;
+  ['lose','maintain','gain'].forEach(x=>{
+    document.getElementById('mg-'+x).classList.toggle('act',x===g);
+  });
+}
+
+function togglePref(btn,pref){
+  if(menuPrefs.has(pref)){menuPrefs.delete(pref);btn.classList.remove('on');}
+  else{menuPrefs.add(pref);btn.classList.add('on');}
+}
+
+async function generateMenu(){
+  if(!KEY){document.getElementById('apinote').style.display='block';pg('ai');return;}
+  const btn=document.getElementById('gen-menu-btn');
+  btn.style.display='none';
+  document.getElementById('menu-loading').style.display='block';
+  document.getElementById('menu-loading-txt').textContent='AI בונה תפריט שבועי מותאם אישית...';
+
+  const goalTxt=menuGoal==='lose'?'ירידה במשקל':menuGoal==='gain'?'עלייה במשקל':'שמירה על משקל';
+  const prefsTxt=menuPrefs.size>0?[...menuPrefs].join(', '):'ללא הגבלות מיוחדות';
+  const notes=document.getElementById('menu-notes').value.trim();
+  const calTarget=S.calGoal||2000;
+  const protTarget=S.protGoal||120;
+  const age=S.calcSaved?.age||16;
+  const weight=S.calcSaved?.wt||60;
+  const gender=S.gender==='female'?'נקבה':'זכר';
+  const f=S.gender==='female';
+
+  const prompt=`בנה תפריט שבועי מלא (7 ימים) בעברית עבור ${f?'נערה':'נער'} בגיל ${age}, משקל ${weight}ק"ג, מין: ${gender}.
+מטרה: ${goalTxt}
+יעד קלוריות: ${calTarget} קל'/יום
+יעד חלבון: ${protTarget}g/יום
+העדפות: ${prefsTxt}
+${notes?'הערות: '+notes:''}
+
+ענה אך ורק ב-JSON הבא (ללא טקסט מחוץ ל-JSON):
+{
+  "summary": "משפט קצר על התפריט",
+  "days": [
+    {
+      "day": "ראשון",
+      "meals": {
+        "breakfast": {"name":"שם ארוחה","cal":350,"prot":20,"desc":"תיאור קצר"},
+        "lunch":     {"name":"שם ארוחה","cal":550,"prot":35,"desc":"תיאור קצר"},
+        "dinner":    {"name":"שם ארוחה","cal":500,"prot":30,"desc":"תיאור קצר"},
+        "snacks":    {"name":"שם נשנוש","cal":200,"prot":10,"desc":"תיאור קצר"}
+      },
+      "totalCal": 1600,
+      "totalProt": 95
+    }
+  ]
+}
+בנה בדיוק 7 ימים. הארוחות צריכות להיות מגוונות, טעימות וריאליסטיות.`;
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-5',max_tokens:4000,
+        system:'אתה תזונאי מקצועי לנוער. תמיד ענה ב-JSON תקני בלבד ללא שום טקסט מחוצה לו.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    const data=await r.json();
+    document.getElementById('menu-loading').style.display='none';
+    btn.style.display='block';
+    if(data.error)throw new Error(data.error.message);
+    let txt=(data.content?.[0]?.text||'').trim();
+    // נקה fence אם יש
+    txt=txt.replace(/^```json\s*/,'').replace(/^```\s*/,'').replace(/\s*```$/,'');
+    const menu=JSON.parse(txt);
+    currentMenu=menu;
+    renderMenu(menu);
+  }catch(e){
+    document.getElementById('menu-loading').style.display='none';
+    btn.style.display='block';
+    document.getElementById('menu-result').innerHTML=`<div class="card" style="color:var(--red);font-size:.85rem;">❌ שגיאה: ${e.message}<br><small>נסה שוב או בדוק מפתח API</small></div>`;
+    document.getElementById('menu-result').style.display='block';
+  }
+}
+
+function renderMenu(menu){
+  if(!menu||!menu.days)return;
+  const result=document.getElementById('menu-result');
+  const summaryHtml=menu.summary?`<div class="card" style="background:var(--green-light);border:none;font-size:.85rem;color:var(--green-dark);font-weight:600;">💡 ${menu.summary}</div>`:'';
+
+  const daysHtml=menu.days.map((d,di)=>{
+    const mealsHtml=Object.entries(d.meals||{}).map(([type,m])=>`
+      <div class="menu-meal-row">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div style="flex:1;">
+            <div class="menu-meal-type">${MEAL_TYPES_HE[type]||type}</div>
+            <div class="menu-meal-name">${m.name}</div>
+            ${m.desc?`<div class="menu-meal-meta">${m.desc}</div>`:''}
+            <div class="menu-meal-meta" style="margin-top:3px;">
+              <span>🔥 ${m.cal} קל׳</span>
+              <span>💪 ${m.prot}g</span>
+            </div>
+          </div>
+          <button class="menu-add-btn" onclick='addMenuMealToToday(${JSON.stringify(m).replace(/'/g,"&#39;")}, "${type}")'>+ הוסף להיום</button>
+        </div>
+      </div>`).join('');
+
+    // צבע כותרת לפי יום
+    const colors=['#27ae60','#2980b9','#8e44ad','#e67e22','#e74c3c','#16a085','#d35400'];
+    const col=colors[di%colors.length];
+    return`<div class="menu-day" style="animation:fu .4s ${di*0.06}s both;">
+      <div class="menu-day-header" style="background:${col};">
+        <span>יום ${d.day}</span>
+        <span class="day-total">🔥${d.totalCal||'—'} קל׳ • 💪${d.totalProt||'—'}g</span>
+      </div>
+      <div class="menu-meals">${mealsHtml}</div>
+    </div>`;
+  }).join('');
+
+  result.innerHTML=`
+    ${summaryHtml}
+    <div class="menu-actions">
+      <button class="btn bg bsm" onclick="saveMenu()">💾 שמור תפריט</button>
+      <button class="btn bo bsm" onclick="generateMenu()">🔄 צור מחדש</button>
+      <button class="btn bsm" style="background:var(--purple-light);color:var(--purple);" onclick="exportMenuWord()">📝 Word</button>
+    </div>
+    <div class="menu-week" style="margin-top:8px;">${daysHtml}</div>`;
+  result.style.display='block';
+}
+
+function addMenuMealToToday(meal,mealType){
+  const type=['breakfast','lunch','dinner','snacks'].includes(mealType)?mealType:'snacks';
+  S.meals[type].push({name:meal.name,cal:meal.cal,prot:meal.prot||0});
+  syncToday();
+  toast(`✅ "${meal.name}" נוסף ל${MEAL_TYPES_HE[type]}!`,'success');
+}
+
+// ── SAVE / LOAD MENUS ──
+function saveMenu(){
+  if(!currentMenu)return;
+  if(!S.savedMenus)S.savedMenus=[];
+  const entry={
+    id:Date.now(),
+    date:todayKey(),
+    goal:menuGoal,
+    prefs:[...menuPrefs],
+    menu:currentMenu
+  };
+  S.savedMenus.unshift(entry);
+  if(S.savedMenus.length>5)S.savedMenus.pop(); // שמור עד 5
+  saveAll();
+  renderSavedMenus();
+  toast('תפריט נשמר! 💾','success');
+}
+
+function renderSavedMenus(){
+  if(!S.savedMenus||!S.savedMenus.length){
+    document.getElementById('saved-menus-section').style.display='none';return;
+  }
+  document.getElementById('saved-menus-section').style.display='block';
+  const goalTxt={lose:'ירידה',maintain:'שמירה',gain:'עלייה'};
+  document.getElementById('saved-menus-list').innerHTML=S.savedMenus.map((e,i)=>`
+    <div class="saved-menu-item" onclick="loadSavedMenu(${i})">
+      <div>
+        <div style="font-weight:700;font-size:.85rem;">${e.menu.summary||'תפריט שבועי'}</div>
+        <div style="font-size:.72rem;color:var(--text-light);">${fmtFull(e.date)} • ${goalTxt[e.goal]||'שמירה'}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:.7rem;color:var(--green-dark);">צפה ▶</span>
+        <button class="del" onclick="event.stopPropagation();deleteSavedMenu(${i})">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function loadSavedMenu(i){
+  const entry=S.savedMenus[i];if(!entry)return;
+  currentMenu=entry.menu;
+  renderMenu(entry.menu);
+  document.getElementById('menu-result').scrollIntoView({behavior:'smooth'});
+}
+
+function deleteSavedMenu(i){
+  S.savedMenus.splice(i,1);saveAll();renderSavedMenus();
+}
+
+// ── EXPORT MENU TO WORD ──
+function exportMenuWord(){
+  if(!currentMenu)return;
+  const daysHtml=currentMenu.days.map(d=>{
+    const mealsHtml=Object.entries(d.meals||{}).map(([type,m])=>`
+      <tr>
+        <td style="padding:5px 10px;border:1px solid #ddd;font-weight:600;">${MEAL_TYPES_HE[type]||type}</td>
+        <td style="padding:5px 10px;border:1px solid #ddd;">${m.name}</td>
+        <td style="padding:5px 10px;border:1px solid #ddd;text-align:center;">${m.cal}</td>
+        <td style="padding:5px 10px;border:1px solid #ddd;text-align:center;">${m.prot}g</td>
+        <td style="padding:5px 10px;border:1px solid #ddd;font-size:12px;color:#666;">${m.desc||''}</td>
+      </tr>`).join('');
+    return`<h3 style="color:#27ae60;margin:18px 0 8px;">יום ${d.day} — 🔥${d.totalCal} קל׳ • 💪${d.totalProt}g</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="background:#f0faf5;font-weight:700;">
+        <th style="padding:6px 10px;border:1px solid #ccc;text-align:right;">ארוחה</th>
+        <th style="padding:6px 10px;border:1px solid #ccc;text-align:right;">מה לאכול</th>
+        <th style="padding:6px 10px;border:1px solid #ccc;">קלוריות</th>
+        <th style="padding:6px 10px;border:1px solid #ccc;">חלבון</th>
+        <th style="padding:6px 10px;border:1px solid #ccc;text-align:right;">פרטים</th>
+      </tr>
+      ${mealsHtml}
+    </table>`;
+  }).join('');
+
+  const goalTxt=menuGoal==='lose'?'ירידה במשקל':menuGoal==='gain'?'עלייה במשקל':'שמירה';
+  const html=`<html dir="rtl"><head><meta charset="UTF-8">
+  <style>body{font-family:Arial,sans-serif;direction:rtl;padding:24px;max-width:800px;}h1{color:#27ae60;}h2{color:#2c3e50;}</style>
+  </head><body>
+  <h1>📋 תפריט שבועי — ${S.name||'שלי'}</h1>
+  <p style="color:#555;font-size:13px;">מטרה: ${goalTxt} | יעד: ${S.calGoal} קל׳/יום • ${S.protGoal||120}g חלבון/יום${menuPrefs.size?` | ${[...menuPrefs].join(', ')}`:''}</p>
+  ${currentMenu.summary?`<p style="background:#d5f5e3;padding:10px;border-radius:8px;color:#27ae60;font-weight:600;">💡 ${currentMenu.summary}</p>`:''}
+  ${daysHtml}
+  </body></html>`;
+
+  const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download=`תפריט-שבועי-${todayKey()}.doc`;a.click();
+  toast('קובץ Word הורד ✅','success');
+}
+
+// ══════════════════════════════════════
 
 // ── INIT ──
 setupPWA();
