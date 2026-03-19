@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>תזונה 🥗</title>
 <!-- PWA meta -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -27,28 +27,26 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{height:100%;}
-body{font-family:'Heebo',sans-serif;background:#1a2a1a;color:var(--text);min-height:100vh;display:flex;justify-content:center;align-items:flex-start;}
+body{font-family:'Heebo',sans-serif;background:#1a2a1a;color:var(--text);min-height:100vh;min-height:100dvh;display:flex;justify-content:center;align-items:flex-start;}
 
 /* ── DESKTOP SHELL ── */
 .app-shell{
-  width:100%;max-width:430px;min-height:100vh;
+  width:100%;max-width:430px;
+  height:100vh;height:100dvh;
   background:var(--bg);
-  position:relative;
   display:flex;flex-direction:column;
   box-shadow:0 0 60px rgba(0,0,0,.5);
+  overflow:hidden;
 }
 /* Desktop: show decorative sidebar */
 @media(min-width:900px){
   body{background:linear-gradient(135deg,#0f2010 0%,#1a3a1a 40%,#0a1a0a 100%);align-items:center;padding:20px 0;}
-  .app-shell{border-radius:28px;overflow:hidden;max-height:96vh;flex:none;}
-  .app-shell-inner{overflow-y:auto;height:calc(96vh - 56px);padding-bottom:72px;}
+  .app-shell{border-radius:28px;max-height:96vh;max-height:96dvh;height:96vh;height:96dvh;}
   .bottom-nav{border-radius:0 0 28px 28px;}
-  /* Desktop sidebar info */
   .desktop-side{display:flex!important;}
 }
 @media(max-width:899px){
   .desktop-side{display:none!important;}
-  .app-shell-inner{overflow-y:visible;}
 }
 .desktop-wrap{display:flex;gap:32px;align-items:flex-start;max-width:900px;width:100%;padding:0 20px;}
 .desktop-side{display:none;flex-direction:column;gap:16px;padding-top:24px;color:white;width:200px;flex-shrink:0;}
@@ -62,14 +60,20 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .date-btn{background:rgba(255,255,255,.2);border:none;color:white;font-family:'Heebo',sans-serif;font-size:.7rem;font-weight:700;padding:4px 9px;border-radius:20px;cursor:pointer;flex-shrink:0;line-height:1.4;}
 .date-btn.alt{background:var(--orange);}
 
-.bottom-nav{position:sticky;bottom:0;left:0;right:0;background:white;display:flex;justify-content:space-around;padding:5px 0 9px;box-shadow:0 -3px 16px rgba(0,0,0,.1);z-index:100;flex-shrink:0;}
+.bottom-nav{
+  position:relative;bottom:auto;
+  background:white;display:flex;justify-content:space-around;
+  padding:5px 0;
+  padding-bottom:calc(9px + env(safe-area-inset-bottom, 0px));
+  box-shadow:0 -3px 16px rgba(0,0,0,.1);z-index:100;flex-shrink:0;
+}
 .nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.6rem;color:var(--text-light);background:none;border:none;cursor:pointer;padding:2px 5px;border-radius:10px;min-width:0;}
 .nav-btn.active{color:var(--green-dark);}
 .nav-btn.active .nav-icon{background:var(--green-light);}
 .nav-icon{font-size:1.2rem;padding:5px 6px;border-radius:10px;}
 
-.pages-wrap{flex:1;overflow-y:auto;}
-.page{display:none;padding:0 12px;margin-top:8px;padding-bottom:8px;}
+.pages-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.page{display:none;padding:0 12px;margin-top:8px;padding-bottom:20px;}
 .page.active{display:block;}
 .card{background:var(--card);border-radius:var(--radius);padding:15px;margin-bottom:11px;box-shadow:var(--shadow);}
 .card-title{font-size:.75rem;font-weight:700;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between;}
@@ -275,7 +279,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 <!-- ══ APP SHELL ══ -->
 <div class="app-shell">
   <header>
-    <span class="ver-badge">v1.7</span>
+    <span class="ver-badge">v1.8</span>
     <h1>🥗 תזונה</h1>
     <!-- date button + real input overlaid (iOS fix) -->
     <div style="position:relative;flex-shrink:0;">
@@ -569,7 +573,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 <canvas id="confetti-canvas" style="display:none;"></canvas>
 
 <script>
-const VERSION='1.7';
+const VERSION='1.8';
 const STORAGE_KEY='tzuna_v15';
 // Legacy keys to migrate from (keeps user data across updates)
 const LEGACY_KEYS=['tzuna_v14','tzuna_v13','tz6','tz5','tz4','tz3'];
