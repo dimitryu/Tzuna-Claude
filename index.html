@@ -275,10 +275,15 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 <!-- ══ APP SHELL ══ -->
 <div class="app-shell">
   <header>
-    <span class="ver-badge">v1.6</span>
+    <span class="ver-badge">v1.7</span>
     <h1>🥗 תזונה</h1>
-    <button class="date-btn" id="date-btn" onclick="openDatePicker()">טוען...</button>
-    <input type="date" id="date-inp" style="position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;" onchange="onDatePick(this.value)"/>
+    <!-- date button + real input overlaid (iOS fix) -->
+    <div style="position:relative;flex-shrink:0;">
+      <button class="date-btn" id="date-btn">טוען...</button>
+      <input type="date" id="date-inp"
+        style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;font-size:16px;"
+        onchange="onDatePick(this.value)"/>
+    </div>
   </header>
 
   <div class="pages-wrap">
@@ -498,7 +503,10 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
         </div>
         <div class="ff"><label>יעד קלוריות יומי</label><input type="number" id="scal" placeholder="2000" oninput="sv('calGoal',this.value)"/></div>
         <div class="ff"><label>יעד מים (כוסות)</label><input type="number" id="swat" placeholder="6" oninput="sv('waterGoal',this.value)"/></div>
-        <div class="ff"><label>💪 יעד חלבון יומי (גרם)</label><input type="number" id="sprot" placeholder="120" oninput="sv('protGoal',this.value)"/></div>
+        <div class="ff">
+          <label>💪 יעד חלבון יומי (גרם) <span style="font-size:.68rem;color:var(--green-dark);font-weight:400;">— מחושב אוטומטית מהמחשבון</span></label>
+          <input type="number" id="sprot" placeholder="120" oninput="sv('protGoal',this.value)"/>
+        </div>
         <div class="ff"><label>מטרה</label>
           <div class="goalbts">
             <button class="goalb lose" id="sg-lose" onclick="sv('goal','lose')">📉 לרדת</button>
@@ -561,7 +569,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 <canvas id="confetti-canvas" style="display:none;"></canvas>
 
 <script>
-const VERSION='1.6';
+const VERSION='1.7';
 const STORAGE_KEY='tzuna_v15';
 // Legacy keys to migrate from (keeps user data across updates)
 const LEGACY_KEYS=['tzuna_v14','tzuna_v13','tz6','tz5','tz4','tz3'];
@@ -725,11 +733,26 @@ function showWaterReminder(){
 function dismissWR(){document.getElementById('water-reminder-wrap').innerHTML='';S.water=Math.min(S.water+1,S.waterGoal);syncToday();uhome();}
 
 // ── DATE PICKER ──
-function openDatePicker(){const inp=document.getElementById('date-inp');inp.max=todayKey();inp.value=viewingDate||todayKey();try{inp.showPicker();}catch(e){inp.click();}}
-function onDatePick(val){if(!val)return;if(val===todayKey()){backToToday();return;}viewingDate=val;updateHdr();uhome();}
-function backToToday(){viewingDate=null;updateHdr();uhome();}
+function initDateInput(){
+  const inp=document.getElementById('date-inp');
+  inp.max=todayKey();
+  inp.value=viewingDate||todayKey();
+}
+function onDatePick(val){
+  if(!val)return;
+  if(val===todayKey()){backToToday();return;}
+  viewingDate=val;
+  updateHdr();
+  uhome();
+  // Also refresh food page if visible
+  if(document.getElementById('page-food').classList.contains('active'))rfood();
+}
+function backToToday(){viewingDate=null;updateHdr();uhome();if(document.getElementById('page-food').classList.contains('active'))rfood();}
 function updateHdr(){
   const btn=document.getElementById('date-btn');
+  const inp=document.getElementById('date-inp');
+  inp.max=todayKey();
+  inp.value=viewingDate||todayKey();
   if(viewingDate){btn.textContent=fmtFull(viewingDate);btn.classList.add('alt');}
   else{const d=new Date();const mn=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];btn.textContent=`${d.getDate()} ${mn[d.getMonth()]}`;btn.classList.remove('alt');}
 }
@@ -958,20 +981,57 @@ function rhist(){
 
 // ── FOOD ──
 const ML={breakfast:'ארוחת בוקר',lunch:'ארוחת צהריים',dinner:'ארוחת ערב',snacks:'נשנושים'};
-function rfood(){['breakfast','lunch','dinner','snacks'].forEach(m=>renderMeal(m));}
+
+function getMealsForDisplay(){
+  // Today → S.meals. Past date → historyData
+  if(viewingDate){
+    const d=S.historyData[viewingDate];
+    return d?.meals||{breakfast:[],lunch:[],dinner:[],snacks:[]};
+  }
+  return S.meals;
+}
+
+function rfood(){
+  const isToday=!viewingDate;
+  // Show/hide input controls depending on whether we're viewing today or past
+  ['breakfast','lunch','dinner','snacks'].forEach(m=>{
+    const row=document.getElementById('inp-'+m)?.parentElement;
+    if(row) row.style.display=isToday?'flex':'none';
+  });
+  // Banner for past date
+  let banner=document.getElementById('food-date-banner');
+  if(!banner){
+    banner=document.createElement('div');
+    banner.id='food-date-banner';
+    banner.style.cssText='background:var(--orange);color:white;border-radius:12px;padding:9px 13px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;font-size:.82rem;font-weight:700;';
+    const card=document.querySelector('#page-food .card');
+    card.insertBefore(banner,card.firstChild);
+  }
+  if(!isToday){
+    banner.style.display='flex';
+    banner.innerHTML=`<span>📅 צופה ב: ${fmtFull(viewingDate)}</span><button onclick="backToToday();pg('food')" style="background:rgba(255,255,255,.25);border:none;color:white;padding:4px 10px;border-radius:16px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:700;font-size:.75rem;">חזור להיום</button>`;
+  } else {
+    banner.style.display='none';
+  }
+  ['breakfast','lunch','dinner','snacks'].forEach(m=>renderMeal(m));
+}
+
 function renderMeal(meal){
-  const list=document.getElementById('list-'+meal);const items=S.meals[meal]||[];
+  const list=document.getElementById('list-'+meal);
+  const meals=getMealsForDisplay();
+  const items=(meals[meal])||[];
   const totalCal=items.reduce((a,f)=>a+f.cal,0);
   const totalProt=items.reduce((a,f)=>a+(f.prot||0),0);
   document.getElementById('cal-'+meal).textContent=totalCal>0?`${totalCal} קל׳ • 💪${totalProt}g`:'';
   if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.78rem;">—</div>';return;}
+  const isToday=!viewingDate;
   list.innerHTML=items.map((f,i)=>`<li class="fi">
     <div class="fn">${f.name}${f.fromPhoto?'<span style="font-size:.6rem;color:var(--purple);"> 📷</span>':''}${f.fromVoice?'<span style="font-size:.6rem;color:var(--orange);"> 🎙️</span>':''}</div>
     <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
       <span class="fcal">${f.cal===0&&f.name?'?':f.cal}קל׳</span>
       ${(f.prot||0)>0?`<span style="font-size:.72rem;color:var(--purple);font-weight:700;">💪${f.prot}g</span>`:''}
-      ${f.cal===0&&KEY?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i},this)">חשב</button>`:''}
-      <button class="del" onclick="rmItem('${meal}',${i})">✕</button>
+      ${f.cal===0&&KEY&&isToday?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i},this)">חשב</button>`:''}
+      ${isToday?`<button class="del" onclick="rmItem('${meal}',${i})">✕</button>`:''}
     </div>
   </li>`).join('');
 }
@@ -1121,14 +1181,55 @@ function calcTDEE(){
   const a=parseInt(document.getElementById('age').value),w=parseFloat(document.getElementById('wt').value),h=parseFloat(document.getElementById('ht').value),ac=parseFloat(document.getElementById('act').value);
   if(!a||!w||!h){alert('מלא את כל השדות');return;}
   // שמור נתוני מחשבון
-  S.calcSaved={age:a,wt:w,ht:h,act:ac};saveAll();
-  let bmr=S.gender==='male'?10*w+6.25*h-5*a+5:10*w+6.25*h-5*a-161;const tdee=Math.round(bmr*ac);let t,cls,txt,ic;
-  if(S.calcGoal==='lose'){t=tdee-500;cls='lr';txt='ירידה במשקל';ic='📉';}else if(S.calcGoal==='gain'){t=tdee+400;cls='gr';txt='עלייה במשקל';ic='📈';}else{t=tdee;cls='';txt='שמירה';ic='⚖️';}
+  S.calcSaved={age:a,wt:w,ht:h,act:ac};
+
+  // חישוב קלוריות (Mifflin-St Jeor)
+  let bmr=S.gender==='male'?10*w+6.25*h-5*a+5:10*w+6.25*h-5*a-161;
+  const tdee=Math.round(bmr*ac);
+
+  // חישוב חלבון מומלץ לפי פרמטרים:
+  // ילדים/נוער פעיל: 1.4–2.0 g/kg
+  // מבוגרים פעילים: 1.2–1.8 g/kg
+  // יושבני: 0.8–1.0 g/kg
+  let protPerKg;
+  if(ac<=1.2) protPerKg=0.9;
+  else if(ac<=1.375) protPerKg=1.2;
+  else if(ac<=1.55) protPerKg=1.6;
+  else if(ac<=1.725) protPerKg=1.8;
+  else protPerKg=2.0;
+  // גיל: נוער עלול לצרוך יותר
+  if(a<18) protPerKg=Math.min(protPerKg+0.2, 2.2);
+  // מטרה
+  if(S.calcGoal==='gain') protPerKg=Math.min(protPerKg+0.2, 2.2);
+  if(S.calcGoal==='lose') protPerKg=Math.max(protPerKg, 1.4);
+  const protGoalCalc=Math.round(w*protPerKg);
+
+  let t,cls,txt,ic;
+  if(S.calcGoal==='lose'){t=tdee-500;cls='lr';txt='ירידה במשקל';ic='📉';}
+  else if(S.calcGoal==='gain'){t=tdee+400;cls='gr';txt='עלייה במשקל';ic='📈';}
+  else{t=tdee;cls='';txt='שמירה';ic='⚖️';}
+
+  // שמור ועדכן יעד חלבון אוטומטי
+  S.protGoal=protGoalCalc;
+  saveAll();
+  // עדכן שדה בהגדרות
+  const protEl=document.getElementById('sprot');if(protEl)protEl.value=protGoalCalc;
+
   const el=document.getElementById('cres');el.style.display='block';
-  el.innerHTML=`<div class="rb ${cls}"><div style="font-size:1.4rem;">${ic}</div><div class="rc">${t}</div><div style="font-size:.8rem;opacity:.9;">קלוריות ביום – ${txt}</div><div style="font-size:.71rem;opacity:.7;margin-top:2px;">TDEE: ${tdee}</div><button class="btn" style="margin-top:10px;background:rgba(255,255,255,.25);color:white;font-size:.78rem;" onclick="applyG(${t},'${S.calcGoal}')">🎯 הגדר כיעד שלי</button></div>`;
+  el.innerHTML=`<div class="rb ${cls}">
+    <div style="font-size:1.4rem;">${ic}</div>
+    <div class="rc">${t}</div>
+    <div style="font-size:.8rem;opacity:.9;">קלוריות ביום – ${txt}</div>
+    <div style="font-size:.73rem;opacity:.75;margin-top:4px;">TDEE: ${tdee} קל׳/יום</div>
+    <div style="font-size:.75rem;opacity:.9;margin-top:6px;background:rgba(255,255,255,.2);border-radius:10px;padding:6px 10px;">
+      💪 יעד חלבון מומלץ: <strong>${protGoalCalc}g</strong>/יום<br>
+      <span style="font-size:.68rem;opacity:.8;">(${protPerKg.toFixed(1)}g לכל ק"ג משקל גוף)</span>
+    </div>
+    <button class="btn" style="margin-top:10px;background:rgba(255,255,255,.25);color:white;font-size:.78rem;" onclick="applyG(${t},'${S.calcGoal}',${protGoalCalc})">🎯 הגדר כיעדים שלי</button>
+  </div>`;
   rtips(S.calcGoal,w);
 }
-function applyG(c,g){S.calGoal=c;S.goal=g;saveAll();uhome();toast(`✅ יעד ${c} קלוריות הוגדר!`,'success');}
+function applyG(c,g,prot){S.calGoal=c;S.goal=g;if(prot){S.protGoal=prot;const el=document.getElementById('sprot');if(el)el.value=prot;}saveAll();uhome();toast(`✅ יעדים הוגדרו: ${c} קל׳ • 💪${prot||S.protGoal}g`,'success');}
 function rtips(goal,w){
   const t={gain:['🥚 5-6 ארוחות ביום',`🥩 ${Math.round((w||60)*1.8)}g חלבון ביום`,'🥜 שומנים בריאים: אגוזים, אבוקדו','🥛 שייק חלבון אחרי אימון','🍚 פחמימות מורכבות','💪 אימוני כוח 3-4×/שבוע'],
     lose:['🥗 חלבון בכל ארוחה','🥦 ירקות בכל צלחת','💧 מים לפני כל ארוחה','🚶 30 דקות הליכה ביום','⏰ ארוחות קטנות כל 3-4 שעות','🚫 הימנע ממשקאות ממותקים'],
@@ -1247,7 +1348,7 @@ async function getAI(msg){
 
 // ── INIT ──
 setupPWA();
-loadAll();updateHdr();syncToday();
+loadAll();updateHdr();initDateInput();syncToday();
 if(!S.name){setTimeout(()=>document.getElementById('onboarding').style.display='flex',400);}
 if(S.reminderMinutes>0){reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);}
 // ── WATER GOAL STATE ── (init confetti flag)
