@@ -164,6 +164,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 .fn{font-weight:600;font-size:.82rem;flex:1;min-width:0;margin-left:4px;}
 .fcal{font-weight:900;color:var(--green-dark);font-size:.82rem;white-space:nowrap;margin:0 3px;}
 .recalc-btn{background:var(--orange-light);color:var(--orange);border:none;border-radius:6px;font-size:.67rem;font-weight:700;padding:2px 7px;cursor:pointer;font-family:'Heebo',sans-serif;}
+.recalc-all-btn{background:var(--orange);color:white;border:none;border-radius:6px;font-size:.66rem;font-weight:700;padding:2px 8px;cursor:pointer;font-family:'Heebo',sans-serif;margin-right:4px;}
 .del{background:none;border:none;cursor:pointer;color:#ccc;font-size:.9rem;padding:0 3px;transition:color .2s;}
 .del:hover{color:var(--red);}
 .edit-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:.82rem;padding:0 2px;transition:color .2s;}
@@ -1186,21 +1187,54 @@ function renderMeal(meal){
   const items=(meals[meal])||[];
   const totalCal=items.reduce((a,f)=>a+f.cal,0);
   const totalProt=items.reduce((a,f)=>a+(f.prot||0),0);
-  document.getElementById('cal-'+meal).textContent=totalCal>0?`${totalCal} קל׳ • 💪${totalProt}g`:'';
-  if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.78rem;">—</div>';return;}
+
+  // ספור כמה פריטים חסר להם cal או prot
   const isToday=!viewingDate;
-  list.innerHTML=items.map((f,i)=>`<li class="fi" id="fi-${meal}-${i}">
+  const missingCount=isToday&&KEY?items.filter(f=>f.cal===0||f.prot===0).length:0;
+  const calTxt=totalCal>0?`${totalCal} קל׳ • 💪${totalProt}g`:'';
+  // כותרת ארוחה עם כפתור "חשב חסרים" אם יש
+  const totalEl=document.getElementById('cal-'+meal);
+  if(totalEl){
+    totalEl.innerHTML=calTxt+(missingCount>0&&KEY?
+      ` <button class="recalc-all-btn" onclick="recalcAllMissing('${meal}',this)">⚡ חשב ${missingCount} חסרים</button>`:
+      '');
+  }
+
+  if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.78rem;">—</div>';return;}
+
+  list.innerHTML=items.map((f,i)=>{
+    // הצג כפתור "חשב" כשחסרים קלוריות או חלבון
+    const needsCalc=isToday&&KEY&&(f.cal===0||f.prot===0);
+    return `<li class="fi" id="fi-${meal}-${i}">
     <div class="fn" style="flex:1;min-width:0;">${f.name}${f.fromPhoto?'<span style="font-size:.6rem;color:var(--purple);"> 📷</span>':''}${f.fromVoice?'<span style="font-size:.6rem;color:var(--orange);"> 🎙️</span>':''}</div>
     <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
       <span class="fcal">${f.cal===0&&f.name?'?':f.cal}קל׳</span>
       ${(f.prot||0)>0?`<span style="font-size:.72rem;color:var(--purple);font-weight:700;">💪${f.prot}g</span>`:''}
-      ${f.cal===0&&KEY&&isToday?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i},this)">חשב</button>`:''}
+      ${needsCalc?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i},this)">חשב</button>`:''}
       ${isToday?`<button class="edit-btn" onclick="startEdit('${meal}',${i})" title="ערוך">✏️</button>`:''}
       ${isToday?`<button class="del" onclick="rmItem('${meal}',${i})">✕</button>`:''}
     </div>
-  </li>`).join('');
+  </li>`;
+  }).join('');
 }
 async function recalcItem(meal,idx,btn){const item=S.meals[meal][idx];if(!item||!KEY)return;const orig=btn.textContent;btn.textContent='...';btn.disabled=true;try{const{cal,prot}=await calcNutritionAI(item.name);S.meals[meal][idx].cal=cal;S.meals[meal][idx].prot=prot;syncToday();renderMeal(meal);uhome();}catch(e){btn.textContent=orig;btn.disabled=false;}}
+
+async function recalcAllMissing(meal,btn){
+  if(!KEY)return;
+  const items=S.meals[meal];
+  const missing=items.map((f,i)=>({f,i})).filter(({f})=>f.cal===0||f.prot===0);
+  if(!missing.length){toast('אין פריטים חסרים ✅','success');return;}
+  btn.textContent='⏳ מחשב...';btn.disabled=true;
+  let fixed=0;
+  for(const {f,i} of missing){
+    try{
+      const{cal,prot}=await calcNutritionAI(f.name);
+      S.meals[meal][i].cal=cal;S.meals[meal][i].prot=prot;fixed++;
+    }catch(e){}
+  }
+  syncToday();renderMeal(meal);uhome();
+  toast(`✅ חושבו ${fixed} פריטים`,'success');
+}
 function addLoadingRow(meal,label){const list=document.getElementById('list-'+meal);const li=document.createElement('li');li.className='fi loading loading-tmp';li.innerHTML=`<div class="fn">${label}</div><div class="ai-loading"><div class="spinner"></div>מחשב...</div>`;list.appendChild(li);}
 function removeLoadingRow(meal){const li=document.getElementById('list-'+meal).querySelector('.loading-tmp');if(li)li.remove();}
 async function addItem(meal){
@@ -1290,17 +1324,78 @@ async function onImageFile(evt){
 
 // ── VOICE ──
 function toggleVoice(meal){if(isRecording&&voiceMeal===meal){stopVoice();}else{if(isRecording)stopVoice();startVoice(meal);}}
-function startVoice(meal){
-  voiceMeal=meal;const micBtn=document.getElementById('mic-'+meal);
+
+async function startVoice(meal){
+  voiceMeal=meal;
+  const micBtn=document.getElementById('mic-'+meal);
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){toast('הדפדפן לא תומך בהקלטה — כתוב ידנית','warn');return;}
-  speechRecognition=new SR();speechRecognition.lang='he-IL';speechRecognition.continuous=false;speechRecognition.interimResults=false;
-  isRecording=true;micBtn.classList.add('recording');micBtn.textContent='⏹️';
+
+  // iOS/iPhone: בקש הרשאת מיקרופון ידנית לפני SpeechRecognition
+  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      // הרשות ניתנה — עצור את ה-stream ותן ל-SpeechRecognition לפתוח מחדש
+      stream.getTracks().forEach(t=>t.stop());
+    }catch(err){
+      toast('לא ניתנה הרשאת מיקרופון — אפשר בהגדרות הטלפון','warn');
+      voiceMeal=null;return;
+    }
+  }
+
+  if(!SR){
+    // fallback — modal עם שדה טקסט
+    showVoiceFallback(meal);return;
+  }
+
+  speechRecognition=new SR();
+  speechRecognition.lang='he-IL';
+  speechRecognition.continuous=false;
+  speechRecognition.interimResults=false;
+  isRecording=true;
+  micBtn.classList.add('recording');micBtn.textContent='⏹️';
   toast('🎙️ מקשיב... לחץ/י שוב לעצירה','water');
-  speechRecognition.onresult=e=>{const t=e.results[0][0].transcript;stopVoice();processVoiceText(t,meal);};
-  speechRecognition.onerror=e=>{stopVoice();toast('שגיאה: '+e.error,'');};
+
+  speechRecognition.onresult=e=>{
+    const t=e.results[0][0].transcript;stopVoice();processVoiceText(t,meal);
+  };
+  speechRecognition.onerror=e=>{
+    stopVoice();
+    if(e.error==='not-allowed')toast('לא ניתנה הרשאת מיקרופון','warn');
+    else if(e.error==='no-speech')toast('לא זוהתה דיבור — נסה שוב','warn');
+    else if(e.error==='network')showVoiceFallback(meal);
+    else toast('שגיאה: '+e.error,'');
+  };
   speechRecognition.onend=()=>{if(isRecording)stopVoice();};
-  speechRecognition.start();
+
+  try{speechRecognition.start();}
+  catch(e){stopVoice();showVoiceFallback(meal);}
+}
+
+function showVoiceFallback(meal){
+  // fallback לאייפון ישן — modal עם שדה כתיבה
+  const d=document.createElement('div');
+  d.className='overlay';d.id='voice-fallback';
+  d.style.zIndex='400';
+  d.innerHTML=`<div class="modal" style="max-width:320px;">
+    <div style="font-size:1.5rem;text-align:center;margin-bottom:6px;">🎙️</div>
+    <h2 style="margin-bottom:6px;">הקלטה קולית</h2>
+    <p style="margin-bottom:12px;">הדפדפן לא תומך בהקלטה — כתוב/י מה אכלת:</p>
+    <input type="text" id="voice-fallback-inp" placeholder="למשל: שניצל עם אורז..."
+      style="width:100%;padding:10px 12px;border:2px solid var(--green);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.9rem;outline:none;margin-bottom:12px;direction:rtl;"/>
+    <div style="display:flex;gap:8px;">
+      <button class="btn bg" style="flex:1;" onclick="submitVoiceFallback('${meal}')">✓ הוסף</button>
+      <button class="btn bo" onclick="document.getElementById('voice-fallback').remove()">ביטול</button>
+    </div>
+  </div>`;
+  document.body.appendChild(d);
+  setTimeout(()=>document.getElementById('voice-fallback-inp')?.focus(),100);
+}
+
+function submitVoiceFallback(meal){
+  const inp=document.getElementById('voice-fallback-inp');
+  const text=inp?.value.trim();
+  document.getElementById('voice-fallback')?.remove();
+  if(text)processVoiceText(text,meal);
 }
 function stopVoice(){
   isRecording=false;
