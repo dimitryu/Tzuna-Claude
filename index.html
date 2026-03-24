@@ -1147,23 +1147,45 @@ function rhist(){
 // ── FOOD ──
 const ML={breakfast:'ארוחת בוקר',lunch:'ארוחת צהריים',dinner:'ארוחת ערב',snacks:'נשנושים'};
 
-function getMealsForDisplay(){
-  // Today → S.meals. Past date → historyData
+// מחזיר את אובייקט הארוחות הפעיל (היום או תאריך נבחר) — לקריאה וכתיבה
+function getActiveMeals(){
   if(viewingDate){
-    const d=S.historyData[viewingDate];
-    return d?.meals||{breakfast:[],lunch:[],dinner:[],snacks:[]};
+    if(!S.historyData[viewingDate])
+      S.historyData[viewingDate]={cal:0,prot:0,water:0,foods:0,meals:{breakfast:[],lunch:[],dinner:[],snacks:[]}};
+    if(!S.historyData[viewingDate].meals)
+      S.historyData[viewingDate].meals={breakfast:[],lunch:[],dinner:[],snacks:[]};
+    return S.historyData[viewingDate].meals;
   }
   return S.meals;
 }
 
+// שמור את הנתונים לתאריך הנכון
+function syncActiveDate(){
+  if(viewingDate){
+    const meals=S.historyData[viewingDate]?.meals||{};
+    const allF=Object.values(meals).flat();
+    const tc=allF.reduce((a,f)=>a+f.cal,0);
+    const tp=allF.reduce((a,f)=>a+(f.prot||0),0);
+    S.historyData[viewingDate]={
+      ...S.historyData[viewingDate],
+      cal:tc,prot:tp,foods:allF.length,
+      meals:JSON.parse(JSON.stringify(meals))
+    };
+    saveAll();
+  } else {
+    syncToday();
+  }
+}
+
+function getMealsForDisplay(){return getActiveMeals();}
+
 function rfood(){
-  const isToday=!viewingDate;
-  // Show/hide input controls depending on whether we're viewing today or past
+  // תמיד הצג שורות הכנסה — גם בתאריכים ישנים
   ['breakfast','lunch','dinner','snacks'].forEach(m=>{
     const row=document.getElementById('inp-'+m)?.parentElement;
-    if(row) row.style.display=isToday?'flex':'none';
+    if(row) row.style.display='flex';
   });
-  // Banner for past date
+  // Banner לתאריך שנבחר
   let banner=document.getElementById('food-date-banner');
   if(!banner){
     banner=document.createElement('div');
@@ -1172,9 +1194,9 @@ function rfood(){
     const card=document.querySelector('#page-food .card');
     card.insertBefore(banner,card.firstChild);
   }
-  if(!isToday){
+  if(viewingDate){
     banner.style.display='flex';
-    banner.innerHTML=`<span>📅 צופה ב: ${fmtFull(viewingDate)}</span><button onclick="backToToday();pg('food')" style="background:rgba(255,255,255,.25);border:none;color:white;padding:4px 10px;border-radius:16px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:700;font-size:.75rem;">חזור להיום</button>`;
+    banner.innerHTML=`<span>📅 עורך: ${fmtFull(viewingDate)}</span><button onclick="backToToday();pg('food')" style="background:rgba(255,255,255,.25);border:none;color:white;padding:4px 10px;border-radius:16px;cursor:pointer;font-family:Heebo,sans-serif;font-weight:700;font-size:.75rem;">חזור להיום</button>`;
   } else {
     banner.style.display='none';
   }
@@ -1189,8 +1211,7 @@ function renderMeal(meal){
   const totalProt=items.reduce((a,f)=>a+(f.prot||0),0);
 
   // ספור כמה פריטים חסר להם cal או prot
-  const isToday=!viewingDate;
-  const missingCount=isToday&&KEY?items.filter(f=>f.cal===0||f.prot===0).length:0;
+  const missingCount=KEY?items.filter(f=>f.cal===0||f.prot===0).length:0;
   const calTxt=totalCal>0?`${totalCal} קל׳ • 💪${totalProt}g`:'';
   // כותרת ארוחה עם כפתור "חשב חסרים" אם יש
   const totalEl=document.getElementById('cal-'+meal);
@@ -1203,46 +1224,48 @@ function renderMeal(meal){
   if(!items.length){list.innerHTML='<div style="text-align:center;padding:6px;color:#ccc;font-size:.78rem;">—</div>';return;}
 
   list.innerHTML=items.map((f,i)=>{
-    // הצג כפתור "חשב" כשחסרים קלוריות או חלבון
-    const needsCalc=isToday&&KEY&&(f.cal===0||f.prot===0);
+    const needsCalc=KEY&&(f.cal===0||f.prot===0);
     return `<li class="fi" id="fi-${meal}-${i}">
     <div class="fn" style="flex:1;min-width:0;">${f.name}${f.fromPhoto?'<span style="font-size:.6rem;color:var(--purple);"> 📷</span>':''}${f.fromVoice?'<span style="font-size:.6rem;color:var(--orange);"> 🎙️</span>':''}</div>
     <div style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
       <span class="fcal">${f.cal===0&&f.name?'?':f.cal}קל׳</span>
       ${(f.prot||0)>0?`<span style="font-size:.72rem;color:var(--purple);font-weight:700;">💪${f.prot}g</span>`:''}
       ${needsCalc?`<button class="recalc-btn" onclick="recalcItem('${meal}',${i},this)">חשב</button>`:''}
-      ${isToday?`<button class="edit-btn" onclick="startEdit('${meal}',${i})" title="ערוך">✏️</button>`:''}
-      ${isToday?`<button class="del" onclick="rmItem('${meal}',${i})">✕</button>`:''}
+      <button class="edit-btn" onclick="startEdit('${meal}',${i})" title="ערוך">✏️</button>
+      <button class="del" onclick="rmItem('${meal}',${i})">✕</button>
     </div>
   </li>`;
   }).join('');
 }
-async function recalcItem(meal,idx,btn){const item=S.meals[meal][idx];if(!item||!KEY)return;const orig=btn.textContent;btn.textContent='...';btn.disabled=true;try{const{cal,prot}=await calcNutritionAI(item.name);S.meals[meal][idx].cal=cal;S.meals[meal][idx].prot=prot;syncToday();renderMeal(meal);uhome();}catch(e){btn.textContent=orig;btn.disabled=false;}}
+async function recalcItem(meal,idx,btn){
+  const meals=getActiveMeals();const item=meals[meal][idx];
+  if(!item||!KEY)return;const orig=btn.textContent;btn.textContent='...';btn.disabled=true;
+  try{const{cal,prot}=await calcNutritionAI(item.name);meals[meal][idx].cal=cal;meals[meal][idx].prot=prot;syncActiveDate();renderMeal(meal);uhome();}
+  catch(e){btn.textContent=orig;btn.disabled=false;}
+}
 
 async function recalcAllMissing(meal,btn){
   if(!KEY)return;
-  const items=S.meals[meal];
+  const meals=getActiveMeals();const items=meals[meal];
   const missing=items.map((f,i)=>({f,i})).filter(({f})=>f.cal===0||f.prot===0);
   if(!missing.length){toast('אין פריטים חסרים ✅','success');return;}
   btn.textContent='⏳ מחשב...';btn.disabled=true;
   let fixed=0;
-  for(const {f,i} of missing){
-    try{
-      const{cal,prot}=await calcNutritionAI(f.name);
-      S.meals[meal][i].cal=cal;S.meals[meal][i].prot=prot;fixed++;
-    }catch(e){}
+  for(const{f,i}of missing){
+    try{const{cal,prot}=await calcNutritionAI(f.name);meals[meal][i].cal=cal;meals[meal][i].prot=prot;fixed++;}catch(e){}
   }
-  syncToday();renderMeal(meal);uhome();
+  syncActiveDate();renderMeal(meal);uhome();
   toast(`✅ חושבו ${fixed} פריטים`,'success');
 }
 function addLoadingRow(meal,label){const list=document.getElementById('list-'+meal);const li=document.createElement('li');li.className='fi loading loading-tmp';li.innerHTML=`<div class="fn">${label}</div><div class="ai-loading"><div class="spinner"></div>מחשב...</div>`;list.appendChild(li);}
 function removeLoadingRow(meal){const li=document.getElementById('list-'+meal).querySelector('.loading-tmp');if(li)li.remove();}
 async function addItem(meal){
   const inp=document.getElementById('inp-'+meal);const name=inp.value.trim();if(!name)return;inp.value='';
-  if(!KEY){S.meals[meal].push({name,cal:0,prot:0});syncToday();renderMeal(meal);uhome();document.getElementById('apinote').style.display='block';return;}
+  const meals=getActiveMeals();
+  if(!KEY){meals[meal].push({name,cal:0,prot:0});syncActiveDate();renderMeal(meal);uhome();document.getElementById('apinote').style.display='block';return;}
   addLoadingRow(meal,name);
-  try{const{cal,prot}=await calcNutritionAI(name);removeLoadingRow(meal);S.meals[meal].push({name,cal,prot});syncToday();renderMeal(meal);uhome();}
-  catch(e){removeLoadingRow(meal);S.meals[meal].push({name,cal:0,prot:0});syncToday();renderMeal(meal);uhome();}
+  try{const{cal,prot}=await calcNutritionAI(name);removeLoadingRow(meal);meals[meal].push({name,cal,prot});syncActiveDate();renderMeal(meal);uhome();}
+  catch(e){removeLoadingRow(meal);meals[meal].push({name,cal:0,prot:0});syncActiveDate();renderMeal(meal);uhome();}
 }
 async function calcNutritionAI(foodName){
   const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
@@ -1257,15 +1280,14 @@ async function calcNutritionAI(foodName){
   const prot=parseInt((parts[1]||'0').replace(/[^\d]/g,''))||0;
   return{cal,prot};
 }
-function rmItem(meal,i){S.meals[meal].splice(i,1);syncToday();renderMeal(meal);uhome();}
+function rmItem(meal,i){const meals=getActiveMeals();meals[meal].splice(i,1);syncActiveDate();renderMeal(meal);uhome();}
 
 function startEdit(meal,i){
-  const f=S.meals[meal][i];
+  const meals=getActiveMeals();const f=meals[meal][i];
   const li=document.getElementById(`fi-${meal}-${i}`);
   if(!li)return;
-  // הוסף שורת עריכה מתחת
   const existing=document.getElementById(`edit-${meal}-${i}`);
-  if(existing){existing.remove();return;} // toggle
+  if(existing){existing.remove();return;}
   const row=document.createElement('div');
   row.id=`edit-${meal}-${i}`;row.className='fi-edit-row';
   row.innerHTML=`
@@ -1282,11 +1304,11 @@ function saveEdit(meal,i){
   const cal=parseInt(document.getElementById(`ec-${meal}-${i}`).value)||0;
   const prot=parseInt(document.getElementById(`ep-${meal}-${i}`).value)||0;
   if(!name)return;
-  S.meals[meal][i]={...S.meals[meal][i],name,cal,prot};
+  const meals=getActiveMeals();
+  meals[meal][i]={...meals[meal][i],name,cal,prot};
   const row=document.getElementById(`edit-${meal}-${i}`);if(row)row.remove();
-  syncToday();renderMeal(meal);uhome();
+  syncActiveDate();renderMeal(meal);uhome();
 }
-
 // ── CAMERA / GALLERY ──
 function openCamera(meal){imageMeal=meal;document.getElementById('cam-capture').click();}
 function openGallery(meal){imageMeal=meal;document.getElementById('cam-gallery').click();}
@@ -1310,12 +1332,14 @@ async function onImageFile(evt){
       const txt=(data.content?.[0]?.text||'').trim();
       let name='אוכל מתמונה',cal=0,prot=0;
       if(txt.includes('|')){const p=txt.split('|');name=p[0].trim()||'אוכל מתמונה';cal=parseInt((p[1]||'0').replace(/[^\d]/g,''))||0;prot=parseInt((p[2]||'0').replace(/[^\d]/g,''))||0;}
-      S.meals[meal].push({name,cal,prot,fromPhoto:true});syncToday();renderMeal(meal);uhome();
+      const meals=getActiveMeals();
+      meals[meal].push({name,cal,prot,fromPhoto:true});syncActiveDate();renderMeal(meal);uhome();
       toast(`📷 זוהה: ${name} — ${cal} קל׳ • 💪${prot}g`,'success');
     }catch(err){
       removeLoadingRow(meal);
-      S.meals[meal].push({name:'אוכל מתמונה',cal:0,prot:0,fromPhoto:true});
-      syncToday();renderMeal(meal);uhome();
+      const meals2=getActiveMeals();
+      meals2[meal].push({name:'אוכל מתמונה',cal:0,prot:0,fromPhoto:true});
+      syncActiveDate();renderMeal(meal);uhome();
       toast('לא הצלחתי לזהות — לחץ "חשב" לנסיון נוסף','warn');
     }
   };
@@ -1406,7 +1430,8 @@ function stopVoice(){
 async function processVoiceText(text,meal){
   toast(`🎙️ שמעתי: "${text}"`,'success');
   document.getElementById('inp-'+meal).value=text;
-  if(!KEY){S.meals[meal].push({name:text,cal:0,fromVoice:true});syncToday();renderMeal(meal);uhome();return;}
+  const meals=getActiveMeals();
+  if(!KEY){meals[meal].push({name:text,cal:0,fromVoice:true});syncActiveDate();renderMeal(meal);uhome();return;}
   addLoadingRow(meal,`🎙️ ${text}`);
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
@@ -1420,11 +1445,11 @@ async function processVoiceText(text,meal){
     let name=text,cal=0,prot=0;
     if(txt.includes('|')){const p=txt.split('|');name=p[0].trim()||text;cal=parseInt((p[1]||'0').replace(/[^\d]/g,''))||0;prot=parseInt((p[2]||'0').replace(/[^\d]/g,''))||0;}
     document.getElementById('inp-'+meal).value='';
-    S.meals[meal].push({name,cal,prot,fromVoice:true});syncToday();renderMeal(meal);uhome();
+    meals[meal].push({name,cal,prot,fromVoice:true});syncActiveDate();renderMeal(meal);uhome();
     toast(`✅ נוסף: ${name} — ${cal} קל׳ • 💪${prot}g`,'success');
   }catch(err){
-    removeLoadingRow(meal);S.meals[meal].push({name:text,cal:0,prot:0,fromVoice:true});
-    document.getElementById('inp-'+meal).value='';syncToday();renderMeal(meal);uhome();
+    removeLoadingRow(meal);meals[meal].push({name:text,cal:0,prot:0,fromVoice:true});
+    document.getElementById('inp-'+meal).value='';syncActiveDate();renderMeal(meal);uhome();
   }
 }
 
