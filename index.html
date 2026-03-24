@@ -290,7 +290,11 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
     <div class="ff"><label>מתאריך</label><input type="date" id="exp-from"/></div>
     <div class="ff"><label>עד תאריך</label><input type="date" id="exp-to"/></div>
     <div class="ff"><label>פורמט</label>
-      <div class="gbs"><button class="gb act" id="ef-excel" onclick="setExpFmt('excel')">📊 Excel</button><button class="gb" id="ef-word" onclick="setExpFmt('word')">📝 Word</button></div>
+      <div class="gbs">
+        <button class="gb act" id="ef-excel" onclick="setExpFmt('excel')">📊 Excel</button>
+        <button class="gb" id="ef-word" onclick="setExpFmt('word')">📝 Word</button>
+        <button class="gb" id="ef-pdf" onclick="setExpFmt('pdf')">📄 PDF</button>
+      </div>
     </div>
     <div style="display:flex;gap:8px;margin-top:4px;">
       <button class="btn bg" style="flex:1;" onclick="doExport()">ייצא ⬇️</button>
@@ -1556,91 +1560,186 @@ function rtips(goal,w){
 }
 
 // ── EXPORT ──
-function openExport(){document.getElementById('exp-from').value=todayKey().slice(0,7)+'-01';document.getElementById('exp-to').value=todayKey();expFmt2='excel';document.getElementById('ef-excel').classList.add('act');document.getElementById('ef-word').classList.remove('act');document.getElementById('export-modal').style.display='flex';}
+function openExport(){document.getElementById('exp-from').value=todayKey().slice(0,7)+'-01';document.getElementById('exp-to').value=todayKey();expFmt2='excel';document.getElementById('ef-excel').classList.add('act');document.getElementById('ef-word').classList.remove('act');document.getElementById('ef-pdf').classList.remove('act');document.getElementById('export-modal').style.display='flex';}
 function closeExport(){document.getElementById('export-modal').style.display='none';}
-function setExpFmt(f){expFmt2=f;document.getElementById('ef-excel').classList.toggle('act',f==='excel');document.getElementById('ef-word').classList.toggle('act',f==='word');}
-function doExport(){const from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value;if(!from||!to){alert('בחר תאריכים');return;}const keys=Object.keys(S.historyData).sort().filter(k=>k>=from&&k<=to);if(!keys.length){toast('אין נתונים בתקופה זו','warn');closeExport();return;}if(expFmt2==='excel')exportExcel(keys);else exportWord(keys);closeExport();}
+function setExpFmt(f){expFmt2=f;['excel','word','pdf'].forEach(x=>{const el=document.getElementById('ef-'+x);if(el)el.classList.toggle('act',x===f);});}
+function doExport(){const from=document.getElementById('exp-from').value,to=document.getElementById('exp-to').value;if(!from||!to){alert('בחר תאריכים');return;}const keys=Object.keys(S.historyData).sort().filter(k=>k>=from&&k<=to);if(!keys.length){toast('אין נתונים בתקופה זו','warn');closeExport();return;}if(expFmt2==='excel')exportExcel(keys);else if(expFmt2==='pdf')exportPDF(keys);else exportWord(keys);closeExport();}
 function exportExcel(keys){
   const wb=XLSX.utils.book_new();
 
-  // גיליון 1: סיכום יומי
-  const s1=[['תאריך','קלוריות','חלבון (g)','מים (כוסות)','מספר מאכלים','יעד קל׳','% השגה']];
+  // ── גיליון 1: סיכום כל הימים ──
+  const s1=[['תאריך','קלוריות','% יעד קל׳','חלבון (g)','% יעד חלבון','מים (כוסות)','מאכלים']];
   keys.forEach(k=>{
     const d=S.historyData[k];
-    s1.push([fmtFull(k),d.cal||0,d.prot||0,d.water||0,d.foods||0,S.calGoal,d.cal?Math.round(d.cal/S.calGoal*100)+'%':'-']);
+    const calPct=d.cal?Math.round(d.cal/S.calGoal*100)+'%':'-';
+    const protPct=d.prot&&S.protGoal?Math.round(d.prot/(S.protGoal||120)*100)+'%':'-';
+    s1.push([fmtFull(k),d.cal||0,calPct,d.prot||0,protPct,d.water||0,d.foods||0]);
   });
   const ws1=XLSX.utils.aoa_to_sheet(s1);
-  ws1['!cols']=[{wch:14},{wch:12},{wch:12},{wch:14},{wch:16},{wch:12},{wch:12}];
-  XLSX.utils.book_append_sheet(wb,ws1,'סיכום יומי');
+  ws1['!cols']=[{wch:13},{wch:11},{wch:12},{wch:12},{wch:14},{wch:14},{wch:10}];
+  // צביעת כותרת
+  const hdrStyle={font:{bold:true},fill:{fgColor:{rgb:'D5F5E3'}}};
+  ['A1','B1','C1','D1','E1','F1','G1'].forEach(ref=>{if(ws1[ref])ws1[ref].s=hdrStyle;});
+  XLSX.utils.book_append_sheet(wb,ws1,'סיכום ימים');
 
-  // גיליון 2: רשימת אוכל מפורטת לכל יום
-  const s2=[['תאריך','ארוחה','שם מאכל','קלוריות','חלבון (g)','מקור']];
+  // ── גיליון 2: כל הארוחות מפורט — שורה לכל מאכל ──
+  const ML2={breakfast:'בוקר',lunch:'צהריים',dinner:'ערב',snacks:'נשנוש'};
+  const s2=[['תאריך','ארוחה','מאכל','קלוריות','חלבון (g)','מקור','סה"כ קל׳ ביום','סה"כ חלבון ביום','מים']];
   keys.forEach(k=>{
     const d=S.historyData[k];
-    if(d.meals){
-      Object.entries(d.meals).forEach(([mt,items])=>{
-        (items||[]).forEach(f=>{
-          const src=f.fromPhoto?'📷 תמונה':f.fromVoice?'🎙️ קול':'✏️ ידני';
-          s2.push([fmtFull(k),ML[mt]||mt,f.name,f.cal||0,f.prot||0,src]);
-        });
+    let firstRow=true;
+    const mealOrder=['breakfast','lunch','dinner','snacks'];
+    mealOrder.forEach(mt=>{
+      const items=(d.meals&&d.meals[mt])||[];
+      items.forEach((f,fi)=>{
+        const src=f.fromPhoto?'תמונה':f.fromVoice?'קול':'ידני';
+        // סיכומי יום רק בשורה הראשונה של כל יום
+        s2.push([
+          firstRow?fmtFull(k):'',
+          fi===0?ML2[mt]||mt:'',
+          f.name,f.cal||0,f.prot||0,src,
+          firstRow?d.cal||0:'',
+          firstRow?d.prot||0:'',
+          firstRow?d.water||0:''
+        ]);
+        firstRow=false;
       });
+    });
+    // אם אין מאכלים, שורה ריקה עם סיכום
+    const hasItems=mealOrder.some(mt=>(d.meals&&d.meals[mt]||[]).length>0);
+    if(!hasItems){
+      s2.push([fmtFull(k),'—','—',0,0,'—',d.cal||0,d.prot||0,d.water||0]);
     }
+    // הפרדה חזואלית בין ימים — שורה ריקה
+    s2.push(['','','','','','','','','']);
   });
   const ws2=XLSX.utils.aoa_to_sheet(s2);
-  ws2['!cols']=[{wch:14},{wch:16},{wch:26},{wch:12},{wch:12},{wch:14}];
-  XLSX.utils.book_append_sheet(wb,ws2,'פירוט מאכלים');
+  ws2['!cols']=[{wch:13},{wch:10},{wch:26},{wch:11},{wch:12},{wch:8},{wch:14},{wch:16},{wch:8}];
+  XLSX.utils.book_append_sheet(wb,ws2,'פירוט ארוחות');
 
   XLSX.writeFile(wb,`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.xlsx`);
   toast('קובץ Excel הורד ✅','success');
 }
 function buildExportChart(keys){const W=480,H=130,pad={t:14,b:26,l:4,r:4};const chartH=H-pad.t-pad.b;const bw=Math.max(8,Math.min(28,Math.floor((W-pad.l-pad.r)/(keys.length+1))-4));const maxCal=Math.max(...keys.map(k=>S.historyData[k]?.cal||0),S.calGoal,500);let bars='',labels='';keys.forEach((k,i)=>{const cal=S.historyData[k]?.cal||0;const x=pad.l+i*(bw+4);const bh=Math.max(cal/maxCal*chartH,1);const y=pad.t+chartH-bh;const col=cal>S.calGoal?'#e74c3c':'#2ecc71';bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${bh}" fill="${col}" rx="2"/>`;if(cal)bars+=`<text x="${x+bw/2}" y="${y-2}" text-anchor="middle" font-size="7">${cal}</text>`;labels+=`<text x="${x+bw/2}" y="${H-2}" text-anchor="middle" font-size="6.5" fill="#666">${fmtShort(k)}</text>`;});const gy=pad.t+chartH-(S.calGoal/maxCal*chartH);return`<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="border:1px solid #eee;border-radius:6px;">${bars}${labels}<line x1="${pad.l}" y1="${gy}" x2="${W-pad.r}" y2="${gy}" stroke="#e67e22" stroke-width="1" stroke-dasharray="3,2"/><text x="${W-pad.r}" y="${gy-1}" text-anchor="end" font-size="6.5" fill="#e67e22">יעד</text></svg>`;}
 function exportWord(keys){
-  const rows=keys.map(k=>{
-    const d=S.historyData[k];
-    const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;
-    let mealsHtml='';
-    if(d.meals){
-      Object.entries(d.meals).forEach(([mt,items])=>{
-        if(items&&items.length){
-          const mealCal=items.reduce((a,f)=>a+(f.cal||0),0);
-          const mealProt=items.reduce((a,f)=>a+(f.prot||0),0);
-          mealsHtml+=`<h4 style="color:#27ae60;margin:8px 0 4px;">${ML[mt]||mt} — ${mealCal} קל׳ • 💪${mealProt}g</h4>`;
-          mealsHtml+=`<table style="border-collapse:collapse;width:100%;font-size:13px;"><tr style="background:#f0faf5;"><th style="padding:4px 8px;text-align:right;border:1px solid #ddd;">מאכל</th><th style="padding:4px 8px;border:1px solid #ddd;">קלוריות</th><th style="padding:4px 8px;border:1px solid #ddd;">חלבון</th><th style="padding:4px 8px;border:1px solid #ddd;">מקור</th></tr>`;
-          items.forEach(f=>{
-            const src=f.fromPhoto?'📷':f.fromVoice?'🎙️':'✏️';
-            mealsHtml+=`<tr><td style="padding:4px 8px;border:1px solid #eee;">${f.name}</td><td style="padding:4px 8px;border:1px solid #eee;text-align:center;">${f.cal||0}</td><td style="padding:4px 8px;border:1px solid #eee;text-align:center;">${f.prot||0}g</td><td style="padding:4px 8px;border:1px solid #eee;text-align:center;">${src}</td></tr>`;
-          });
-          mealsHtml+='</table>';
-        }
-      });
-    }
-    return`<div style="margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #eee;">
-      <h3 style="color:#2c3e50;margin-bottom:6px;">${hebrewDate(k)} — ${fmtFull(k)}</h3>
-      <table style="margin-bottom:8px;font-size:13px;">
-        <tr><td style="padding:2px 12px 2px 0;"><strong>קלוריות:</strong></td><td>${d.cal||0} / ${S.calGoal} (${pct}%)</td></tr>
-        <tr><td style="padding:2px 12px 2px 0;"><strong>💪 חלבון:</strong></td><td>${d.prot||0}g / ${S.protGoal||120}g</td></tr>
-        <tr><td style="padding:2px 12px 2px 0;"><strong>💧 מים:</strong></td><td>${d.water||0} / ${S.waterGoal} כוסות</td></tr>
-      </table>
-      ${mealsHtml}
-    </div>`;
-  }).join('');
-
+  const rows=buildReportRows(keys);
   const html=`<html dir="rtl"><head><meta charset="UTF-8">
-  <style>body{font-family:Arial,sans-serif;direction:rtl;padding:24px;max-width:800px;}h1{color:#27ae60;}h2{color:#2c3e50;border-bottom:1px solid #eee;padding-bottom:6px;}ul{padding-right:18px;}</style>
+  <style>body{font-family:Arial,sans-serif;direction:rtl;padding:24px;max-width:800px;font-size:12px;}
+  h1{color:#27ae60;}h2{color:#2c3e50;border-bottom:1px solid #eee;padding-bottom:6px;}
+  h3{color:#2c3e50;background:#f8f9fa;padding:5px 8px;border-right:4px solid #27ae60;}
+  h4{color:#27ae60;margin:8px 0 3px;}
+  .day-block{margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #ddd;}
+  .day-summary{margin-bottom:8px;}
+  .stat{display:inline-block;background:#f0faf5;border-radius:6px;padding:3px 9px;font-size:11px;margin-left:8px;}
+  table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:6px;}
+  th{background:#f0faf5;padding:5px 8px;text-align:right;border:1px solid #ddd;font-weight:bold;}
+  td{padding:4px 8px;border:1px solid #eee;}
+  .cal-badge{background:#d5f5e3;color:#27ae60;padding:1px 7px;border-radius:10px;font-weight:bold;}
+  .prot-badge{background:#e8daef;color:#7d3c98;padding:1px 7px;border-radius:10px;}
+  .over{color:#e74c3c;font-weight:bold;}</style>
   </head><body>
   <h1>🥗 דוח תזונה</h1>
-  <p style="font-size:13px;color:#555;">שם: <strong>${S.name||'—'}</strong> | יעד קלוריות: <strong>${S.calGoal}</strong> קל׳/יום | יעד חלבון: <strong>${S.protGoal||120}g</strong>/יום | תקופה: ${fmtFull(keys[0])} – ${fmtFull(keys[keys.length-1])}</p>
+  <p style="font-size:11px;color:#555;">שם: <strong>${S.name||'—'}</strong> | יעד: <strong>${S.calGoal} קל׳/יום</strong> | חלבון: <strong>${S.protGoal||120}g/יום</strong> | תקופה: ${fmtFull(keys[0])} – ${fmtFull(keys[keys.length-1])}</p>
   <h2>גרף קלוריות</h2>${buildExportChart(keys)}
   <h2>פירוט לפי ימים</h2>${rows}
   </body></html>`;
-
   const blob=new Blob(['\ufeff'+html],{type:'application/msword'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download=`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.doc`;a.click();
   toast('קובץ Word הורד ✅','success');
 }
 
-// ── AI CHAT ──
+function exportPDF(keys){
+  // בנה HTML זהה ל-Word ופתח בחלון חדש לאפשר הדפסה/שמירה כ-PDF
+  const rows=buildReportRows(keys);
+  const html=`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8">
+  <title>דוח תזונה — ${S.name||'שלי'}</title>
+  <style>
+    @page{size:A4;margin:18mm 14mm;}
+    *{box-sizing:border-box;}
+    body{font-family:Arial,sans-serif;direction:rtl;color:#2c3e50;font-size:12px;line-height:1.5;}
+    h1{color:#27ae60;font-size:20px;margin:0 0 6px;}
+    h2{color:#2c3e50;font-size:14px;border-bottom:2px solid #27ae60;padding-bottom:4px;margin:18px 0 8px;}
+    h3{color:#2c3e50;font-size:13px;margin:14px 0 4px;background:#f8f9fa;padding:5px 8px;border-right:4px solid #27ae60;border-radius:2px;}
+    h4{color:#27ae60;font-size:11px;margin:8px 0 3px;}
+    .meta{font-size:11px;color:#666;margin-bottom:12px;}
+    .day-block{page-break-inside:avoid;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #ddd;}
+    .day-summary{display:flex;gap:16px;margin-bottom:8px;flex-wrap:wrap;}
+    .stat{background:#f0faf5;border-radius:6px;padding:4px 10px;font-size:11px;}
+    .stat strong{color:#27ae60;}
+    table{width:100%;border-collapse:collapse;font-size:11px;margin-bottom:6px;}
+    th{background:#f0faf5;padding:5px 8px;text-align:right;border:1px solid #ddd;font-weight:bold;}
+    td{padding:4px 8px;border:1px solid #eee;}
+    tr:nth-child(even) td{background:#fafafa;}
+    .cal-badge{background:#d5f5e3;color:#27ae60;padding:1px 7px;border-radius:10px;font-weight:bold;}
+    .prot-badge{background:#e8daef;color:#7d3c98;padding:1px 7px;border-radius:10px;font-weight:bold;}
+    .over{color:#e74c3c;font-weight:bold;}
+    @media print{.no-print{display:none;}}
+  </style>
+  </head><body>
+  <button class="no-print" onclick="window.print()" style="background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:8px;font-size:14px;cursor:pointer;margin-bottom:16px;font-family:Arial;">🖨️ הדפס / שמור PDF</button>
+  <h1>🥗 דוח תזונה</h1>
+  <div class="meta">
+    שם: <strong>${S.name||'—'}</strong> &nbsp;|&nbsp;
+    יעד קלוריות: <strong>${S.calGoal} קל׳/יום</strong> &nbsp;|&nbsp;
+    יעד חלבון: <strong>${S.protGoal||120}g/יום</strong> &nbsp;|&nbsp;
+    תקופה: ${fmtFull(keys[0])} – ${fmtFull(keys[keys.length-1])}
+  </div>
+  <h2>גרף קלוריות</h2>
+  ${buildExportChart(keys)}
+  <h2>פירוט לפי ימים</h2>
+  ${rows}
+  </body></html>`;
+
+  const win=window.open('','_blank');
+  if(win){
+    win.document.write(html);
+    win.document.close();
+    toast('נפתח חלון PDF — לחץ הדפס 🖨️','success');
+  } else {
+    // fallback — Blob download
+    const blob=new Blob([html],{type:'text/html;charset=utf-8'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+    a.download=`תזונה-${keys[0]}-עד-${keys[keys.length-1]}.html`;a.click();
+    toast('קובץ HTML הורד — פתח בדפדפן והדפס כ-PDF ✅','success');
+  }
+}
+
+// פונקציה משותפת לבניית שורות דוח (Word + PDF)
+function buildReportRows(keys){
+  return keys.map(k=>{
+    const d=S.historyData[k];
+    const pct=d.cal?Math.round(d.cal/S.calGoal*100):0;
+    const protPct=d.prot&&S.protGoal?Math.round(d.prot/(S.protGoal||120)*100):0;
+    const calOver=d.cal>S.calGoal;
+    let mealsHtml='';
+    if(d.meals){
+      const mealOrder=['breakfast','lunch','dinner','snacks'];
+      mealOrder.forEach(mt=>{
+        const items=d.meals[mt]||[];
+        if(!items.length)return;
+        const mealCal=items.reduce((a,f)=>a+(f.cal||0),0);
+        const mealProt=items.reduce((a,f)=>a+(f.prot||0),0);
+        mealsHtml+=`<h4>${ML[mt]||mt} — <span class="cal-badge">${mealCal} קל׳</span> <span class="prot-badge">💪${mealProt}g</span></h4>`;
+        mealsHtml+=`<table><tr><th>מאכל</th><th>קלוריות</th><th>חלבון</th><th>מקור</th></tr>`;
+        items.forEach(f=>{
+          const src=f.fromPhoto?'📷':f.fromVoice?'🎙️':'✏️';
+          mealsHtml+=`<tr><td>${f.name}</td><td style="text-align:center;">${f.cal||0}</td><td style="text-align:center;">${f.prot||0}g</td><td style="text-align:center;">${src}</td></tr>`;
+        });
+        mealsHtml+='</table>';
+      });
+    }
+    return`<div class="day-block">
+      <h3>${hebrewDate(k)} — ${fmtFull(k)}</h3>
+      <div class="day-summary">
+        <div class="stat">🔥 קלוריות: <strong class="${calOver?'over':''}">${d.cal||0}</strong> / ${S.calGoal} <span style="color:#888;">(${pct}%)</span></div>
+        <div class="stat">💪 חלבון: <strong>${d.prot||0}g</strong> / ${S.protGoal||120}g <span style="color:#888;">(${protPct}%)</span></div>
+        <div class="stat">💧 מים: <strong>${d.water||0}</strong> / ${S.waterGoal} כוסות</div>
+      </div>
+      ${mealsHtml}
+    </div>`;
+  }).join('');
+}
 function clearChat(){
   S.ch=[];saveAll();
   const area=document.getElementById('chat');
