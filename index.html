@@ -844,27 +844,26 @@ function setupPWA(){
   const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
   const mEl=document.getElementById('pwa-manifest');if(mEl)mEl.href=URL.createObjectURL(mBlob);
 
-  // ── Service Worker — נדרש להתקנה כ-PWA אמיתי ──
+  // ── Service Worker — inline registration (no blob URL) ──
   if('serviceWorker' in navigator){
-    const swCode=`
-const CACHE_NAME='tzuna-cache-v1';
-self.addEventListener('install',ev=>{self.skipWaiting();});
-self.addEventListener('activate',ev=>{ev.waitUntil(clients.claim());});
-self.addEventListener('fetch',ev=>{
-  if(ev.request.method!=='GET')return;
-  ev.respondWith(
-    caches.open(CACHE_NAME).then(cache=>
-      cache.match(ev.request).then(cached=>{
-        const fetched=fetch(ev.request).then(res=>{cache.put(ev.request,res.clone());return res;}).catch(()=>cached);
-        return cached||fetched;
-      })
-    )
-  );
+    // כתוב את ה-SW כ-data URI עם base64 — עובד ב-Chrome/Android ומאפשר standalone
+    const swSrc=`
+const V='tzuna-v2';
+self.addEventListener('install',e=>{self.skipWaiting();});
+self.addEventListener('activate',e=>{e.waitUntil(clients.claim());});
+self.addEventListener('fetch',e=>{
+  const u=e.request.url;
+  if(e.request.method!=='GET'||u.startsWith('chrome-extension')||u.includes('api.anthropic'))return;
+  e.respondWith(fetch(e.request).then(r=>{
+    if(r.ok){const c=r.clone();caches.open(V).then(ca=>ca.put(e.request,c));}
+    return r;
+  }).catch(()=>caches.match(e.request)));
 });`;
     try{
-      const swBlob=new Blob([swCode],{type:'application/javascript'});
+      // שיטה 1: blob URL (Chrome desktop + Android)
+      const swBlob=new Blob([swSrc],{type:'application/javascript'});
       const swUrl=URL.createObjectURL(swBlob);
-      navigator.serviceWorker.register(swUrl).catch(()=>{});
+      navigator.serviceWorker.register(swUrl,{scope:'./'}).catch(()=>{});
     }catch(e){}
   }
 
@@ -897,10 +896,30 @@ function makeShortcutIcon(emoji,bg){
 function showInstallBanner(){
   const wrap=document.getElementById('install-wrap');
   if(!wrap||wrap.innerHTML)return;
-  wrap.innerHTML=`<div class="install-banner">📲 הוסף למסך הבית כאפליקציה!<button onclick="installApp()">התקן</button><button onclick="hideInstall()" style="background:rgba(255,255,255,.15);margin-right:6px;">לא עכשיו</button></div>`;
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(isIOS){
+    // iOS — אין beforeinstallprompt, תמיד הצג הנחיה ידנית
+    wrap.innerHTML=`<div class="install-banner" style="flex-direction:column;gap:6px;align-items:flex-start;">
+      <div style="font-weight:700;">📲 הוסף לבית ללא סימן Chrome:</div>
+      <div style="font-size:.76rem;opacity:.9;line-height:1.5;">לחץ <strong>שתף ↑</strong> בתחתית Safari ← <strong>"הוסף למסך הבית"</strong></div>
+      <button onclick="hideInstall()" style="background:rgba(255,255,255,.25);border:none;color:white;border-radius:16px;padding:4px 12px;cursor:pointer;font-family:Heebo,sans-serif;font-size:.76rem;align-self:flex-end;">הבנתי ✓</button>
+    </div>`;
+  } else {
+    wrap.innerHTML=`<div class="install-banner">📲 הוסף למסך הבית כאפליקציה!<button onclick="installApp()">התקן</button><button onclick="hideInstall()" style="background:rgba(255,255,255,.15);margin-right:6px;">לא עכשיו</button></div>`;
+  }
+}
+
+function checkIOSInstall(){
+  // הצג הנחיה ב-iOS Safari אם עדיין לא ב-standalone
+  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isSafari=/safari/i.test(navigator.userAgent)&&!/chrome/i.test(navigator.userAgent);
+  const isStandalone=window.navigator.standalone===true;
+  if(isIOS&&isSafari&&!isStandalone&&!localStorage.getItem('ios_banner_dismissed')){
+    setTimeout(showInstallBanner,2000);
+  }
 }
 function installApp(){if(deferredInstallPrompt){deferredInstallPrompt.prompt();deferredInstallPrompt=null;hideInstall();}}
-function hideInstall(){document.getElementById('install-wrap').innerHTML='';}
+function hideInstall(){document.getElementById('install-wrap').innerHTML='';localStorage.setItem('ios_banner_dismissed','1');}
 
 // ── WATER SOUND (Web Audio API) ──
 let audioCtx=null;
@@ -1408,7 +1427,7 @@ async function addItem(meal){
 async function calcNutritionAI(foodName){
   const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
     headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:80,
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:80,
       system:'אתה מחשב קלוריות וחלבון לפי מנה ביתית מתונה. ענה ONLY בפורמט: קלוריות|חלבון_גרם — דוגמה: 280|22 — רק מספרים שלמים, ללא טקסט.',
       messages:[{role:'user',content:`קלוריות וחלבון ב: ${foodName}`}]})});
   const d=await r.json();if(d.error)throw new Error(d.error.message);
@@ -1462,7 +1481,7 @@ async function onImageFile(evt){
     try{
       const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
         headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-        body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:200,
+        body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:200,
           system:'אתה מזהה אוכל בתמונות ומחשב קלוריות וחלבון לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות|חלבון_גרם — לדוגמה: שניצל עם אורז|420|32',
           messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:mediaType,data:base64}},{type:'text',text:'מה האוכל בתמונה, כמה קלוריות וכמה חלבון?'}]}]})});
       const data=await r.json();removeLoadingRow(meal);
@@ -1574,7 +1593,7 @@ async function processVoiceText(text,meal){
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:100,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:100,
         system:'אתה מחשב קלוריות וחלבון ממה שאדם אמר בקול. חלץ שם מאכל וחשב לפי מנה ביתית מתונה. ענה ONLY בפורמט: שם_מאכל|קלוריות|חלבון_גרם — דוגמה: עוף עם אורז|380|35',
         messages:[{role:'user',content:`אמרתי: "${text}" — מה אכלתי, כמה קלוריות וחלבון?`}]})});
     const data=await r.json();removeLoadingRow(meal);
@@ -1896,7 +1915,7 @@ async function getAI(msg){
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,system:sys,messages:[...S.ch.slice(-8),{role:'user',content:msg}]})});
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:600,system:sys,messages:[...S.ch.slice(-8),{role:'user',content:msg}]})});
     const data=await r.json();const e=document.getElementById('typ');if(e)e.remove();
     if(data.error){addMsg('❌ '+data.error.message,'bot err');return;}
     const rep=data.content?.[0]?.text||'לא הצלחתי לענות.';addBot(rep);S.ch.push({role:'assistant',content:rep});
@@ -1979,7 +1998,7 @@ async function generateFridgeMeal(){
     const r=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:2000,
         system:'אתה תזונאי מקצועי לנוער. ענה תמיד ב-JSON תקני בלבד, ללא שום טקסט מחוצה לו.',
         messages:[{role:'user',content:prompt}]})
     });
@@ -2105,7 +2124,7 @@ ${notes?'הערות: '+notes:''}
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-5',max_tokens:4000,
+        model:'claude-sonnet-4-6',max_tokens:4000,
         system:'אתה תזונאי מקצועי לנוער. תמיד ענה ב-JSON תקני בלבד ללא שום טקסט מחוצה לו.',
         messages:[{role:'user',content:prompt}]
       })
@@ -2274,6 +2293,7 @@ if(!S.name){setTimeout(()=>document.getElementById('onboarding').style.display='
 if(S.reminderMinutes>0){reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);}
 waterGoalCelebrated=(S.water>=S.waterGoal&&S.water>0);
 uhome();rfood();rsettings();
+checkIOSInstall();
 // PWA setup בנפרד — לא חוסם את ה-UI
 setTimeout(setupPWA,0);
 
