@@ -794,70 +794,81 @@ function setupPWA(){
   }
 
   // הגדר אייקונים בכל הגדלים
+  // ── צור אייקונים בכל הגדלים ──
+  const icon192=makeIcon(192);
   const icon180=makeIcon(180);
   const icon152=makeIcon(152);
   const icon120=makeIcon(120);
-  const icon76=makeIcon(76);
-  const icon60=makeIcon(60);
+  const icon76 =makeIcon(76);
+  const icon60 =makeIcon(60);
   const icon512=makeIcon(512);
-  const icon32=makeIcon(32);
-  const icon16=makeIcon(16);
+  const icon32 =makeIcon(32);
+  const icon16 =makeIcon(16);
 
-  // Apple touch icons
-  document.getElementById('apple-icon-180').href=icon180;
-  document.getElementById('apple-icon-152').href=icon152;
-  document.getElementById('apple-icon-120').href=icon120;
-  document.getElementById('apple-icon-76').href=icon76;
-  document.getElementById('apple-icon-60').href=icon60;
-
-  // Favicon
-  document.getElementById('favicon-32').href=icon32;
-  document.getElementById('favicon-16').href=icon16;
-
-  // OG image
-  const ogEl=document.getElementById('og-image');
-  if(ogEl)ogEl.setAttribute('content',icon512);
+  // Apple touch icons (iOS)
+  const ai180=document.getElementById('apple-icon-180');if(ai180)ai180.href=icon180;
+  const ai152=document.getElementById('apple-icon-152');if(ai152)ai152.href=icon152;
+  const ai120=document.getElementById('apple-icon-120');if(ai120)ai120.href=icon120;
+  const ai76 =document.getElementById('apple-icon-76'); if(ai76) ai76.href=icon76;
+  const ai60 =document.getElementById('apple-icon-60'); if(ai60) ai60.href=icon60;
+  const f32  =document.getElementById('favicon-32');    if(f32)  f32.href=icon32;
+  const f16  =document.getElementById('favicon-16');    if(f16)  f16.href=icon16;
+  const ogEl =document.getElementById('og-image');      if(ogEl) ogEl.setAttribute('content',icon512);
 
   // Splash screens
-  const splashSizes=[
-    ['splash-iphone5',640,1136],['splash-iphone6',750,1334],
-    ['splash-iphoneX',1125,2436],['splash-iphone14',1170,2532],
-    ['splash-iphone15',1179,2556],['splash-ipad',1536,2048]
-  ];
-  splashSizes.forEach(([id,w,h])=>{
-    const el=document.getElementById(id);
-    if(el)el.href=makeSplash(w,h);
-  });
+  [['splash-iphone5',640,1136],['splash-iphone6',750,1334],
+   ['splash-iphoneX',1125,2436],['splash-iphone14',1170,2532],
+   ['splash-iphone15',1179,2556],['splash-ipad',1536,2048]
+  ].forEach(([id,w,h])=>{const el=document.getElementById(id);if(el)el.href=makeSplash(w,h);});
 
-  // PWA Manifest עם shortcuts
+  // PWA Manifest
+  const base=window.location.href.split('#')[0];
   const manifest={
-    name:'תזונה — יומן תזונה חכם',
-    short_name:'תזונה',
+    name:'תזונה — יומן תזונה חכם',short_name:'תזונה',
     description:'עקוב אחר קלוריות, חלבון ומים בקלות',
-    start_url:window.location.href,
-    scope:window.location.href,
+    start_url:base,scope:base,
     display:'standalone',
-    background_color:'#27ae60',
-    theme_color:'#27ae60',
-    orientation:'portrait-primary',
-    lang:'he',
-    dir:'rtl',
+    background_color:'#27ae60',theme_color:'#27ae60',
+    orientation:'portrait-primary',lang:'he',dir:'rtl',
     categories:['health','food','lifestyle'],
     icons:[
-      {src:icon192||icon180,sizes:'192x192',type:'image/png',purpose:'any maskable'},
+      {src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'},
       {src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}
     ],
     shortcuts:[
-      {name:'הוסף אוכל',short_name:'אוכל',description:'הוסף ארוחה לרשימה',url:window.location.href+'#food',icons:[{src:makeShortcutIcon('🍽️','#3498db'),sizes:'96x96'}]},
-      {name:'יועץ AI',short_name:'AI',description:'שאל את יועץ התזונה',url:window.location.href+'#ai',icons:[{src:makeShortcutIcon('🤖','#9b59b6'),sizes:'96x96'}]},
-      {name:'תפריט שבועי',short_name:'תפריט',description:'בנה תפריט עם AI',url:window.location.href+'#menu',icons:[{src:makeShortcutIcon('📋','#e67e22'),sizes:'96x96'}]}
+      {name:'הוסף אוכל',short_name:'אוכל',url:base+'#food',icons:[{src:makeShortcutIcon('🍽️','#3498db'),sizes:'96x96'}]},
+      {name:'יועץ AI',  short_name:'AI',   url:base+'#ai',  icons:[{src:makeShortcutIcon('🤖','#9b59b6'),sizes:'96x96'}]},
+      {name:'תפריט',    short_name:'תפריט',url:base+'#menu',icons:[{src:makeShortcutIcon('📋','#e67e22'),sizes:'96x96'}]}
     ]
   };
+  const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
+  const mEl=document.getElementById('pwa-manifest');if(mEl)mEl.href=URL.createObjectURL(mBlob);
 
-  const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-  document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
+  // ── Service Worker — נדרש להתקנה כ-PWA אמיתי ──
+  if('serviceWorker' in navigator){
+    const swCode=`
+const CACHE_NAME='tzuna-cache-v1';
+self.addEventListener('install',ev=>{self.skipWaiting();});
+self.addEventListener('activate',ev=>{ev.waitUntil(clients.claim());});
+self.addEventListener('fetch',ev=>{
+  if(ev.request.method!=='GET')return;
+  ev.respondWith(
+    caches.open(CACHE_NAME).then(cache=>
+      cache.match(ev.request).then(cached=>{
+        const fetched=fetch(ev.request).then(res=>{cache.put(ev.request,res.clone());return res;}).catch(()=>cached);
+        return cached||fetched;
+      })
+    )
+  );
+});`;
+    try{
+      const swBlob=new Blob([swCode],{type:'application/javascript'});
+      const swUrl=URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swUrl).catch(()=>{});
+    }catch(e){}
+  }
 
-  // Install prompt
+  // Install prompt (Android Chrome)
   window.addEventListener('beforeinstallprompt',e=>{
     e.preventDefault();deferredInstallPrompt=e;showInstallBanner();
   });
@@ -2257,14 +2268,14 @@ function exportMenuWord(){
 
 // ══════════════════════════════════════
 
-// ── INIT ──
-setupPWA();
+// ── INIT ── (UI קודם, PWA אחרי — כדי שהאפליקציה תיטען גם אם PWA נכשל)
 loadAll();updateHdr();initDateInput();syncToday();
 if(!S.name){setTimeout(()=>document.getElementById('onboarding').style.display='flex',400);}
 if(S.reminderMinutes>0){reminderTimer=setInterval(showWaterReminder,S.reminderMinutes*60000);}
-// ── WATER GOAL STATE ── (init confetti flag)
 waterGoalCelebrated=(S.water>=S.waterGoal&&S.water>0);
 uhome();rfood();rsettings();
+// PWA setup בנפרד — לא חוסם את ה-UI
+setTimeout(setupPWA,0);
 
 // ── VERSION CHECK (פעם ביום) ──
 (function checkForUpdates(){
