@@ -3,18 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>תזונה 🥗</title>
-<!-- PWA meta -->
+<title>תזונה 🥗 — יומן תזונה חכם</title>
+<!-- PWA / iOS -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="תזונה">
+<!-- Android / General PWA -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="תזונה">
 <meta name="theme-color" content="#27ae60">
-<meta name="description" content="יומן תזונה חכם לנוער">
-<!-- icon injected by JS below -->
-<link id="apple-icon" rel="apple-touch-icon">
+<meta name="description" content="יומן תזונה חכם — עקוב אחר קלוריות, חלבון ומים בקלות">
+<!-- Open Graph — אייקון יפה בשיתוף ובמועדפים -->
+<meta property="og:title" content="תזונה 🥗 — יומן תזונה חכם">
+<meta property="og:description" content="עקוב אחר קלוריות, חלבון ומים בקלות">
+<meta property="og:type" content="website">
+<meta property="og:image" id="og-image" content="">
+<!-- icons injected by JS -->
+<link id="apple-icon-60" rel="apple-touch-icon" sizes="60x60">
+<link id="apple-icon-76" rel="apple-touch-icon" sizes="76x76">
+<link id="apple-icon-120" rel="apple-touch-icon" sizes="120x120">
+<link id="apple-icon-152" rel="apple-touch-icon" sizes="152x152">
+<link id="apple-icon-180" rel="apple-touch-icon" sizes="180x180">
+<link id="favicon-32" rel="icon" type="image/png" sizes="32x32">
+<link id="favicon-16" rel="icon" type="image/png" sizes="16x16">
 <link id="pwa-manifest" rel="manifest">
+<!-- iOS Splash screens -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link id="splash-iphone5"  rel="apple-touch-startup-image" media="(device-width:320px)  and (device-height:568px)  and (-webkit-device-pixel-ratio:2)">
+<link id="splash-iphone6"  rel="apple-touch-startup-image" media="(device-width:375px)  and (device-height:667px)  and (-webkit-device-pixel-ratio:2)">
+<link id="splash-iphoneX"  rel="apple-touch-startup-image" media="(device-width:375px)  and (device-height:812px)  and (-webkit-device-pixel-ratio:3)">
+<link id="splash-iphone14" rel="apple-touch-startup-image" media="(device-width:390px)  and (device-height:844px)  and (-webkit-device-pixel-ratio:3)">
+<link id="splash-iphone15" rel="apple-touch-startup-image" media="(device-width:393px)  and (device-height:852px)  and (-webkit-device-pixel-ratio:3)">
+<link id="splash-ipad"     rel="apple-touch-startup-image" media="(device-width:768px)  and (device-height:1024px) and (-webkit-device-pixel-ratio:2)">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -730,27 +750,110 @@ let deferredInstallPrompt=null;
 
 // ── PWA SETUP ──
 function setupPWA(){
-  // Generate icon using canvas
-  const canvas=document.createElement('canvas');canvas.width=192;canvas.height=192;
-  const ctx=canvas.getContext('2d');
-  // Background circle
-  const grad=ctx.createLinearGradient(0,0,192,192);
-  grad.addColorStop(0,'#27ae60');grad.addColorStop(1,'#1abc9c');
-  ctx.fillStyle=grad;
-  ctx.beginPath();ctx.arc(96,96,96,0,Math.PI*2);ctx.fill();
-  // Emoji
-  ctx.font='110px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🥗',96,96);
-  const iconUrl=canvas.toDataURL('image/png');
-  document.getElementById('apple-icon').href=iconUrl;
+  // ─ צייר אייקון יפה בגדלים שונים ─
+  function makeIcon(size){
+    const c=document.createElement('canvas');c.width=size;c.height=size;
+    const ctx=c.getContext('2d');
+    const r=size*0.5;
+    // רקע מעוגל (rounded rect)
+    const rr=size*0.22; // רדיוס פינה כמו iOS
+    ctx.beginPath();
+    ctx.moveTo(rr,0);ctx.lineTo(size-rr,0);ctx.quadraticCurveTo(size,0,size,rr);
+    ctx.lineTo(size,size-rr);ctx.quadraticCurveTo(size,size,size-rr,size);
+    ctx.lineTo(rr,size);ctx.quadraticCurveTo(0,size,0,size-rr);
+    ctx.lineTo(0,rr);ctx.quadraticCurveTo(0,0,rr,0);ctx.closePath();
+    // גרדיאנט ירוק
+    const g=ctx.createLinearGradient(0,0,size,size);
+    g.addColorStop(0,'#1e8449');g.addColorStop(0.5,'#27ae60');g.addColorStop(1,'#1abc9c');
+    ctx.fillStyle=g;ctx.fill();
+    // הצללה עדינה מלמעלה (highlight)
+    const hi=ctx.createLinearGradient(0,0,0,size*0.5);
+    hi.addColorStop(0,'rgba(255,255,255,0.2)');hi.addColorStop(1,'rgba(255,255,255,0)');
+    ctx.fillStyle=hi;ctx.fill();
+    // אמוג'י
+    const fs=Math.round(size*0.57);
+    ctx.font=`${fs}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('🥗',size/2,size*0.52);
+    return c.toDataURL('image/png');
+  }
 
-  // Manifest as blob
+  // ─ צייר Splash Screen ─
+  function makeSplash(w,h){
+    const c=document.createElement('canvas');c.width=w;c.height=h;
+    const ctx=c.getContext('2d');
+    const g=ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0,'#1e8449');g.addColorStop(0.6,'#27ae60');g.addColorStop(1,'#1abc9c');
+    ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+    const sz=Math.round(Math.min(w,h)*0.28);
+    ctx.font=`${sz}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('🥗',w/2,h/2-sz*0.1);
+    ctx.font=`bold ${Math.round(sz*0.32)}px Arial`;
+    ctx.fillStyle='rgba(255,255,255,0.9)';
+    ctx.fillText('תזונה',w/2,h/2+sz*0.62);
+    return c.toDataURL('image/png');
+  }
+
+  // הגדר אייקונים בכל הגדלים
+  const icon180=makeIcon(180);
+  const icon152=makeIcon(152);
+  const icon120=makeIcon(120);
+  const icon76=makeIcon(76);
+  const icon60=makeIcon(60);
+  const icon512=makeIcon(512);
+  const icon32=makeIcon(32);
+  const icon16=makeIcon(16);
+
+  // Apple touch icons
+  document.getElementById('apple-icon-180').href=icon180;
+  document.getElementById('apple-icon-152').href=icon152;
+  document.getElementById('apple-icon-120').href=icon120;
+  document.getElementById('apple-icon-76').href=icon76;
+  document.getElementById('apple-icon-60').href=icon60;
+
+  // Favicon
+  document.getElementById('favicon-32').href=icon32;
+  document.getElementById('favicon-16').href=icon16;
+
+  // OG image
+  const ogEl=document.getElementById('og-image');
+  if(ogEl)ogEl.setAttribute('content',icon512);
+
+  // Splash screens
+  const splashSizes=[
+    ['splash-iphone5',640,1136],['splash-iphone6',750,1334],
+    ['splash-iphoneX',1125,2436],['splash-iphone14',1170,2532],
+    ['splash-iphone15',1179,2556],['splash-ipad',1536,2048]
+  ];
+  splashSizes.forEach(([id,w,h])=>{
+    const el=document.getElementById(id);
+    if(el)el.href=makeSplash(w,h);
+  });
+
+  // PWA Manifest עם shortcuts
   const manifest={
-    name:'תזונה — יומן חכם',short_name:'תזונה',
-    start_url:window.location.href,display:'standalone',
-    background_color:'#f0faf5',theme_color:'#27ae60',
-    orientation:'portrait',
-    icons:[{src:iconUrl,sizes:'192x192',type:'image/png'},{src:iconUrl,sizes:'512x512',type:'image/png'}]
+    name:'תזונה — יומן תזונה חכם',
+    short_name:'תזונה',
+    description:'עקוב אחר קלוריות, חלבון ומים בקלות',
+    start_url:window.location.href,
+    scope:window.location.href,
+    display:'standalone',
+    background_color:'#27ae60',
+    theme_color:'#27ae60',
+    orientation:'portrait-primary',
+    lang:'he',
+    dir:'rtl',
+    categories:['health','food','lifestyle'],
+    icons:[
+      {src:icon192||icon180,sizes:'192x192',type:'image/png',purpose:'any maskable'},
+      {src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}
+    ],
+    shortcuts:[
+      {name:'הוסף אוכל',short_name:'אוכל',description:'הוסף ארוחה לרשימה',url:window.location.href+'#food',icons:[{src:makeShortcutIcon('🍽️','#3498db'),sizes:'96x96'}]},
+      {name:'יועץ AI',short_name:'AI',description:'שאל את יועץ התזונה',url:window.location.href+'#ai',icons:[{src:makeShortcutIcon('🤖','#9b59b6'),sizes:'96x96'}]},
+      {name:'תפריט שבועי',short_name:'תפריט',description:'בנה תפריט עם AI',url:window.location.href+'#menu',icons:[{src:makeShortcutIcon('📋','#e67e22'),sizes:'96x96'}]}
+    ]
   };
+
   const blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
   document.getElementById('pwa-manifest').href=URL.createObjectURL(blob);
 
@@ -758,6 +861,26 @@ function setupPWA(){
   window.addEventListener('beforeinstallprompt',e=>{
     e.preventDefault();deferredInstallPrompt=e;showInstallBanner();
   });
+  window.addEventListener('appinstalled',()=>{
+    hideInstall();toast('אפליקציה הותקנה! 🎉','success');
+  });
+}
+
+function makeShortcutIcon(emoji,bg){
+  const c=document.createElement('canvas');c.width=96;c.height=96;
+  const ctx=c.getContext('2d');
+  const g=ctx.createLinearGradient(0,0,96,96);
+  g.addColorStop(0,bg);g.addColorStop(1,bg+'cc');
+  const rr=20;
+  ctx.beginPath();
+  ctx.moveTo(rr,0);ctx.lineTo(96-rr,0);ctx.quadraticCurveTo(96,0,96,rr);
+  ctx.lineTo(96,96-rr);ctx.quadraticCurveTo(96,96,96-rr,96);
+  ctx.lineTo(rr,96);ctx.quadraticCurveTo(0,96,0,96-rr);
+  ctx.lineTo(0,rr);ctx.quadraticCurveTo(0,0,rr,0);ctx.closePath();
+  ctx.fillStyle=g;ctx.fill();
+  ctx.font='52px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(emoji,48,50);
+  return c.toDataURL('image/png');
 }
 
 function showInstallBanner(){
