@@ -763,13 +763,14 @@ function setupPWA(){
 
   try{
     // Apple touch icons
-    ['apple-icon-180','apple-icon-152','apple-icon-120','apple-icon-76','apple-icon-60'].forEach((id,i)=>{
+    // Apple icons → real files (not blob/canvas = persist after restart)
+    ['apple-icon-180','apple-icon-152','apple-icon-120','apple-icon-76','apple-icon-60'].forEach(id=>{
       const el=document.getElementById(id);
-      if(el)el.href=[icon180,icon152,icon120,icon76,icon60][i];
+      if(el)el.href='./icon-192.png';
     });
     const f32=document.getElementById('favicon-32');if(f32)f32.href=icon32;
     const f16=document.getElementById('favicon-16');if(f16)f16.href=icon16;
-    const ogEl=document.getElementById('og-image');if(ogEl)ogEl.setAttribute('content',icon512);
+    const ogEl=document.getElementById('og-image');if(ogEl)ogEl.setAttribute('content','./icon-512.png');
 
     // Splash screens
     function makeSplash(w,h){
