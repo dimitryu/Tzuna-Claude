@@ -26,7 +26,7 @@
 <link id="apple-icon-180" rel="apple-touch-icon" sizes="180x180">
 <link id="favicon-32" rel="icon" type="image/png" sizes="32x32">
 <link id="favicon-16" rel="icon" type="image/png" sizes="16x16">
-<link id="pwa-manifest" rel="manifest">
+<link rel="manifest" href="./manifest.json">
 <!-- iOS Splash screens -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link id="splash-iphone5"  rel="apple-touch-startup-image" media="(device-width:320px)  and (device-height:568px)  and (-webkit-device-pixel-ratio:2)">
@@ -725,7 +725,7 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
 <canvas id="confetti-canvas" style="display:none;"></canvas>
 
 <script>
-const VERSION='2.2';
+const VERSION='2.3';
 const STORAGE_KEY='tzuna_v15';
 // Legacy keys to migrate from (keeps user data across updates)
 const LEGACY_KEYS=['tzuna_v14','tzuna_v13','tz6','tz5','tz4','tz3'];
@@ -815,8 +815,8 @@ function setupPWA(){
         {name:'תפריט',    short_name:'תפריט',url:window.location.href.split('#')[0]+'#menu',icons:[{src:icon76,sizes:'76x76'}]}
       ]
     };
-    const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
-    const mEl=document.getElementById('pwa-manifest');if(mEl)mEl.href=URL.createObjectURL(mBlob);
+    // manifest.json is a static file — no blob URL needed
+    // (blob URLs die on browser restart = icon disappears)
 
     // ── Service Worker — רישום מ-sw.js (קובץ נפרד = ללא סימן Chrome) ──
     if('serviceWorker' in navigator){
