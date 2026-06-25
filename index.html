@@ -711,6 +711,66 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
       </div>
     </div>
 
+
+    <!-- ══ MEASUREMENTS PAGE ══ -->
+    <div class="page" id="page-measurements">
+
+      <!-- הוסף מדידה -->
+      <div class="card">
+        <div class="card-title">📏 הוסף מדידה</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
+
+          <!-- תאריך -->
+          <div class="ff">
+            <label>תאריך</label>
+            <input type="date" id="meas-date" style="width:100%;padding:8px 12px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:.88rem;outline:none;"
+              onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"/>
+          </div>
+
+          <!-- סוג מדידה -->
+          <div class="ff">
+            <label>סוג מדידה</label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;" id="meas-type-btns">
+              <button class="gb act" id="mt-weight"  onclick="setMeasType('weight')" >⚖️ משקל (ק"ג)</button>
+              <button class="gb"     id="mt-height"  onclick="setMeasType('height')" >📐 גובה (ס"מ)</button>
+              <button class="gb"     id="mt-chest"   onclick="setMeasType('chest')"  >🫁 הקף חזה (ס"מ)</button>
+              <button class="gb"     id="mt-arms"    onclick="setMeasType('arms')"   >💪 הקף זרועות (ס"מ)</button>
+            </div>
+          </div>
+
+          <!-- ערך -->
+          <div class="ff">
+            <label id="meas-value-label">ערך (ק"ג)</label>
+            <input type="number" id="meas-value" placeholder="0.0" step="0.1" min="0" max="999"
+              style="width:100%;padding:10px 14px;border:2px solid var(--border);border-radius:10px;font-family:'Heebo',sans-serif;font-size:1.1rem;outline:none;font-weight:700;"
+              onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"
+              onkeydown="if(event.key==='Enter')saveMeasurement()"/>
+          </div>
+
+          <button class="btn bg bfull" onclick="saveMeasurement()">💾 שמור מדידה</button>
+        </div>
+      </div>
+
+      <!-- גרף התקדמות -->
+      <div class="card" id="meas-chart-card">
+        <div class="card-title" style="margin-bottom:8px;">📈 גרף התקדמות</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;" id="meas-chart-type-btns">
+          <button class="gb act" id="mct-weight" onclick="setMeasChartType('weight')">⚖️ משקל</button>
+          <button class="gb"     id="mct-height" onclick="setMeasChartType('height')">📐 גובה</button>
+          <button class="gb"     id="mct-chest"  onclick="setMeasChartType('chest')">🫁 חזה</button>
+          <button class="gb"     id="mct-arms"   onclick="setMeasChartType('arms')">💪 זרועות</button>
+        </div>
+        <div id="meas-chart-wrap" style="overflow-x:auto;"></div>
+      </div>
+
+      <!-- היסטוריה -->
+      <div class="card" id="meas-history-card">
+        <div class="card-title" style="margin-bottom:8px;">📋 מדידות אחרונות</div>
+        <div id="meas-history-list"></div>
+      </div>
+
+    </div>
+
   </div><!-- /pages-wrap -->
 
   <nav class="bottom-nav">
@@ -719,13 +779,14 @@ header h1{font-size:1.4rem;font-weight:900;text-align:center;flex:1;}
     <button class="nav-btn" onclick="pg('menu')"><span class="nav-icon">📋</span>תפריט</button>
     <button class="nav-btn" onclick="pg('ai')"><span class="nav-icon">🤖</span>יועץ AI</button>
     <button class="nav-btn" onclick="pg('calc')"><span class="nav-icon">🧮</span>מחשבון</button>
+    <button class="nav-btn" onclick="pg('measurements')"><span class="nav-icon">📏</span>מדידות</button>
     <button class="nav-btn" onclick="pg('settings')"><span class="nav-icon">⚙️</span>הגדרות</button>
   </nav>
 </div><!-- /app-shell -->
 <canvas id="confetti-canvas" style="display:none;"></canvas>
 
 <script>
-const VERSION='2.3';
+const VERSION='2.4';
 const STORAGE_KEY='tzuna_v15';
 // Legacy keys to migrate from (keeps user data across updates)
 const LEGACY_KEYS=['tzuna_v14','tzuna_v13','tz6','tz5','tz4','tz3'];
@@ -739,7 +800,8 @@ const DEFAULT_STATE={
   historyData:{},streak:0,ch:[],
   reminderMinutes:60,quoteIdx:0,
   calcSaved:{},
-  savedMenus:[]
+  savedMenus:[],
+  measurements:[]
 };
 let S=JSON.parse(JSON.stringify(DEFAULT_STATE));
 let KEY='';
@@ -956,7 +1018,7 @@ function loadAll(){
         if(raw)break;
       }
     }
-    if(raw){const p=JSON.parse(raw);S={...DEFAULT_STATE,...p};if(!S.meals)S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};if(!S.historyData)S.historyData={};if(!S.calcSaved)S.calcSaved={};}
+    if(raw){const p=JSON.parse(raw);S={...DEFAULT_STATE,...p};if(!S.meals)S.meals={breakfast:[],lunch:[],dinner:[],snacks:[]};if(!S.historyData)S.historyData={};if(!S.calcSaved)S.calcSaved={};if(!S.measurements)S.measurements=[];}
     KEY=localStorage.getItem('tzkey')||'';
     const today=todayKey(),lastDay=localStorage.getItem('tzday_v15')||localStorage.getItem('tzday_v14')||localStorage.getItem('tzday_v13');
     if(lastDay&&lastDay!==today){
@@ -1026,7 +1088,7 @@ function updateHdr(){
 }
 
 // ── NAV ──
-const NAV_PAGES=['home','food','menu','ai','calc','settings'];
+const NAV_PAGES=['home','food','menu','ai','calc','measurements','settings'];
 function pg(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
@@ -1050,6 +1112,7 @@ function pg(id){
     document.getElementById(goalId).classList.add('act');
   }
   if(id==='ai'){if(!KEY)document.getElementById('apinote').style.display='block';updateChatWelcome();}
+  if(id==='measurements')rMeasurements();
 }
 
 // ── QUOTE ──
@@ -2271,6 +2334,148 @@ waterGoalCelebrated=(S.water>=S.waterGoal&&S.water>0);
 uhome();rfood();rsettings();
 checkIOSInstall();
 // PWA setup בנפרד — לא חוסם את ה-UI
+
+// ══════════════════════════════════════════════
+// MEASUREMENTS (מדידות)
+// ══════════════════════════════════════════════
+const MEAS_TYPES={weight:{label:'משקל',unit:'ק"ג',icon:'⚖️',color:'#e67e22'},height:{label:'גובה',unit:'ס"מ',icon:'📐',color:'#3498db'},chest:{label:'הקף חזה',unit:'ס"מ',icon:'🫁',color:'#e74c3c'},arms:{label:'הקף זרועות',unit:'ס"מ',icon:'💪',color:'#9b59b6'}};
+let activeMeasType='weight', measChartType='weight';
+
+function initMeasurements(){
+  // אתחל date
+  const el=document.getElementById('meas-date');
+  if(el)el.value=todayKey();
+}
+
+function setMeasType(type){
+  activeMeasType=type;
+  document.querySelectorAll('#meas-type-btns .gb').forEach(b=>b.classList.remove('act'));
+  document.getElementById('mt-'+type).classList.add('act');
+  const t=MEAS_TYPES[type];
+  document.getElementById('meas-value-label').textContent=`ערך (${t.unit})`;
+  document.getElementById('meas-value').placeholder='0.0';
+  document.getElementById('meas-value').focus();
+}
+
+function setMeasChartType(type){
+  measChartType=type;
+  document.querySelectorAll('#meas-chart-type-btns .gb').forEach(b=>b.classList.remove('act'));
+  document.getElementById('mct-'+type).classList.add('act');
+  drawMeasChart();
+}
+
+function saveMeasurement(){
+  const dateEl=document.getElementById('meas-date');
+  const valEl=document.getElementById('meas-value');
+  const date=dateEl.value||todayKey();
+  const value=parseFloat(valEl.value);
+  if(!value||isNaN(value)||value<=0){toast('הכנס ערך תקין','');return;}
+  if(!S.measurements)S.measurements=[];
+  S.measurements.push({date,type:activeMeasType,value});
+  S.measurements.sort((a,b)=>a.date.localeCompare(b.date));
+  valEl.value='';
+  dateEl.value=todayKey();
+  saveAll();
+  rMeasurements();
+  toast(`${MEAS_TYPES[activeMeasType].icon} ${MEAS_TYPES[activeMeasType].label}: ${value} ${MEAS_TYPES[activeMeasType].unit} נשמר!`,'success');
+}
+
+function deleteMeasurement(idx){
+  if(!confirm('למחוק מדידה זו?'))return;
+  S.measurements.splice(idx,1);
+  saveAll();
+  rMeasurements();
+  toast('מדידה נמחקה','');
+}
+
+function drawMeasChart(){
+  const wrap=document.getElementById('meas-chart-wrap');
+  if(!wrap)return;
+  const t=MEAS_TYPES[measChartType];
+  const data=(S.measurements||[]).filter(m=>m.type===measChartType).slice(-30);
+  if(!data.length){wrap.innerHTML='<div class="empty"><div class="ei">📈</div><p>אין מדידות — הוסף מדידה!</p></div>';return;}
+  if(data.length===1){
+    wrap.innerHTML=`<div style="text-align:center;padding:15px 0;color:var(--text-light);font-size:.83rem;">נקודה אחת בלבד — הוסף מדידות נוספות לראות גרף</div>`;
+    return;
+  }
+
+  const W=Math.max(data.length*50+40, 300), H=140;
+  const pad={t:24,b:32,l:36,r:14};
+  const cW=W-pad.l-pad.r, cH=H-pad.t-pad.b;
+
+  const vals=data.map(d=>d.value);
+  const minV=Math.min(...vals), maxV=Math.max(...vals);
+  const range=maxV-minV||1;
+  const yMin=Math.max(0,minV-range*0.15);
+  const yMax=maxV+range*0.15;
+
+  const toX=(i)=>pad.l+(i/(data.length-1))*cW;
+  const toY=(v)=>pad.t+cH-(v-yMin)/(yMax-yMin)*cH;
+
+  // polyline points
+  const pts=data.map((d,i)=>`${toX(i)},${toY(d.value)}`).join(' ');
+  // area fill
+  const areaPts=`${toX(0)},${pad.t+cH} ${pts} ${toX(data.length-1)},${pad.t+cH}`;
+
+  let circles='', labels='', xLabels='';
+  data.forEach((d,i)=>{
+    const x=toX(i), y=toY(d.value);
+    circles+=`<circle cx="${x}" cy="${y}" r="4" fill="${t.color}" stroke="white" stroke-width="1.5" style="cursor:pointer;" title="${d.date}: ${d.value} ${t.unit}"/>`;
+    // ערך מעל
+    const showLabel=(i===0||i===data.length-1||data.length<=8);
+    if(showLabel)labels+=`<text x="${x}" y="${y-7}" text-anchor="middle" font-size="8" fill="${t.color}" font-weight="700" font-family="Heebo">${d.value}</text>`;
+    // תאריך מתחת (קיצור)
+    const dt=d.date.slice(5); // MM-DD
+    if(i===0||i===data.length-1||data.length<=6)
+      xLabels+=`<text x="${x}" y="${H-3}" text-anchor="middle" font-size="7.5" fill="#999" font-family="Heebo">${dt}</text>`;
+  });
+
+  // Y axis labels
+  const yLabels=[];
+  const nicePts=3;
+  for(let i=0;i<=nicePts;i++){
+    const v=(yMin+(yMax-yMin)*i/nicePts).toFixed(1);
+    const yy=toY(parseFloat(v));
+    yLabels.push(`<text x="${pad.l-3}" y="${yy+3}" text-anchor="end" font-size="7.5" fill="#aaa" font-family="Heebo">${v}</text>`);
+    yLabels.push(`<line x1="${pad.l}" y1="${yy}" x2="${W-pad.r}" y2="${yy}" stroke="#f0f0f0" stroke-width="1"/>`);
+  }
+
+  wrap.innerHTML=`
+    <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;overflow:visible;">
+      ${yLabels.join('')}
+      <polygon points="${areaPts}" fill="${t.color}" opacity=".08"/>
+      <polyline points="${pts}" fill="none" stroke="${t.color}" stroke-width="2.5" stroke-linejoin="round"/>
+      ${circles}${labels}${xLabels}
+    </svg>`;
+}
+
+function rMeasurements(){
+  initMeasurements();
+  drawMeasChart();
+  // היסטוריה
+  const el=document.getElementById('meas-history-list');
+  if(!el)return;
+  const all=(S.measurements||[]).slice().reverse();
+  if(!all.length){el.innerHTML='<div class="empty"><div class="ei">📏</div><p>אין מדידות עדיין</p></div>';return;}
+  el.innerHTML=all.slice(0,20).map((m,i)=>{
+    const realIdx=(S.measurements||[]).length-1-i;
+    const t=MEAS_TYPES[m.type];
+    const dt=new Date(m.date);
+    const dateStr=`${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()}`;
+    return`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-size:.83rem;font-weight:700;">${t.icon} ${t.label}</div>
+        <div style="font-size:.72rem;color:var(--text-light);">${dateStr}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:1rem;font-weight:900;color:${t.color};">${m.value} <span style="font-size:.72rem;font-weight:400;">${t.unit}</span></span>
+        <button onclick="deleteMeasurement(${realIdx})" style="background:none;border:none;cursor:pointer;font-size:1rem;opacity:.5;">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
 setTimeout(setupPWA,0);
 
 // ── VERSION CHECK (פעם ביום) ──
